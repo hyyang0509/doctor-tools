@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<title>健保降血脂開藥輔助｜115/9/1</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#60708a;--line:#dfe6ef;--accent:#2563eb;--accent2:#eef4ff;--ok:#147d4f;--okbg:#eaf8f1;--warn:#9a6700;--warnbg:#fff7dc;--bad:#b42318;--badbg:#fff0ee;--purple:#6d3cc6;--purplebg:#f4efff;--shadow:0 8px 28px rgba(22,34,51,.08)}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1420;--card:#151e2e;--text:#eef3fb;--muted:#a8b4c7;--line:#2b3850;--accent:#74a3ff;--accent2:#172a4a;--ok:#71d6a7;--okbg:#153628;--warn:#ffd66e;--warnbg:#3a3013;--bad:#ff9b91;--badbg:#3d211f;--purple:#c1a4ff;--purplebg:#2b2141;--shadow:none}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.5}button,input,select{font:inherit}.wrap{max-width:980px;margin:auto;padding:18px 14px 70px}.hero{padding:18px 4px 8px}.hero h1{font-size:26px;line-height:1.2;margin:0 0 6px}.hero p{margin:0;color:var(--muted)}.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;color:var(--muted);background:var(--card);margin-bottom:10px}.privacy{font-size:12px;color:var(--muted);margin-top:8px}.grid{display:grid;gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.card h2{font-size:18px;margin:0 0 4px}.card .sub{color:var(--muted);font-size:13px;margin-bottom:12px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);outline:none}.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.check{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--line);border-radius:12px;padding:10px;background:color-mix(in srgb,var(--card) 96%,var(--bg))}.check input{margin-top:3px;transform:scale(1.1)}.check b{font-size:14px}.check small{display:block;color:var(--muted);margin-top:2px}.sectionlabel{font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 8px}.metbox{border:1px dashed var(--line);border-radius:14px;padding:11px;margin-top:10px}.metcount{margin-top:8px;font-size:13px;color:var(--muted)}.actions{display:flex;gap:10px;position:sticky;bottom:0;padding:12px 0;background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:5}.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:750;cursor:pointer}.primary{background:var(--accent);color:white;flex:1}.secondary{background:var(--card);color:var(--text);border:1px solid var(--line)}.results{display:none}.resultTop{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}.riskpill{font-size:14px;font-weight:800;padding:7px 10px;border-radius:999px;background:var(--accent2);color:var(--accent)}.big{font-size:24px;font-weight:850;line-height:1.15}.muted{color:var(--muted)}.metricGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.metric{border:1px solid var(--line);border-radius:14px;padding:11px}.metric span{display:block;color:var(--muted);font-size:12px}.metric b{font-size:19px}.notice{border-radius:14px;padding:12px 13px;margin:10px 0;border:1px solid transparent}.ok{background:var(--okbg);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}.warn{background:var(--warnbg);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 30%,transparent)}.bad{background:var(--badbg);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 30%,transparent)}.purple{background:var(--purplebg);color:var(--purple);border-color:color-mix(in srgb,var(--purple) 30%,transparent)}.drugrow{border-top:1px solid var(--line);padding:12px 0}.drugrow:first-child{border-top:0}.drugtitle{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.status{white-space:nowrap;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800}.status.ok{border:0}.status.warn{border:0}.status.bad{border:0}.status.purple{border:0}.why{font-size:13px;color:var(--muted);margin-top:4px}.timeline{margin:8px 0 0;padding-left:20px}.timeline li{margin:5px 0}.codebox{display:flex;gap:8px}.codebox input{flex:1}.codeResult{margin-top:10px}.matches{max-height:260px;overflow:auto;margin-top:8px;border-top:1px solid var(--line)}.match{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.match code{font-weight:800;color:var(--accent)}details{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}summary{cursor:pointer;font-weight:750}.tiny{font-size:12px;color:var(--muted)}.source{font-size:12px;color:var(--muted);padding:4px}.hl{font-weight:800}.split{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.switchline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}.switch{position:relative;width:48px;height:28px;flex:none}.switch input{display:none}.slider{position:absolute;inset:0;border-radius:999px;background:#adb8c8;transition:.2s}.slider:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:white;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.25)}.switch input:checked+.slider{background:var(--accent)}.switch input:checked+.slider:before{transform:translateX(20px)}
+@media(max-width:720px){.fields,.checks,.split{grid-template-columns:1fr}.metricGrid{grid-template-columns:1fr 1fr}.hero h1{font-size:23px}.card{border-radius:16px;padding:14px}.wrap{padding-left:10px;padding-right:10px}.actions{padding-bottom:calc(12px + env(safe-area-inset-bottom))}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <div class="badge">健保降膽固醇給付｜115/9/1 新制（表一）</div>
+    <h1>降血脂開藥輔助工具</h1>
+    <p>輸入病人條件，自動判斷 ASCVD 風險、LDL 起始門檻、治療目標與 statin / ezetimibe 健保條件。</p>
+    <div class="privacy">🔒 單機版：資料只在此瀏覽器頁面計算，不會上傳或儲存。</div>
+    <div id="jsStatus" class="privacy">⚠️ 若此行一直顯示，代表目前預覽器可能封鎖 JavaScript；請將檔案下載後用 Safari 開啟。</div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>1. 基本資料與血脂</h2>
+      <div class="sub">先填 LDL-C；年齡、性別、HDL-C 會自動計入一般心血管風險因子。</div>
+      <div class="fields">
+        <div class="field"><label>性別</label><select id="sex"><option value="M">男性</option><option value="F">女性</option></select></div>
+        <div class="field"><label>年齡（歲）</label><input id="age" type="number" inputmode="numeric" min="0" max="120" placeholder="例：58"></div>
+        <div class="field"><label>LDL-C（mg/dL）＊</label><input id="ldl" type="number" inputmode="decimal" min="0" max="500" placeholder="例：132"></div>
+        <div class="field"><label>HDL-C（mg/dL）</label><input id="hdl" type="number" inputmode="decimal" min="0" max="200" placeholder="例：42"></div>
+        <div class="field"><label>Total cholesterol（選填）</label><input id="tc" type="number" inputmode="decimal" min="0" max="600" placeholder="可自動算 non-HDL-C"></div>
+        <div class="field"><label>目前是否透析</label><select id="dialysis"><option value="no">否</option><option value="yes">是</option></select></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. ASCVD / 極高與非常高風險條件</h2>
+      <div class="sub">勾選已明確成立的診斷或病史。若只是做過診斷性 CAG，請不要勾「血管再通術」。</div>
+      <div class="checks">
+        <label class="check"><input id="cad" type="checkbox"><span><b>冠狀動脈疾病（CAD）</b><small>用於判斷「極高風險」的組合條件</small></span></label>
+        <label class="check"><input id="mi1y" type="checkbox"><span><b>一年內曾心肌梗塞</b></span></label>
+        <label class="check"><input id="mi2" type="checkbox"><span><b>≥2 次心肌梗塞病史</b></span></label>
+        <label class="check"><input id="multivessel" type="checkbox"><span><b>多支冠狀動脈阻塞</b></span></label>
+        <label class="check"><input id="acs" type="checkbox"><span><b>急性冠心症（ACS）病史</b><small>公告未再細分 ACS 定義</small></span></label>
+        <label class="check"><input id="padCarotid" type="checkbox"><span><b>PAD 或頸動脈狹窄</b><small>供 CAD + PAD/carotid 的極高風險判斷</small></span></label>
+        <label class="check"><input id="pad" type="checkbox"><span><b>周邊動脈疾病（PAD）</b><small>若有血管再通術、肢體缺血症狀或截肢，可符合非常高風險</small></span></label>
+        <label class="check"><input id="revasc" type="checkbox"><span><b>接受過血管再通術</b><small>PCI（介入治療）或 CABG；單純 diagnostic CAG 不勾</small></span></label>
+        <label class="check"><input id="stroke" type="checkbox"><span><b>缺血性 stroke / TIA + 動脈硬化相關疾病或病史</b></span></label>
+        <label class="check"><input id="plaque50" type="checkbox"><span><b>影像顯著斑塊 ≥50% 直徑狹窄</b><small>CAG、冠狀/周邊 CT、頸動脈/周邊血管超音波</small></span></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>3. 高風險條件</h2>
+      <div class="checks">
+        <label class="check"><input id="dm" type="checkbox"><span><b>糖尿病</b></span></label>
+        <label class="check"><input id="cac400" type="checkbox"><span><b>CAC ≥400</b></span></label>
+        <label class="check"><input id="ckd" type="checkbox"><span><b>CKD 符合公告條件</b><small>未透析，UACR ≥30 mg/g 或 eGFR &lt;60，持續 ≥3 個月</small></span></label>
+      </div>
+      <div class="notice warn" id="dialysisNote" style="display:none">公告把高風險 CKD 定義為「進入透析治療前」；已透析個案無法單靠這份修訂表判定此項。</div>
+      <div class="tiny" style="margin-top:8px">LDL-C ≥190 mg/dL 會由工具自動判定為高風險，不需另勾。</div>
+    </div>
+
+    <div class="card">
+      <h2>4. 一般心血管風險因子</h2>
+      <div class="sub">只有在不符合「高風險以上」時，才用下列項目數量分成中 / 低 / 0 項。</div>
+      <div class="checks">
+        <label class="check"><input id="htn" type="checkbox"><span><b>高血壓</b></span></label>
+        <label class="check"><input id="fhx" type="checkbox"><span><b>早發性冠心病家族史</b><small>男性 ≤55、女性 ≤65</small></span></label>
+        <label class="check"><input id="smoke" type="checkbox"><span><b>抽菸</b></span></label>
+      </div>
+      <div class="metbox">
+        <div class="sectionlabel" style="margin-top:0">代謝症候群（5 項中 ≥3 項，整體算 1 個風險因子）</div>
+        <div class="checks">
+          <label class="check"><input class="met" id="metWaist" type="checkbox"><span><b>腹部肥胖</b><small>男 ≥90 cm；女 ≥80 cm</small></span></label>
+          <label class="check"><input class="met" id="metBp" type="checkbox"><span><b>BP ≥130/85 或使用降壓藥</b></span></label>
+          <label class="check"><input class="met" id="metGlu" type="checkbox"><span><b>FPG ≥100 或使用糖尿病藥</b></span></label>
+          <label class="check"><input class="met" id="metTg" type="checkbox"><span><b>TG ≥150 或使用治療 TG 藥物</b></span></label>
+          <label class="check"><input class="met" id="metHdl" type="checkbox"><span><b>HDL 偏低</b><small>男 &lt;40；女 &lt;50</small></span></label>
+        </div>
+        <div class="metcount" id="metCount">目前 0 / 5 項 → 尚不符合代謝症候群</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>5. 目前治療狀態</h2>
+      <div class="sub">這部分主要用來判斷何時可加 ezetimibe 或改用 statin + ezetimibe 複方。</div>
+      <div class="fields">
+        <div class="field"><label>目前 statin 使用狀態</label>
+          <select id="statinStatus">
+            <option value="none">尚未使用 statin</option>
+            <option value="lt6">使用未滿 6 週</option>
+            <option value="6to8">已使用 6–8 週</option>
+            <option value="8to12">已使用 &gt;8 週但未滿 3 個月</option>
+            <option value="ge3m">已使用 ≥3 個月</option>
+            <option value="intolerant">statin 無法耐受（如 severe myalgia / myositis）</option>
+          </select>
+        </div>
+        <div class="field"><label>Ezetimibe 適應症類型</label>
+          <select id="ezDx">
+            <option value="none">不確定 / 非下列診斷</option>
+            <option value="primary">原發性高膽固醇血症</option>
+            <option value="hofh">同型接合子家族性高膽固醇血症（HOFH）</option>
+            <option value="sitosterol">同型接合子性麥脂醇血症（植物脂醇血症）</option>
+          </select>
+        </div>
+        <div class="field"><label>中低風險：已完成生活型態改變 3–6 個月？</label>
+          <select id="lifestyle"><option value="no">否 / 不確定</option><option value="yes">是</option></select>
+        </div>
+        <div class="field"><label>目前是否使用 gemfibrozil？</label>
+          <select id="gem"><option value="no">否</option><option value="yes">是</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn secondary" id="reset">清空</button>
+      <button class="btn primary" id="calc" type="button" onclick="calculate(); return false;">判斷健保條件</button>
+    </div>
+
+    <div class="card results" id="results">
+      <div class="resultTop"><span class="riskpill" id="riskpill"></span><div><div class="big" id="headline"></div><div class="muted" id="reason"></div></div></div>
+      <div class="metricGrid">
+        <div class="metric"><span>起始藥物 LDL 門檻</span><b id="startThreshold"></b></div>
+        <div class="metric"><span>LDL 治療目標</span><b id="ldlGoal"></b></div>
+        <div class="metric"><span>non-HDL 次要目標</span><b id="nonHdlGoal"></b></div>
+      </div>
+      <div id="eligibility"></div>
+      <h2 style="margin-top:18px">可以怎麼開</h2>
+      <div id="drugAdvice"></div>
+      <h2 style="margin-top:18px">追蹤節奏</h2>
+      <div id="followup"></div>
+      <details><summary>查看這次判定用了哪些條件</summary><div class="tiny" id="debug" style="margin-top:8px"></div></details>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <h2>健保碼：表一 / 表二例外檢查</h2>
+        <div class="sub">前 6 頁列出的特定品項「不適用表一，僅適用表二」。可直接貼健保代碼或藥名關鍵字。</div>
+        <div class="codebox"><input id="codeSearch" placeholder="例：BC24597100 或 Crestor"><button class="btn secondary" id="codeBtn" type="button" onclick="codeLookup(); return false;">查詢</button></div>
+        <div class="codeResult" id="codeResult"></div>
+      </div>
+      <div class="card">
+        <h2>重要限制</h2>
+        <div class="notice warn">本附件把「表二」內容標成「以下略」，所以若品項落在前六頁排除清單，本工具只能告訴你「改走表二」，<b>不能單靠這份 PDF 判斷表二是否給付</b>。</div>
+        <div class="notice purple">PCSK9 單株抗體、siRNA、ATP citrate lyase 抑制劑雖列為未達標時可考慮的 non-statin，但本附件沒有完整列出它們各自的個別給付條件，因此工具不會宣稱「健保可開」。</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <details open><summary>規則摘要（115/9/1）</summary>
+        <ul class="timeline">
+          <li>極高：LDL ≥55 → 目標 &lt;55（non-HDL &lt;85）</li>
+          <li>非常高：LDL ≥70 → 目標 &lt;70（non-HDL &lt;100）</li>
+          <li>高：LDL ≥100 → 目標 &lt;100（non-HDL &lt;130）</li>
+          <li>中：LDL ≥115 → 目標 &lt;115（non-HDL &lt;145）</li>
+          <li>低：LDL ≥130 → 目標 &lt;130（non-HDL &lt;160）</li>
+          <li>0 項 RF：LDL ≥160 → 目標 &lt;160</li>
+        </ul>
+      </details>
+      <div class="source">資料來源：全民健康保險降血脂藥物給付規定修訂對照表，自 115/9/1 生效。此工具為門診判讀輔助，不取代健保署最新公告、院內藥品代碼或醫師臨床判斷。</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const checked=id=>$(id).checked;
+const num=id=>{const v=parseFloat($(id).value);return Number.isFinite(v)?v:null};
+
+// 前 6 頁：不適用表一、僅適用表二的特定品項
+const table2Only = [
+['simvastatin','AC46402100','Simvatin film coating tablets 20mg'],['simvastatin','AB47348100','Vatatin F.C. tablets 20mg STANDARD'],['simvastatin','BC24339100','Simvahexal film-coated tablets 40mg'],['simvastatin','AC49672100','Simatin F.C. tablets 20mg'],['simvastatin','AC49841100','Simpotin F.C. tablets 20mg Weidar'],['simvastatin','AC47924100','Zostatin F.C. tablets 20mg S.C.'],['simvastatin','BC23970100','Simvahexal film-coated tablets 20mg'],['simvastatin','AC49360100','Bezostatin F.C. tablets 40mg S.C.'],['simvastatin','AC48813100','Simvatenin F.C. tablets 20mg'],['simvastatin','AC56804100','Simvastatin F.C. tablets 20mg CYH'],['simvastatin','AC49699100','Simatin F.C. tablets 10mg'],['simvastatin','AC47907100','Sinty F.C. tablets 20mg'],['simvastatin','AC48926100','Simva F.C. tablets 20mg'],['simvastatin','AC49190100','Sivasin film coated tablets 40mg'],['simvastatin','AC58207100','Simvatin film coating tablets 40mg'],['simvastatin','AC48608100','Simva F.C. tablets 20mg Union'],['simvastatin','AC49997100','Simatin F.C. tablets 40mg'],['simvastatin','A055967100','Simva F.C. tablets 40mg Union'],['simvastatin','AC56806100','Sinty F.C. tablets 40mg'],
+['lovastatin','AC39403100','Lozutin tablets 20mg'],['lovastatin','AC39307100','Delipic tablets 20mg Standard'],['lovastatin','A042389100','Lovatin tablets 20mg PANBIOTIC'],
+['pravastatin','BC23596100','Mevalotin protect 40mg tablets'],['pravastatin','AC52581100','Joinlo tablets 40mg EVEREST'],['pravastatin','AB49454100','Pratin tablets 40mg'],['pravastatin','AB48586100','Pavatin protect tablets 20mg Standard'],['pravastatin','AB48681100','U-Chu Pavadin tablets 20mg'],['pravastatin','AB46029100','Pratin tablets 10mg'],['pravastatin','AB48644100','Mechol tablets 20mg Yung Shin'],['pravastatin','AB49021100','Pratin tablets 20mg'],['pravastatin','BC23597100','Mevalotin protect 20mg tablets'],['pravastatin','AC57126100','Pavatin protect tablets 40mg Standard'],['pravastatin','AC48469100','Mechol tablets 10mg Yung Shin'],['pravastatin','AC57741100','Joinlo tablet 20mg EVEREST'],
+['fluvastatin','BC23556100','Lescol XL film-coated tablets 80mg'],['fluvastatin','BC26147100','Fluvastatin XL film-coated tablets 80mg'],['fluvastatin','AC56629100','Lecitol XL film-coated Tablets 80mg'],
+['atorvastatin','AC55272100','Atorva film-coated tablets 10mg Standard'],['atorvastatin','BA25337100','Tulip 20mg film coated tablets'],['atorvastatin','BA25200100','Tulip 10mg film coated tablets'],['atorvastatin','AC48879100','Anxolipo F.C. tablet 10mg'],['atorvastatin','AC57267100','Atotin F.C. tablets 10mg'],['atorvastatin','AC51598100','Atoty F.C. tablets 10mg'],['atorvastatin','AC58211100','Atotin F.C. tablets 20mg'],['atorvastatin','AC49226100','Anxolightor F.C. tablets 20mg'],['atorvastatin','AC58517100','Atoroty F.C. tablets 20mg'],['atorvastatin','AC57805100','Atorva F.C. tab. 20mg Standard'],['atorvastatin','AA49543100','Atorin F.C. tablet 10mg'],['atorvastatin','BA25201100','Tulip 40mg film coated tablets'],['atorvastatin','AA57774100','Atover F.C. Tab. 10mg P.L.'],['atorvastatin','AC52530100','Atorin F.C. tablets 20mg'],['atorvastatin','AC55583100','Atorcal F.C. tablets 20mg S.C.'],['atorvastatin','AC55895100','Atorcal F.C. tablets 10mg S.C.'],['atorvastatin','AA57950100','Atover F.C. tablets 20mg P.L.'],['atorvastatin','AC55268100','Atorva film-coated tablets 40mg Standard'],['atorvastatin','AC55952100','Atoty F.C. tablets 20mg'],['atorvastatin','AA56739100','Anxolipo F.C. tablets 20mg'],['atorvastatin','AC55956100','Lipiminus F.C. tablets 20mg'],['atorvastatin','AB54967100','Atover F.C. tablets 40mg P.L.'],['atorvastatin','AA49288100','Anxolipo F.C. tablets 40mg'],['atorvastatin','AC56319100','Lipiminus F.C. tablets 10mg'],['atorvastatin','AC57133100','Atotin F.C. tablets 40mg'],['atorvastatin','AC52301100','Lipiminus F.C tablets 40mg'],['atorvastatin','AC57930100','Atova F.C. tablets 10mg Yu Sheng'],['atorvastatin','AC56682100','Atoroty F.C. tablets 10mg'],['atorvastatin','AC50086100','Atorcal F.C. tablets 40mg S.C.'],['atorvastatin','AB57967100','Atorstin film coated tablets 10mg'],['atorvastatin','AC58041100','Atoty F.C. tablets 40mg'],['atorvastatin','AB57772100','Atorstin film coated tablets 40mg'],['atorvastatin','AB58049100','Atorstin film coated tablets 20mg'],['atorvastatin','AB51732100','Atorin F.C. tablets 40mg'],['atorvastatin','AC58262100','Atoroty F.C. tablets 40mg'],
+['rosuvastatin','AA57802100','Roty F.C. tablets 10mg'],['rosuvastatin','AA57843100','Roty F.C. tablets 5mg'],['rosuvastatin','BC24597100','Crestor 5mg film-coated tablets'],['rosuvastatin','AC57803100','Roty F.C. tablets 20mg'],['rosuvastatin','BC24129100','Crestor 20mg film-coated tablets'],['rosuvastatin','AB57940100','Rosulator F.C. tablets 10mg S.C.'],['rosuvastatin','BC26543100','Alvostat film coated tablets 10mg'],['rosuvastatin','AC59266100','Rostatin F.C. tablets 5mg Standard'],['rosuvastatin','AC58282100','Rostatin F.C. tablets 10mg Standard'],['rosuvastatin','AC58384100','Rosu F.C. tablets 10mg'],['rosuvastatin','AC57130100','Rotlip film-coated tablets 10mg'],['rosuvastatin','AC59652100','Rosulator F.C. tablets 5mg S.C.'],['rosuvastatin','AC57809100','Rolipostatin 10mg F.C. tablets Macro'],['rosuvastatin','BC26900100','Zyrova 20'],['rosuvastatin','BC27782100','Zyrova 5'],['rosuvastatin','AC58969100','Aladdin F.C. tablets 10mg'],['rosuvastatin','BC27781100','Zyrova 10'],['rosuvastatin','AC58067100','Rosutor film-coated tablets 10mg'],['rosuvastatin','BC26544100','Alvostat film coated tablets 20mg'],['rosuvastatin','AC60114100','Rosutor film-coated tablets 5mg'],['rosuvastatin','AC59649100','Rosulip F.C. tablets 5mg C.H.'],['rosuvastatin','AC58270100','Crosuty F.C. tablets 10mg'],['rosuvastatin','AC58622100','Rotlip film-coated tablets 5mg'],['rosuvastatin','AC58098100','Crosuty F.C. tablets 5mg'],['rosuvastatin','AC60197100','Rosutor film-coated tablets 20mg'],
+['pitavastatin','BC25350100','Livalo tablets 2mg'],['pitavastatin','AA58648100','Pitarty F.C. tablets 2mg'],['pitavastatin','BC27002100','Livalo OD tablets 2mg'],['pitavastatin','AC58526100','Pitastatin F.C. tablets 2mg'],['pitavastatin','AC58633100','Pitarty F.C. tablets 4mg'],['pitavastatin','AC58525100','Pitastatin F.C. tablets 4mg'],['pitavastatin','AC59398100','Pivas F.C. tablets 2mg'],['pitavastatin','AC59192100','Pitanxo F.C. tablets 4mg'],['pitavastatin','AC60561100','EVEREST Huiton F.C. tablets 2mg'],['pitavastatin','AC61795100','Pistatin F.C. tablets 2mg'],['pitavastatin','AC58078100','Pitavol F.C. tablets 2mg'],['pitavastatin','AC60174100','Pitavastatin F.C. tablets 2mg CYH'],['pitavastatin','AC59193100','Pitanxo F.C. tablets 2mg'],['pitavastatin','AC60290100','Lavitol film coated tablets 4mg'],
+['pravastatin+fenofibrate','BC26169100','Pravafen 40mg/160mg hard capsules'],['atorvastatin+amlodipine','BC24392100','Caduet 5mg/20mg tablet'],['atorvastatin+amlodipine','BC24391100','Caduet 5mg/10mg tablet'],['atorvastatin+amlodipine','AC59887100','Dualpress F.C. tablets 5mg/10mg'],['atorvastatin+amlodipine','AC60836100','Dualpress F.C. tablets 5mg/20mg']
+];
+
+const ez3mCodes = new Set(['AC60610100','BC27311100','BC28252100','BC26552100']);
+const combo3mCodes = new Set(['AC59251100','AC60402100','BC28502100','AC62052100','AC62053100','AC62140100','AC62139100','BC28181100','BC28182100','BC28884100']);
+
+function metUpdate(){
+  const n=[...document.querySelectorAll('.met')].filter(x=>x.checked).length;
+  $('metCount').textContent=`目前 ${n} / 5 項 → ${n>=3?'符合代謝症候群（算 1 個風險因子）':'尚不符合代謝症候群'}`;
+}
+document.querySelectorAll('.met').forEach(x=>x.addEventListener('change',metUpdate));
+$('dialysis').addEventListener('change',()=>{$('dialysisNote').style.display=$('dialysis').value==='yes'?'block':'none'});
+
+function classify(){
+  const ldl=num('ldl'), age=num('age'), hdl=num('hdl'), sex=$('sex').value;
+  const dm=checked('dm');
+  const extreme = (checked('cad') && (checked('mi1y')||checked('mi2')||checked('multivessel')||(checked('acs')&&dm)||checked('padCarotid'))) || (checked('pad') && (checked('cad')||checked('padCarotid')));
+  const veryHigh = checked('acs')||checked('revasc')||checked('stroke')||(checked('pad')&&(checked('revasc')||checked('padCarotid')))||checked('plaque50');
+  const high = dm || (checked('ckd') && $('dialysis').value==='no') || (ldl!==null && ldl>=190) || checked('cac400');
+  const ageRF = age!==null && ((sex==='M'&&age>=45)||(sex==='F'&&age>=55));
+  const lowHdl = hdl!==null && ((sex==='M'&&hdl<40)||(sex==='F'&&hdl<50));
+  const met = [...document.querySelectorAll('.met')].filter(x=>x.checked).length>=3;
+  const rfList=[];
+  if(checked('htn')) rfList.push('高血壓');
+  if(ageRF) rfList.push(sex==='M'?'男性 ≥45歲':'女性 ≥55歲');
+  if(checked('fhx')) rfList.push('早發性冠心病家族史');
+  if(lowHdl) rfList.push('低 HDL-C');
+  if(checked('smoke')) rfList.push('抽菸');
+  if(met) rfList.push('代謝症候群');
+  const n=rfList.length;
+  let risk, threshold, goal, nonHdl, basis=[];
+  if(extreme){risk='極高風險';threshold=55;goal=55;nonHdl=85;basis.push('符合極高風險組合條件')}
+  else if(veryHigh){risk='非常高風險';threshold=70;goal=70;nonHdl=100;basis.push('已符合臨床 ASCVD / 血管再通術 / 顯著斑塊等非常高風險條件')}
+  else if(high){risk='高風險';threshold=100;goal=100;nonHdl=130;if(dm)basis.push('糖尿病');if(checked('ckd')&&$('dialysis').value==='no')basis.push('公告定義 CKD');if(ldl!==null&&ldl>=190)basis.push('LDL-C ≥190');if(checked('cac400'))basis.push('CAC ≥400')}
+  else if(n>=2){risk='中風險';threshold=115;goal=115;nonHdl=145;basis.push(`${n} 項一般心血管風險因子`) }
+  else if(n===1){risk='低風險';threshold=130;goal=130;nonHdl=160;basis.push('1 項一般心血管風險因子')}
+  else {risk='0 項心血管風險因子';threshold=160;goal=160;nonHdl=null;basis.push('未計入一般心血管風險因子')}
+  return {ldl,age,hdl,sex,dm,extreme,veryHigh,high,ageRF,lowHdl,met,rfList,n,risk,threshold,goal,nonHdl,basis};
+}
+
+function adviceHTML(r){
+  const status=$('statinStatus').value, ezDx=$('ezDx').value, lifestyle=$('lifestyle').value, gem=$('gem').value;
+  const onEnough6=['6to8','8to12','ge3m'].includes(status), on3m=status==='ge3m', intolerant=status==='intolerant';
+  const isHighPlus=['極高風險','非常高風險','高風險'].includes(r.risk);
+  const eligibleLDL=r.ldl!==null && r.ldl>=r.threshold;
+  const atGoal=r.ldl!==null && r.ldl<r.goal;
+  const diagnosisEz=['primary','hofh','sitosterol'].includes(ezDx);
+  const diagnosisCombo=['primary','hofh'].includes(ezDx);
+  let blocks=[];
+  
+  // Statin
+  let statinStatus=''; let statinClass='ok'; let statinWhy='';
+  if(isHighPlus){
+    if(eligibleLDL){statinStatus='可依表一開始';statinWhy='公告：依基線血脂與臨床狀況，給予中至高強度 statin；高風險以上生活型態改變與藥物治療並行。'}
+    else if(status!=='none'){statinStatus='目前低於起始門檻';statinClass='warn';statinWhy='若已治療後達標，維持治療的邏輯與「未治療者是否達起始門檻」不同；請依既往用藥與治療反應判斷。'}
+    else {statinStatus='未達新制起始門檻';statinClass='warn';statinWhy=`目前 LDL-C ${r.ldl??'未填'}，此風險層級的表一起始門檻為 ${r.threshold} mg/dL。`}
+  } else {
+    if(eligibleLDL && lifestyle==='yes'){statinStatus='可給中強度 statin';statinWhy='中、低風險：先生活型態改變 3–6 個月；仍未達標後給予中強度 statin。'}
+    else if(eligibleLDL){statinStatus='先生活型態 3–6 個月';statinClass='warn';statinWhy='LDL 已達起始門檻，但公告要求中、低風險給藥前先有 3–6 個月生活型態改變與風險因子處置。'}
+    else {statinStatus='未達起始門檻';statinClass='warn';statinWhy=`此層級起始門檻為 LDL-C ≥${r.threshold} mg/dL。`}
+  }
+  blocks.push(`<div class="drugrow"><div class="drugtitle"><b>Statin</b><span class="status ${statinClass}">${statinStatus}</span></div><div class="why">${statinWhy}<br><b>注意：</b>實際藥品健保碼若在前 6 頁排除清單，僅適用表二，請用下方健保碼查詢器確認。</div></div>`);
+
+  // Ezetimibe single agent/add-on
+  let ezStatus, ezClass='warn', ezWhy;
+  if(!diagnosisEz){ezStatus='目前無法判定給付';ezWhy='2.6.2 限原發性高膽固醇血症、HOFH 或同型接合子性麥脂醇血症；請先確認診斷類型。'}
+  else if(intolerant){ezStatus='符合其中一項條件';ezClass='ok';ezWhy='對 statin 發生無法耐受不良反應（如 severe myalgia / myositis）可符合 2.6.2 條件。'}
+  else if(onEnough6 && !atGoal){ezStatus='原則可考慮合併';ezClass='ok';ezWhy='statin 單一治療 6–8 週未達治療目標，可合併 ezetimibe；但 4 個特定 ezetimibe 健保碼仍需 statin 單方 3 個月未達標。'}
+  else if(status==='ge3m' && !atGoal){ezStatus='可考慮合併';ezClass='ok';ezWhy='已 statin ≥3 個月且未達標，時間條件已足。'}
+  else if(atGoal){ezStatus='目前已達 LDL 目標';ezClass='purple';ezWhy='公告的加藥邏輯以未達治療目標為前提；目前 LDL 已低於此風險層級目標。'}
+  else {ezStatus='時間條件尚不足';ezWhy='一般品項需 statin 單方 6–8 週未達標；指定 4 個品項需滿 3 個月。'}
+  blocks.push(`<div class="drugrow"><div class="drugtitle"><b>Ezetimibe（單方加 statin）</b><span class="status ${ezClass}">${ezStatus}</span></div><div class="why">${ezWhy}<br>指定需 3 個月品項：Ezetity AC60610100、Ezzicad BC27311100、Ezta 10 BC28252100、Ezetimibe Sandoz BC26552100。</div></div>`);
+
+  // combo
+  let cStatus,cClass='warn',cWhy;
+  if(!diagnosisCombo){cStatus='目前無法判定給付';cWhy='含 ezetimibe + statin 複方限原發性高膽固醇血症或 HOFH。'}
+  else if(onEnough6 && !atGoal){cStatus='原則可考慮';cClass='ok';cWhy='statin 單方 6–8 週未達治療目標者，得使用本類複方；指定 10 個品項仍需 statin 單方 3 個月未達標。'}
+  else if(status==='ge3m' && !atGoal){cStatus='可考慮';cClass='ok';cWhy='已 statin ≥3 個月且未達標，時間條件已足。'}
+  else if(atGoal){cStatus='目前已達 LDL 目標';cClass='purple';cWhy='公告的改用/加強治療邏輯以未達標為前提。'}
+  else {cStatus='時間條件尚不足';cWhy='一般複方需 statin 單方 6–8 週未達標；指定品項需 3 個月。'}
+  if(gem==='yes'){cStatus='不得與 gemfibrozil 併用';cClass='bad';cWhy='公告明列本類含 ezetimibe + statin 複方不得與 gemfibrozil 併用。'}
+  blocks.push(`<div class="drugrow"><div class="drugtitle"><b>Statin + ezetimibe 複方</b><span class="status ${cClass}">${cStatus}</span></div><div class="why">${cWhy}<br>指定需 3 個月品項：Agitin、Sacure、Ezta-SM、Zoliton、Zovastin、Cretrol 10/10 & 10/20、Livazebe HD（依公告列碼）。</div></div>`);
+
+  // other nonstatin
+  const otherClass=(!atGoal && onEnough6)?'purple':'warn';
+  const otherStatus=(!atGoal && onEnough6)?'表一列為可考慮':'視未達標情況';
+  blocks.push(`<div class="drugrow"><div class="drugtitle"><b>其他 non-statin</b><span class="status ${otherClass}">${otherStatus}</span></div><div class="why">表一在未達標時列出 PCSK9 單株抗體、siRNA、ATP citrate lyase 抑制劑。但這份附件沒有提供其完整個別給付條件，因此本工具不判定「健保可開」。</div></div>`);
+  return blocks.join('');
+}
+
+function calculate(){
+  const r=classify();
+  if(r.ldl===null){alert('請先填 LDL-C');$('ldl').focus();return}
+  $('results').style.display='block';
+  $('riskpill').textContent=r.risk;
+  $('headline').textContent=`LDL-C ${r.ldl} mg/dL → ${r.ldl>=r.threshold?'已達表一起始藥物門檻':'尚未達表一起始藥物門檻'}`;
+  $('reason').textContent='判定依據：'+r.basis.join('、')+(r.rfList.length?`；一般 RF：${r.rfList.join('、')}`:'');
+  $('startThreshold').textContent=`≥ ${r.threshold}`;
+  $('ldlGoal').textContent=`< ${r.goal}`;
+  $('nonHdlGoal').textContent=r.nonHdl?`< ${r.nonHdl}`:'未列';
+  const tc=num('tc');
+  const hdl=num('hdl');
+  let extra='';
+  if(tc!==null&&hdl!==null){const nh=Math.round((tc-hdl)*10)/10;extra=`目前 non-HDL-C 約 ${nh} mg/dL${r.nonHdl?`（次要目標 <${r.nonHdl}）`:''}。`}
+  const highPlus=['極高風險','非常高風險','高風險'].includes(r.risk);
+  if(r.ldl>=r.threshold){
+    $('eligibility').innerHTML=`<div class="notice ok"><b>表一門檻：符合。</b> ${highPlus?'可與生活型態處置並行開始藥物治療。':'若已完成 3–6 個月生活型態改變仍未達標，可進入藥物治療。'} ${extra}</div>`;
+  }else{
+    $('eligibility').innerHTML=`<div class="notice warn"><b>表一新開始用藥門檻：未達。</b> 若病人已在治療中，請依治療後目標與既往用藥史判讀，不要把「起始門檻」當成停藥門檻。 ${extra}</div>`;
+  }
+  $('drugAdvice').innerHTML=adviceHTML(r);
+  const status=$('statinStatus').value;
+  let fu='';
+  if(highPlus){fu='<ul class="timeline"><li>起始治療後 <b>6–8 週</b>追蹤血脂。</li><li>若更動治療，<b>1–3 個月</b>內再追蹤是否達標。</li><li>達標後原則每 <b>6 個月</b>追蹤。</li></ul>'}
+  else{fu='<ul class="timeline"><li>先生活型態改變 <b>3–6 個月</b>後檢測。</li><li>開始中強度 statin 後 <b>6–8 週</b>追蹤。</li><li>達標後原則每 <b>6–12 個月</b>追蹤。</li></ul>'}
+  $('followup').innerHTML=fu;
+  $('debug').innerHTML=`最高風險優先順序：極高 → 非常高 → 高 → 一般 RF 計數。<br>一般 RF 共 ${r.n} 項：${r.rfList.length?r.rfList.join('、'):'無'}。<br>代謝症候群：${r.met?'是':'否'}。年齡 RF：${r.ageRF?'是':'否'}。低 HDL RF：${r.lowHdl?'是':'否'}。`;
+  $('results').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function codeLookup(){
+  const q=$('codeSearch').value.trim().toLowerCase();
+  if(!q){$('codeResult').innerHTML='<div class="tiny">請輸入健保代碼或藥名。</div>';return}
+  const hits=table2Only.filter(x=>x.join(' ').toLowerCase().includes(q));
+  const exactEz=[...ez3mCodes].includes(q.toUpperCase());
+  const exactCombo=[...combo3mCodes].includes(q.toUpperCase());
+  if(hits.length){
+    $('codeResult').innerHTML=`<div class="notice bad"><b>命中前 6 頁排除清單：</b>此特定品項不適用表一，僅適用表二。由於附件的表二內容「以下略」，本工具不進一步判斷表二給付。</div>`+
+      `<div class="matches">${hits.map(h=>`<div class="match"><code>${h[1]}</code>｜${h[0]}｜${h[2]}</div>`).join('')}</div>`;
+  }else{
+    let extra='';
+    if(exactEz)extra='<div class="notice warn">此代碼是 ezetimibe 的「需 statin 單方 3 個月未達標」例外品項。</div>';
+    if(exactCombo)extra='<div class="notice warn">此代碼是 statin+ezetimibe 複方的「需 statin 單方 3 個月未達標」例外品項。</div>';
+    $('codeResult').innerHTML=extra+`<div class="notice ok"><b>未命中本附件前 6 頁的表二排除清單。</b>若該品項確屬降膽固醇藥，原則上可再依表一判斷；仍請以最新健保品項資料與院內藥碼為準。</div>`;
+  }
+}
+
+function resetAll(){
+  var inputs=document.querySelectorAll('input');
+  for(var i=0;i<inputs.length;i++){
+    if(inputs[i].type==='checkbox') inputs[i].checked=false;
+    else inputs[i].value='';
+  }
+  var selects=document.querySelectorAll('select');
+  for(var j=0;j<selects.length;j++) selects[j].selectedIndex=0;
+  $('results').style.display='none';
+  $('codeResult').innerHTML='';
+  $('dialysisNote').style.display='none';
+  metUpdate();
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+
+try{
+  var mets=document.querySelectorAll('.met');
+  for(var k=0;k<mets.length;k++){
+    mets[k].onchange=metUpdate;
+  }
+  $('dialysis').onchange=function(){
+    $('dialysisNote').style.display=$('dialysis').value==='yes'?'block':'none';
+  };
+  $('codeSearch').onkeydown=function(e){
+    e=e||window.event;
+    if((e.key&&e.key==='Enter')||e.keyCode===13){
+      codeLookup();
+      if(e.preventDefault)e.preventDefault();
+      return false;
+    }
+  };
+  metUpdate();
+  if($('jsStatus')){
+    $('jsStatus').textContent='✅ 互動功能已載入，可直接按「判斷健保條件」。';
+  }
+}catch(e){
+  if($('jsStatus')){
+    $('jsStatus').textContent='⚠️ 互動功能載入失敗：'+e.message+'。請用 Safari 開啟此 HTML 檔案。';
+  }
+}
+</script>
+</body>
+</html>
