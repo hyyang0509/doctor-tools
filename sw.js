@@ -1,4 +1,4 @@
-const CACHE='hy-tools-v1';
+const CACHE='hy-tools-v2';
 const CORE=['./','./index.html','./assets/styles.css','./assets/app.js','./assets/icon.svg','./manifest.webmanifest','./lipid/','./followup/'];
 
 self.addEventListener('install',event=>{
