@@ -1,0 +1,14 @@
+{
+  "name":"HY Tools｜我的工具箱",
+  "short_name":"HY Tools",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "background_color":"#f3f6fb",
+  "theme_color":"#173a70",
+  "lang":"zh-Hant",
+  "description":"個人工作與生活工具入口",
+  "icons":[
+    {"src":"assets/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
