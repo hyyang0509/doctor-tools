@@ -14,7 +14,7 @@ doctor-tools/
 ├── index.html              # 首頁 / app shell
 ├── assets/
 │   ├── styles.css          # 首頁共用設計系統
-│   ├── app.js              # 搜尋、收藏、最近使用、PWA 註冊
+│   ├── app.js              # 搜尋與 PWA 註冊
 │   └── icon.svg            # PWA 圖示
 ├── lipid/
 │   └── index.html
@@ -42,8 +42,6 @@ doctor-tools/
 ## 首頁功能
 
 - 關鍵字搜尋工具
-- 收藏常用工具（localStorage，僅存在目前瀏覽器／裝置）
-- 最近使用（localStorage）
 - PWA manifest
 - Service Worker 離線基礎
 - Responsive / mobile-first UI
