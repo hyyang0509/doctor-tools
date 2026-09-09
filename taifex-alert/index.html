@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#173a70">
+<title>台指期警報器｜我的工具箱</title>
+<style>
+:root{color-scheme:light;--navy:#173a70;--blue:#2d6cdf;--ink:#17243a;--muted:#66758d;--line:#dfe6f0;--surface:#fff;--bg:#f3f6fb;--green:#12805c;--amber:#a96500;--red:#c43228;--shadow:0 14px 38px rgba(30,58,104,.11)}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:radial-gradient(circle at 90% 2%,rgba(77,136,236,.13),transparent 25rem),var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;font-size:16px;line-height:1.55}button,input,select{font:inherit}.page{width:min(100% - 32px,800px);margin:auto;padding:24px 0 64px}.back{display:inline-flex;align-items:center;min-height:44px;margin-bottom:10px;color:var(--blue);font-weight:750;text-decoration:none}.hero{padding:28px 30px;border-radius:24px;background:linear-gradient(135deg,var(--navy),#2d6cdf);color:#fff;box-shadow:0 16px 42px rgba(23,58,112,.22)}.eyebrow{margin-bottom:8px;color:rgba(255,255,255,.72);font-size:.83rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase}h1{margin:0;font-size:clamp(1.9rem,7vw,2.55rem);line-height:1.2;letter-spacing:-.03em}.hero p{margin:9px 0 0;color:rgba(255,255,255,.82)}.card{margin-top:18px;padding:24px;border:1px solid var(--line);border-radius:20px;background:var(--surface);box-shadow:var(--shadow)}.fields{display:grid;grid-template-columns:1fr 1fr;gap:15px}.field label{display:block;margin-bottom:7px;color:var(--muted);font-size:.9rem;font-weight:700}.field input,.field select{width:100%;height:52px;padding:0 14px;border:1px solid #cbd6e5;border-radius:13px;background:#fff;color:var(--ink);outline:none}.field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(45,108,223,.12)}.wide{grid-column:1/-1}.margin-note,.fineprint{margin:9px 2px 0;color:var(--muted);font-size:.8rem}.calculate{width:100%;min-height:54px;margin-top:18px;border:0;border-radius:14px;background:linear-gradient(135deg,#245ebf,var(--blue));color:#fff;font-weight:800;cursor:pointer;box-shadow:0 9px 22px rgba(45,108,223,.24)}.error{margin-top:14px;padding:12px 14px;border-radius:12px;background:#fff0ee;color:#b42318;font-size:.9rem;font-weight:700}.results{scroll-margin-top:12px}.status{display:grid;grid-template-columns:auto 1fr;gap:4px 13px;align-items:center;margin-top:18px;padding:19px 20px;border-radius:18px;border:1px solid}.light{grid-row:1/3;width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 6px rgba(0,0,0,.05)}.status.safe{background:#eaf8f1;border-color:#b9e3cf}.status.safe .light{background:var(--green)}.status.warning{background:#fff7e6;border-color:#efd59f}.status.warning .light{background:#f0a020}.status.danger{background:#fff0ee;border-color:#efc0ba}.status.danger .light{background:var(--red)}.status-title{font-size:1.16rem;font-weight:850}.status-detail{color:#536178;font-size:.86rem}.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-top:14px}.metric{padding:16px;border:1px solid var(--line);border-radius:15px;background:#fff}.metric span{display:block;color:var(--muted);font-size:.8rem}.metric strong{display:block;margin-top:3px;font-size:1.22rem;overflow-wrap:anywhere}.warning-card h2,.scenario h2{margin:0 0 12px;font-size:1.08rem}.warning-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.warning-item{padding:14px;border-radius:14px;background:#f7f9fd}.warning-item span,.warning-item small{display:block;color:var(--muted);font-size:.8rem}.warning-item strong{display:block;margin:3px 0;font-size:1.18rem}table{width:100%;border-collapse:collapse}th,td{padding:12px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}th{color:var(--muted);font-size:.78rem}td{font-size:.9rem}td span{display:block;color:var(--muted);font-size:.76rem}.safe-text{color:var(--green);font-weight:800}.danger-text{color:var(--red);font-weight:800}.source{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:.78rem}.source a{color:var(--blue)}
+@media(max-width:560px){.page{width:min(100% - 20px,800px);padding-top:8px}.hero{padding:24px 21px;border-radius:21px}.card{padding:18px 15px}.fields{grid-template-columns:1fr;gap:13px}.wide{grid-column:auto}.metric-grid,.warning-grid{grid-template-columns:1fr 1fr}.status{padding:17px 15px}th,td{padding:11px 5px}.scenario{overflow-x:auto}}
+@media(max-width:390px){.metric-grid,.warning-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<main class="page">
+<a class="back" href="../" aria-label="返回我的工具箱">‹ 返回工具箱</a>
+<header class="hero"><div class="eyebrow">Personal tools</div><h1>台指期警報器</h1><p>快速看懂槓桿、資金緩衝與下跌壓力。</p></header>
+<section class="card" aria-label="部位輸入">
+<form id="riskForm" novalidate>
+<div class="fields">
+<div class="field wide"><label for="product">商品</label><select id="product"><option value="TX">大台（TX）</option><option value="MTX">小台（MTX）</option><option value="TMF" selected>微台（TMF）</option></select><p class="margin-note" id="marginNote"></p></div>
+<div class="field"><label for="contracts">入口數</label><input id="contracts" type="number" inputmode="numeric" min="1" step="1" placeholder="例如：3" required></div>
+<div class="field"><label for="entry">成交均價（點）</label><input id="entry" type="number" inputmode="decimal" min="0" step="any" placeholder="例如：47000" required></div>
+<div class="field"><label for="market">目前市價（點）</label><input id="market" type="number" inputmode="decimal" min="0" step="any" placeholder="例如：47500" required></div>
+<div class="field"><label for="equity">目前權益數（元）</label><input id="equity" type="number" inputmode="decimal" min="0" step="any" placeholder="例如：520000" required></div>
+</div>
+<button class="calculate" type="submit">分析部位</button>
+<div class="error" id="error" role="alert" hidden></div>
+</form>
+</section>
+<section class="results" id="result" aria-live="polite" hidden>
+<div class="status" id="statusCard"><span class="light" aria-hidden="true"></span><strong class="status-title" id="statusTitle"></strong><span class="status-detail" id="statusDetail"></span></div>
+<div class="metric-grid">
+<div class="metric"><span>目前槓桿</span><strong id="leverage"></strong></div><div class="metric"><span>契約曝險</span><strong id="notional"></strong></div>
+<div class="metric"><span>未實現損益</span><strong id="unrealized"></strong></div><div class="metric"><span>目前需補錢</span><strong id="currentTopUp"></strong></div>
+</div>
+<section class="card warning-card"><h2>預估斷頭警戒</h2><div class="warning-grid"><div class="warning-item"><span>維持保證金警戒點</span><strong id="warningPoint"></strong><small id="warningDrop"></small></div><div class="warning-item"><span>理論權益歸零點</span><strong id="zeroPoint"></strong><small>實際強制平倉通常會更早</small></div></div><p class="fineprint">警戒點以「權益數＝交易所維持保證金」估算。各期貨商追繳、代沖銷門檻與額外加收保證金不同，這不是保證成交或實際斷頭價。</p></section>
+<section class="card scenario"><h2>下跌壓力測試</h2><table><thead><tr><th>自目前市價</th><th>是否安全</th><th>預估權益／需補錢</th></tr></thead><tbody id="scenarioBody"></tbody></table><p class="fineprint">「安全」表示預估權益仍不低於維持保證金；需補金額為恢復至原始保證金的估算，不含手續費、稅與滑價。</p><p class="source">參數版本：2026-06-18 起適用。大／小／微台每點 200／50／10 元；原始保證金 701,000／175,250／35,050 元，維持保證金 538,000／134,500／26,900 元。資料來源：<a href="https://www.taifex.com.tw/cht/5/indexMarging" target="_blank" rel="noopener">臺灣期貨交易所</a>。</p></section>
+</section>
+</main>
+<script src="calculator.js"></script><script src="app.js"></script>
+</body>
+</html>

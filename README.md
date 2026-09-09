@@ -6,6 +6,7 @@
 
 - `lipid/`：血脂用藥工具
 - `followup/`：回診日期計算器
+- `taifex-alert/`：台指期槓桿與保證金壓力測試
 
 ## 專案結構
 
@@ -20,6 +21,11 @@ doctor-tools/
 │   └── index.html
 ├── followup/
 │   └── index.html
+├── taifex-alert/
+│   ├── index.html
+│   ├── calculator.js       # 計算邏輯
+│   ├── app.js              # 畫面互動
+│   └── calculator.test.js  # 單元測試
 ├── manifest.webmanifest
 └── sw.js                   # 離線快取
 ```
