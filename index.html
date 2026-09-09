@@ -20,15 +20,53 @@
 <div class="brand"><span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></span>HY Personal Workspace</div>
 <h1>我的工具箱</h1>
 <p class="subtitle">把常用的工作與生活工具，放在同一個地方。快速搜尋、直覺開啟，讓它像自己的小型工作台。</p>
-<div class="hero-meta" aria-label="工具箱特色"><span class="meta-pill">⚡ 純前端</span><span class="meta-pill">🔒 資料留在裝置</span><span class="meta-pill">📱 Mobile first</span></div>
+<div class="hero-meta" aria-label="工具箱特色">
+<span class="meta-pill">⚡ 純前端</span>
+<span class="meta-pill">🔒 資料留在裝置</span>
+<span class="meta-pill">📱 Mobile first</span>
+</div>
 </header>
-<div class="command"><label class="search-wrap" for="toolSearch"><span class="search-icon" aria-hidden="true">⌕</span><input class="search-input" id="toolSearch" type="search" inputmode="search" autocomplete="off" placeholder="搜尋工具，例如：血脂、回診、期貨、槓桿…" aria-label="搜尋工具"><span class="search-hint" aria-hidden="true">⌘ K</span></label></div>
-<section class="section" data-tool-section aria-labelledby="clinic-heading"><div class="section-heading"><span class="section-icon" aria-hidden="true">✚</span><h2 id="clinic-heading">門診工具</h2><span class="section-note">Clinical tools</span></div><div class="tool-grid"><div class="tool-shell" data-tool-id="lipid" data-title="血脂用藥工具" data-search="血脂 LDL LDL-C cholesterol statin 膽固醇 用藥 門診"><a class="tool-card" href="lipid/"><span class="tool-symbol" aria-hidden="true">♡</span><span class="tool-copy"><span class="tool-title">血脂用藥工具</span><span class="tool-desc">LDL-C 目標、Statin 強度與用藥選擇</span></span></a></div></div></section>
-<section class="section" data-tool-section aria-labelledby="life-heading"><div class="section-heading"><span class="section-icon" aria-hidden="true">⌂</span><h2 id="life-heading">生活工具</h2><span class="section-note">Personal tools</span></div><div class="tool-grid">
-<div class="tool-shell" data-tool-id="followup" data-title="回診計算器" data-search="回診 日期 領藥 週 月 計算 follow-up appointment refill"><a class="tool-card" href="followup/"><span class="tool-symbol" aria-hidden="true">日</span><span class="tool-copy"><span class="tool-title">回診計算器</span><span class="tool-desc">快速計算下次領藥或回診日期</span></span></a></div>
-<div class="tool-shell" data-tool-id="taifex-alert" data-title="台指期警報器" data-search="台指期 大台 小台 微台 TX MTX TMF 期貨 槓桿 權益數 保證金 斷頭 壓力測試"><a class="tool-card" href="taifex-alert/"><span class="tool-symbol" aria-hidden="true">警</span><span class="tool-copy"><span class="tool-title">台指期警報器</span><span class="tool-desc">槓桿、保證金與下跌壓力測試</span></span></a></div>
-</div></section>
+
+<div class="command">
+<label class="search-wrap" for="toolSearch">
+<span class="search-icon" aria-hidden="true">⌕</span>
+<input class="search-input" id="toolSearch" type="search" inputmode="search" autocomplete="off" placeholder="搜尋工具，例如：血脂、回診、期貨、槓桿…" aria-label="搜尋工具">
+<span class="search-hint" aria-hidden="true">⌘ K</span>
+</label>
+</div>
+
+<section class="section" data-tool-section aria-labelledby="clinic-heading">
+<div class="section-heading"><span class="section-icon" aria-hidden="true">✚</span><h2 id="clinic-heading">門診工具</h2><span class="section-note">Clinical tools</span></div>
+<div class="tool-grid">
+<div class="tool-shell" data-tool-id="lipid" data-title="血脂用藥工具" data-search="血脂 LDL LDL-C cholesterol statin 膽固醇 用藥 門診">
+<a class="tool-card" href="lipid/">
+<span class="tool-symbol" aria-hidden="true">♡</span>
+<span class="tool-copy"><span class="tool-title">血脂用藥工具</span><span class="tool-desc">LDL-C 目標、Statin 強度與用藥選擇</span></span>
+</a>
+</div>
+</div>
+</section>
+
+<section class="section" data-tool-section aria-labelledby="life-heading">
+<div class="section-heading"><span class="section-icon" aria-hidden="true">⌂</span><h2 id="life-heading">生活工具</h2><span class="section-note">Personal tools</span></div>
+<div class="tool-grid">
+<div class="tool-shell" data-tool-id="followup" data-title="回診計算器" data-search="回診 日期 領藥 週 月 計算 follow-up appointment refill">
+<a class="tool-card" href="followup/">
+<span class="tool-symbol" aria-hidden="true">日</span>
+<span class="tool-copy"><span class="tool-title">回診計算器</span><span class="tool-desc">快速計算下次領藥或回診日期</span></span>
+</a>
+</div>
+<div class="tool-shell" data-tool-id="taifex-alert" data-title="台指期警報器" data-search="台指期 大台 小台 微台 TX MTX TMF 期貨 槓桿 權益數 保證金 斷頭 壓力測試">
+<a class="tool-card" href="taifex-alert/">
+<span class="tool-symbol" aria-hidden="true">警</span>
+<span class="tool-copy"><span class="tool-title">台指期警報器</span><span class="tool-desc">槓桿、保證金與下跌壓力測試</span></span>
+</a>
+</div>
+</div>
+</section>
+
 <div class="search-empty" id="searchEmpty" role="status"><strong>找不到符合的工具</strong><span>試試其他關鍵字，或之後新增這個工具。</span></div>
+
 <footer class="footer"><span><strong>HY Tools</strong> · Personal web app</span><span>v1 App Shell · 2026-09</span></footer>
 </main>
 <script src="assets/app.js" defer></script>
