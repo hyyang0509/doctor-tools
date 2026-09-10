@@ -21,12 +21,6 @@ let currentEvent = null;
 let seenEvents = [];
 let toastTimer;
 
-function dynastyYear() {
-  return Dynasty.起始年份
-    + Dynasty.歷代帝王譜.reduce((sum, emperor) => sum + emperor.在位年數, 0)
-    + CurrentEmperor.在位年數 - 1;
-}
-
 function yearText(year) {
   return year === 1 ? "元年" : `${number.format(year)}年`;
 }
@@ -45,11 +39,15 @@ function renderStatus() {
   byId("emperorName").textContent = CurrentEmperor.姓名;
   byId("stabilityValue").textContent = EmpireStatus.社稷穩定度;
   byId("stabilityBar").style.width = `${EmpireStatus.社稷穩定度}%`;
+  byId("healthValue").textContent = CurrentEmperor.四維屬性.壽元健康;
+  byId("healthBar").style.width = `${CurrentEmperor.四維屬性.壽元健康}%`;
   byId("treasuryValue").textContent = number.format(EmpireStatus.國庫);
   byId("granaryValue").textContent = number.format(EmpireStatus.太倉);
   byId("armyValue").textContent = number.format(EmpireStatus.甲兵);
 
-  byId("attributeGrid").replaceChildren(...Object.entries(CurrentEmperor.四維屬性).map(([name, value]) => {
+  const visibleAttributes = Object.entries(CurrentEmperor.四維屬性)
+    .filter(([name]) => name !== "壽元健康");
+  byId("attributeGrid").replaceChildren(...visibleAttributes.map(([name, value]) => {
     const item = document.createElement("div");
     item.className = "attribute-item";
     item.innerHTML = `<span>${name === "壽元健康" ? "健康" : name}</span><strong>${value}</strong><div class="attribute-track"><i style="width:${value}%"></i></div>`;
@@ -76,6 +74,7 @@ function renderBalance() {
 function renderChronicle() {
   const list = byId("chronicleList");
   const records = Dynasty.本朝起居注 ?? [];
+  byId("chronicleCount").textContent = records.length ? `${records.length} 則紀錄` : "尚無紀錄";
   if (!records.length) {
     const empty = document.createElement("li");
     empty.className = "empty-chronicle";
@@ -96,6 +95,27 @@ function renderChronicle() {
   list.scrollTop = list.scrollHeight;
 }
 
+function effectLabel(path) {
+  const parts = path.split(".");
+  const last = parts.at(-1);
+  if (parts[0] === "CourtFactions") return `${parts[1]}${pathLabels[last] ?? last}`;
+  return pathLabels[last] ?? last;
+}
+
+function optionPreview(option) {
+  const priorities = Object.entries(option.影響)
+    .filter(([, delta]) => delta !== 0)
+    .sort(([pathA], [pathB]) => {
+      const rank = (path) => path.startsWith("EmpireStatus") ? 0
+        : path.includes("壽元健康") ? 1
+          : path.startsWith("CurrentEmperor") ? 2 : 3;
+      return rank(pathA) - rank(pathB);
+    })
+    .slice(0, 4)
+    .map(([path, delta]) => `${effectLabel(path)}${delta > 0 ? "↑" : "↓"}`);
+  return `主要影響：${priorities.join("、")}`;
+}
+
 function renderAll() {
   renderStatus();
   renderBalance();
@@ -107,13 +127,9 @@ function impactSummary(changes) {
     .filter((change) => change.delta !== 0)
     .slice(0, 9)
     .map((change) => {
-      const parts = change.path.split(".");
-      const last = parts.at(-1);
-      const faction = parts[0] === "CourtFactions" ? parts[1] : "";
-      const label = faction ? `${faction}${pathLabels[last] ?? last}` : (pathLabels[last] ?? last);
       const pill = document.createElement("span");
       pill.className = `change-pill ${change.delta > 0 ? "positive" : "negative"}`;
-      pill.textContent = `${label} ${change.delta > 0 ? "+" : ""}${change.delta}`;
+      pill.textContent = `${effectLabel(change.path)} ${change.delta > 0 ? "+" : ""}${change.delta}`;
       return pill;
     });
 }
@@ -129,7 +145,7 @@ function renderEvent(event) {
     const button = document.createElement("button");
     button.className = "decision-button";
     button.type = "button";
-    button.innerHTML = `<strong>${index === 0 ? "朱批" : "墨議"} · ${option.文案}</strong><small>此詔一出，朝野皆將有所進退</small>`;
+    button.innerHTML = `<strong>方案 ${index + 1} · ${option.文案}</strong><small>${optionPreview(option)}</small>`;
     button.addEventListener("click", () => choose(option.id));
     return button;
   });
