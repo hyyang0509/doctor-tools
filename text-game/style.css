@@ -38,7 +38,7 @@ button { font: inherit; }
 .text-button { min-height: 42px; padding: 7px 10px; border: 0; background: transparent; cursor: pointer; }
 .game-shell { width: min(100% - 32px, 1180px); margin: 0 auto; padding: 18px 0 72px; }
 
-.dynasty-heading { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 22px; padding: 24px 0 30px; border-bottom: 1px solid var(--line); }
+.dynasty-heading { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 22px; padding: 18px 0 22px; border-bottom: 1px solid var(--line); }
 .imperial-seal { display: grid; width: 76px; height: 76px; place-items: center; border: 2px solid #b84a3d; background: rgba(142,40,33,.08); color: #c95a4b; font-family: "Kaiti TC", "STKaiti", "DFKai-SB", serif; font-size: 2.4rem; line-height: 1; box-shadow: inset 0 0 0 5px var(--night), inset 0 0 0 6px rgba(184,74,61,.55); }
 .eyebrow { margin: 0 0 3px; color: var(--gold); font-size: .75rem; letter-spacing: .22em; text-transform: uppercase; }
 h1, h2, p { margin-top: 0; }
@@ -51,10 +51,15 @@ h1 { margin-bottom: 2px; color: #f0e7d3; font-family: "Kaiti TC", "STKaiti", "DF
 .mini-track { width: 112px; height: 3px; margin-top: 4px; overflow: hidden; background: #342d23; }
 .mini-track i { display: block; width: 70%; height: 100%; background: linear-gradient(90deg, var(--red), var(--gold)); transition: width .35s ease; }
 
+.key-status { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 1px; margin: 14px 0; overflow: hidden; border: 1px solid var(--line); background: var(--line); box-shadow: var(--shadow); }
+.key-status > div { position: relative; min-width: 0; padding: 12px 14px 14px; overflow: hidden; background: linear-gradient(145deg, rgba(33,28,22,.98), rgba(20,18,15,.98)); }
+.key-status span { display: block; color: var(--muted); font-size: .68rem; letter-spacing: .13em; }
+.key-status strong { display: block; overflow: hidden; color: var(--ink); font-size: 1.18rem; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.key-status i { position: absolute; inset: auto auto 0 0; display: block; width: 70%; height: 2px; background: linear-gradient(90deg, var(--red), var(--gold)); transition: width .35s ease; }
 .status-board { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; padding: 22px 0; }
 .attribute-group, .treasury-group { padding: 18px 20px; border: 1px solid var(--line); background: linear-gradient(145deg, rgba(33,28,22,.94), rgba(20,18,15,.94)); box-shadow: var(--shadow); }
 .status-board h2 { margin-bottom: 14px; color: var(--muted); font-size: .75rem; font-weight: 500; letter-spacing: .2em; }
-.attribute-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.attribute-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .attribute-item span, .resource-grid span { display: block; color: var(--muted); font-size: .72rem; letter-spacing: .12em; }
 .attribute-item strong, .resource-grid strong { color: var(--ink); font-size: 1.28rem; font-weight: 500; }
 .attribute-track { height: 2px; margin-top: 7px; background: #382f24; }
@@ -88,6 +93,23 @@ h1 { margin-bottom: 2px; color: #f0e7d3; font-family: "Kaiti TC", "STKaiti", "DF
 .change-pill.positive { color: #345b35; }.change-pill.negative { color: #8a2c25; }
 .next-button { position: relative; z-index: 2; width: 100%; min-height: 54px; margin-top: 18px; border: 0; background: #2d251b; color: #e8d7ad; cursor: pointer; letter-spacing: .13em; }
 
+.fold-panels { display: grid; gap: 10px; margin-top: 16px; }
+.fold-panel { border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
+.fold-panel summary { position: relative; display: flex; min-height: 58px; align-items: center; gap: 12px; padding: 13px 48px 13px 17px; color: var(--ink); cursor: pointer; list-style: none; }
+.fold-panel summary::-webkit-details-marker { display: none; }
+.fold-panel summary::after { content: "＋"; position: absolute; right: 18px; color: var(--gold); font-size: 1.15rem; font-weight: 300; }
+.fold-panel[open] summary::after { content: "－"; }
+.fold-panel summary span { font-size: .94rem; letter-spacing: .1em; }
+.fold-panel summary small { margin-left: auto; color: var(--muted); font-size: .7rem; letter-spacing: .04em; text-align: right; }
+.fold-content { padding: 4px 18px 19px; border-top: 1px solid rgba(201,168,95,.14); }
+.state-details { display: grid; grid-template-columns: 1fr 170px 1.25fr 1fr; gap: 18px; padding-top: 17px; }
+.detail-section { min-width: 0; }
+.detail-section + .detail-section { padding-left: 18px; border-left: 1px solid rgba(201,168,95,.14); }
+.detail-section h2 { margin-bottom: 12px; color: var(--muted); font-size: .72rem; font-weight: 500; letter-spacing: .16em; }
+.granary-line { display: flex; flex-direction: column; justify-content: center; }
+.granary-line span { color: var(--muted); font-size: .72rem; letter-spacing: .12em; }
+.granary-line strong { color: var(--ink); font-size: 1.35rem; font-weight: 500; }
+.new-dynasty-button { width: 100%; min-height: 46px; margin-top: 10px; border: 1px solid rgba(142,40,33,.45); background: transparent; color: #c07b6d; cursor: pointer; }
 .lower-court { display: grid; grid-template-columns: 1.3fr 1fr; gap: 20px; margin-top: 20px; }
 .chronicle-panel, .balance-panel { min-width: 0; padding: 22px; border: 1px solid var(--line); background: var(--panel); box-shadow: var(--shadow); }
 .section-title { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
@@ -132,12 +154,13 @@ noscript { display:block; padding:20px; color:#fff; text-align:center; }
 @media (max-width: 760px) {
   .game-shell, .topbar { width: min(100% - 20px, 1180px); }
   .game-shell { padding-top: 4px; }
-  .dynasty-heading { grid-template-columns: auto 1fr; gap: 15px; }
+  .dynasty-heading { grid-template-columns: auto 1fr; gap: 15px; padding: 12px 0 17px; }
   .imperial-seal { width: 62px; height: 62px; font-size: 2rem; }
-  .stability-block { grid-column: 1 / -1; display: grid; grid-template-columns: auto 38px 1fr; align-items:center; width:100%; text-align:left; gap:10px; }
-  .stability-block span { display:block; }.stability-block strong { font-size:1.25rem; }.mini-track { width:auto; }
+  .key-status { margin: 10px 0 12px; }
+  .key-status > div { padding: 10px 9px 12px; }
+  .key-status strong { font-size: 1rem; }
   .status-board, .lower-court { grid-template-columns: 1fr; }
-  .attribute-grid { grid-template-columns: repeat(4, 1fr); gap: 7px; }
+  .attribute-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
   .attribute-group, .treasury-group, .chronicle-panel, .balance-panel { padding: 16px; }
   .attribute-item strong, .resource-grid strong { font-size: 1.05rem; }
   .memorial { min-height: 0; padding: 34px 22px 27px; }
@@ -145,6 +168,10 @@ noscript { display:block; padding:20px; color:#fff; text-align:center; }
   .memorial h2 { padding-right: 27px; }
   .decision-area { grid-template-columns: 1fr; }
   .resolution { padding-left: 18px; }.resolution-mark { position:static; display:block; margin-bottom:6px; }
+  .fold-panel summary { padding-left: 14px; }.fold-panel summary small { max-width: 50%; }
+  .state-details { grid-template-columns: 1fr 1fr; gap: 17px 12px; }
+  .detail-section + .detail-section { padding-left: 12px; }
+  .state-details .detail-section:nth-child(3) { padding-left: 0; border-left: 0; }
 }
 
 @media (max-width: 420px) {
@@ -152,6 +179,10 @@ noscript { display:block; padding:20px; color:#fff; text-align:center; }
   .text-button { min-height:36px; padding:4px 7px; font-size:.72rem; }
   h1 { font-size: 2rem; }.emperor-line { font-size:.8rem; }
   .attribute-item span { font-size:.65rem; }.resource-grid strong { font-size:.94rem; }
+  .fold-panel summary small { display: none; }
+  .state-details { grid-template-columns: 1fr; }
+  .detail-section + .detail-section { padding: 14px 0 0; border-top: 1px solid rgba(201,168,95,.14); border-left: 0; }
+  .key-status span { font-size: .62rem; }.key-status strong { font-size: .9rem; }
   .dialog-actions { grid-template-columns:1fr; }
 }
 

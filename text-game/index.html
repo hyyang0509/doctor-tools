@@ -28,31 +28,18 @@
         <h1 id="gameTitle">御極天下</h1>
         <p class="emperor-line">當朝天子 <strong id="emperorName">蕭承淵</strong></p>
       </div>
-      <div class="stability-block">
-        <span>社稷</span>
-        <strong id="stabilityValue">70</strong>
-        <div class="mini-track"><i id="stabilityBar"></i></div>
-      </div>
     </section>
 
-    <section class="status-board" aria-label="朝廷現況">
-      <div class="attribute-group">
-        <h2>天子四維</h2>
-        <div class="attribute-grid" id="attributeGrid"></div>
-      </div>
-      <div class="treasury-group">
-        <h2>國用三府</h2>
-        <div class="resource-grid">
-          <div><span>國庫</span><strong id="treasuryValue">0</strong></div>
-          <div><span>太倉</span><strong id="granaryValue">0</strong></div>
-          <div><span>甲兵</span><strong id="armyValue">0</strong></div>
-        </div>
-      </div>
+    <section class="key-status" aria-label="重要國勢">
+      <div><span>社稷</span><strong id="stabilityValue">70</strong><i id="stabilityBar"></i></div>
+      <div><span>健康</span><strong id="healthValue">100</strong><i id="healthBar"></i></div>
+      <div><span>國庫</span><strong id="treasuryValue">5,000</strong></div>
+      <div><span>兵力</span><strong id="armyValue">5,000</strong></div>
     </section>
 
     <section class="memorial" aria-labelledby="eventTitle">
       <div class="memorial-ribbon"><span id="eventCategory">急奏</span></div>
-      <p class="memorial-opening">臣等冒死直陳，伏惟陛下聖裁——</p>
+      <p class="memorial-opening">奏報陛下，請作決斷——</p>
       <h2 id="eventTitle">殿門尚未啟奏</h2>
       <p class="memorial-copy" id="eventDescription">百官候於丹墀，靜待御前傳召。</p>
       <div class="decision-area" id="decisionArea" aria-label="決策選項"></div>
@@ -64,21 +51,33 @@
       <button class="next-button" id="nextYearButton" type="button" hidden>退朝 · 次年再議</button>
     </section>
 
-    <section class="lower-court">
-      <article class="chronicle-panel">
-        <div class="section-title">
-          <div><span>Imperial chronicle</span><h2>本朝起居注</h2></div>
-          <button class="icon-button" id="newGameButton" type="button" aria-label="另立新朝" title="另立新朝">新朝</button>
+    <section class="fold-panels" aria-label="詳細資料">
+      <details class="fold-panel" id="stateDetails">
+        <summary><span>國勢細目</span><small>能力、糧倉、派系與邊境</small></summary>
+        <div class="fold-content state-details">
+          <div class="detail-section">
+            <h2>皇帝能力</h2>
+            <div class="attribute-grid" id="attributeGrid"></div>
+          </div>
+          <div class="detail-section granary-line"><span>太倉存糧</span><strong id="granaryValue">5,000</strong></div>
+          <div class="detail-section">
+            <h2>朝堂權衡</h2>
+            <div class="meter-list" id="factionMeters"></div>
+          </div>
+          <div class="detail-section">
+            <h2>四境威脅</h2>
+            <div class="frontier-grid" id="frontierMeters"></div>
+          </div>
         </div>
-        <ol class="chronicle" id="chronicleList" aria-live="polite"></ol>
-      </article>
+      </details>
 
-      <aside class="balance-panel">
-        <div class="section-title"><div><span>Balance of power</span><h2>朝堂權衡</h2></div></div>
-        <div class="meter-list" id="factionMeters"></div>
-        <div class="frontier-title">四境烽煙</div>
-        <div class="frontier-grid" id="frontierMeters"></div>
-      </aside>
+      <details class="fold-panel" id="chronicleDetails">
+        <summary><span>本朝起居注</span><small id="chronicleCount">尚無紀錄</small></summary>
+        <div class="fold-content">
+          <ol class="chronicle" id="chronicleList" aria-live="polite"></ol>
+          <button class="new-dynasty-button" id="newGameButton" type="button">結束本局，另立新朝</button>
+        </div>
+      </details>
     </section>
   </main>
 
