@@ -5,22 +5,23 @@
  * 使用 ES Module 載入：<script type="module" src="./gameState.js"></script>
  */
 
-export const SAVE_SCHEMA_VERSION = 2;
+export const SAVE_SCHEMA_VERSION = 3;
 export const STORAGE_KEY = "hy-tools.text-game.save.v1";
 
 const 屬性下限 = 0;
 const 屬性上限 = 100;
 
 const 初始王朝 = Object.freeze({
-  國號: "未定",
+  國號: "晟",
   起始年份: 1,
   歷代帝王譜: [],
+  本朝起居注: [],
   朝代累計積分: 0,
 });
 
 const 初始天子 = Object.freeze({
   廟號: "未定",
-  姓名: "未定",
+  姓名: "蕭承淵",
   在位年數: 1,
   年號: "開元",
   四維屬性: {
@@ -102,11 +103,25 @@ function 整理帝王譜(records) {
     }));
 }
 
+function 整理起居注(records) {
+  if (!Array.isArray(records)) return [];
+  return records
+    .filter((record) => record && typeof record === "object" && !Array.isArray(record))
+    .slice(-100)
+    .map((record) => ({
+      年份: 整數(record.年份, 1, 1),
+      年號: 文字(record.年號, "未詳"),
+      類別: 文字(record.類別, "國政"),
+      記述: 文字(record.記述, "史闕有間"),
+    }));
+}
+
 function 整理王朝(source = {}) {
   return {
     國號: 文字(source.國號, 初始王朝.國號),
     起始年份: 整數(source.起始年份, 初始王朝.起始年份, 1),
     歷代帝王譜: 整理帝王譜(source.歷代帝王譜),
+    本朝起居注: 整理起居注(source.本朝起居注),
     朝代累計積分: 整數(source.朝代累計積分, 初始王朝.朝代累計積分, 0),
   };
 }

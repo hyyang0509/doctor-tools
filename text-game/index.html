@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17130f">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="執掌江山，在奏摺與權衡之間延續一代國祚。">
+  <link rel="stylesheet" href="style.css">
+  <title>御極天下｜王朝文字遊戲</title>
+</head>
+<body>
+  <div class="gold-line" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="back-link" href="../" aria-label="返回工具箱">← 工具箱</a>
+    <div class="top-actions">
+      <button class="text-button" id="saveButton" type="button">封存</button>
+      <button class="text-button" id="loadButton" type="button">復局</button>
+      <button class="text-button" id="endingButton" type="button">御覽本紀</button>
+    </div>
+  </header>
+
+  <main class="game-shell">
+    <section class="dynasty-heading" aria-labelledby="gameTitle">
+      <div class="imperial-seal" id="dynastySeal" aria-hidden="true">晟</div>
+      <div>
+        <p class="eyebrow" id="dynastyEra">大晟 · 開元元年</p>
+        <h1 id="gameTitle">御極天下</h1>
+        <p class="emperor-line">當朝天子 <strong id="emperorName">蕭承淵</strong></p>
+      </div>
+      <div class="stability-block">
+        <span>社稷</span>
+        <strong id="stabilityValue">70</strong>
+        <div class="mini-track"><i id="stabilityBar"></i></div>
+      </div>
+    </section>
+
+    <section class="status-board" aria-label="朝廷現況">
+      <div class="attribute-group">
+        <h2>天子四維</h2>
+        <div class="attribute-grid" id="attributeGrid"></div>
+      </div>
+      <div class="treasury-group">
+        <h2>國用三府</h2>
+        <div class="resource-grid">
+          <div><span>國庫</span><strong id="treasuryValue">0</strong></div>
+          <div><span>太倉</span><strong id="granaryValue">0</strong></div>
+          <div><span>甲兵</span><strong id="armyValue">0</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="memorial" aria-labelledby="eventTitle">
+      <div class="memorial-ribbon"><span id="eventCategory">急奏</span></div>
+      <p class="memorial-opening">臣等冒死直陳，伏惟陛下聖裁——</p>
+      <h2 id="eventTitle">殿門尚未啟奏</h2>
+      <p class="memorial-copy" id="eventDescription">百官候於丹墀，靜待御前傳召。</p>
+      <div class="decision-area" id="decisionArea" aria-label="決策選項"></div>
+      <div class="resolution" id="resolution" role="status" hidden>
+        <span class="resolution-mark">硃批</span>
+        <p id="resolutionText"></p>
+        <div class="change-list" id="changeList"></div>
+      </div>
+      <button class="next-button" id="nextYearButton" type="button" hidden>退朝 · 次年再議</button>
+    </section>
+
+    <section class="lower-court">
+      <article class="chronicle-panel">
+        <div class="section-title">
+          <div><span>Imperial chronicle</span><h2>本朝起居注</h2></div>
+          <button class="icon-button" id="newGameButton" type="button" aria-label="另立新朝" title="另立新朝">新朝</button>
+        </div>
+        <ol class="chronicle" id="chronicleList" aria-live="polite"></ol>
+      </article>
+
+      <aside class="balance-panel">
+        <div class="section-title"><div><span>Balance of power</span><h2>朝堂權衡</h2></div></div>
+        <div class="meter-list" id="factionMeters"></div>
+        <div class="frontier-title">四境烽煙</div>
+        <div class="frontier-grid" id="frontierMeters"></div>
+      </aside>
+    </section>
+  </main>
+
+  <dialog class="ending-dialog" id="endingDialog">
+    <div class="dialog-paper">
+      <button class="dialog-close" id="closeEndingButton" type="button" aria-label="關閉">×</button>
+      <p class="eyebrow">史臣曰</p>
+      <h2>本紀總評</h2>
+      <div class="ending-rank" id="endingRank">守成有道</div>
+      <p class="ending-verdict" id="endingVerdict"></p>
+      <div class="ending-score"><span>朝代評分</span><strong id="endingScore">0</strong></div>
+      <dl class="ending-facts">
+        <div><dt>歷帝</dt><dd id="endingReigns">一世</dd></div>
+        <div><dt>國祚</dt><dd id="endingYears">一年</dd></div>
+        <div><dt>社稷</dt><dd id="endingStability">安</dd></div>
+      </dl>
+      <div class="dialog-actions">
+        <button class="decision-button" id="continueButton" type="button">還朝續政</button>
+        <button class="decision-button danger" id="restartFromEndingButton" type="button">另開新紀</button>
+      </div>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <noscript>此遊戲需要啟用 JavaScript 方可運行。</noscript>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
