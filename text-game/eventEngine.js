@@ -127,6 +127,24 @@ function enthrone({ name, attributes, era }) {
   CurrentEmperor.儲君資訊 = clearHeir();
 }
 
+function currentDynastyYear() {
+  return Dynasty.起始年份
+    + Dynasty.歷代帝王譜.reduce((sum, emperor) => sum + emperor.在位年數, 0)
+    + CurrentEmperor.在位年數 - 1;
+}
+
+/** 將大事記入本朝起居注，僅保留最近一百則。 */
+export function appendChronicle(text, category = "國政") {
+  if (!Array.isArray(Dynasty.本朝起居注)) Dynasty.本朝起居注 = [];
+  Dynasty.本朝起居注.push({
+    年份: currentDynastyYear(),
+    年號: CurrentEmperor.年號,
+    類別: category,
+    記述: text,
+  });
+  Dynasty.本朝起居注 = Dynasty.本朝起居注.slice(-100);
+}
+
 /**
  * 判定駕崩並完成承繼。健康尚存且未遇弒時，不變更皇統。
  */
@@ -195,6 +213,7 @@ export function checkEmperorDeath({ 被弒 = false, 原因 = "壽元耗盡", ran
   record.繼承結果 = succession.type;
   Dynasty.歷代帝王譜.push(record);
   Dynasty.朝代累計積分 += score;
+  appendChronicle(`${templeName}${posthumousTitle}崩，${succession.message}`, "皇統");
 
   return {
     triggered: true,
@@ -230,6 +249,7 @@ export function resolveEvent(eventId, optionId, {
   const assassination = option.弒君機率
     ? Number(random()) < option.弒君機率
     : false;
+  appendChronicle(`${event.標題}：${option.結果}`, event.類別);
   const death = checkEmperorDeath({
     被弒: assassination,
     原因: assassination ? `${event.標題}之變` : "傷病不起",
@@ -258,8 +278,44 @@ export function advanceYear({ random = Math.random, autoSave = true, storage } =
   const healthLoss = 1 + randomIndex(4, random);
   applyDelta("CurrentEmperor.四維屬性.壽元健康", -healthLoss);
   const death = checkEmperorDeath({ 原因: "積年成疾", random });
+  if (!death.triggered) appendChronicle(`歲序更新，聖躬損耗 ${healthLoss}。`, "歲序");
   const event = drawEvent({ random });
   const saveResult = autoSave ? saveGame(storage) : { ok: true, message: "本年未自動存檔。" };
   return { healthLoss, death, event, saveResult, state: getGameState() };
 }
 
+/** 依歷代功業與當前國勢，撰成本紀總評。 */
+export function calculateDynastyEnding() {
+  const attributes = CurrentEmperor.四維屬性;
+  const currentMerit = attributes.仁德 + attributes.威儀 + attributes.雄略
+    + EmpireStatus.社稷穩定度 + Math.min(CurrentEmperor.在位年數 * 2, 40);
+  const resources = Math.floor((EmpireStatus.國庫 + EmpireStatus.太倉 + EmpireStatus.甲兵) / 100);
+  const threats = Object.values(EmpireStatus.四方威脅).reduce((sum, value) => sum + value, 0);
+  const score = Math.max(0, Math.round(
+    Dynasty.朝代累計積分 + currentMerit + resources - threats * 1.5,
+  ));
+  const reigns = Dynasty.歷代帝王譜.length + 1;
+  const years = Dynasty.歷代帝王譜.reduce((sum, emperor) => sum + emperor.在位年數, 0)
+    + CurrentEmperor.在位年數;
+
+  let rank;
+  let verdict;
+  if (score >= 900) {
+    rank = "千古一朝";
+    verdict = "文治武功，遠邁前古；四海賓服，百姓樂業，史臣無間然。";
+  } else if (score >= 650) {
+    rank = "盛世之治";
+    verdict = "國祚綿長，政有可觀；雖間有兵災，終不失為一代盛治。";
+  } else if (score >= 420) {
+    rank = "守成有道";
+    verdict = "君臣勤慎，社稷粗安；功過相參，尚能守祖宗之業。";
+  } else if (score >= 220) {
+    rank = "治亂相循";
+    verdict = "朝綱屢弛而未墜，百姓屢困而復蘇，興衰之勢未可遽言。";
+  } else {
+    rank = "國步艱危";
+    verdict = "政出多門，府庫日耗，內憂外患交迫，國祚已如懸絲。";
+  }
+
+  return { score, rank, verdict, reigns, years, ended: EmpireStatus.社稷穩定度 <= 0 };
+}
