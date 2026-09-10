@@ -7,6 +7,7 @@
 - `lipid/`：血脂用藥工具
 - `followup/`：回診日期計算器
 - `taifex-alert/`：台指期槓桿與保證金壓力測試
+- `text-game/`：王朝事件決策文字遊戲
 
 ## 專案結構
 
@@ -26,6 +27,13 @@ doctor-tools/
 │   ├── calculator.js       # 計算邏輯
 │   ├── app.js              # 畫面互動
 │   └── calculator.test.js  # 單元測試
+├── text-game/
+│   ├── index.html          # 遊戲主介面
+│   ├── style.css           # 宣紙／黑金宮廷視覺
+│   ├── app.js              # 畫面互動
+│   ├── gameState.js        # 核心狀態與存檔
+│   ├── eventsData.js       # 事件資料
+│   └── eventEngine.js      # 事件與繼承邏輯
 ├── manifest.webmanifest
 └── sw.js                   # 離線快取
 ```
