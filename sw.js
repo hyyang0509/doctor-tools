@@ -1,5 +1,5 @@
-const CACHE='hy-tools-v3';
-const CORE=['./','./index.html','./assets/styles.css','./assets/app.js','./assets/icon.svg','./manifest.webmanifest','./lipid/','./followup/','./taifex-alert/','./taifex-alert/calculator.js','./taifex-alert/app.js'];
+const CACHE='hy-tools-v4';
+const CORE=['./','./index.html','./assets/styles.css','./assets/app.js','./assets/icon.svg','./manifest.webmanifest','./lipid/','./lipid/app.js','./lipid/rules.js','./lipid/formulary.js','./followup/','./taifex-alert/','./taifex-alert/calculator.js','./taifex-alert/app.js'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));
