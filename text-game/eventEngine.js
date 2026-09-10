@@ -127,17 +127,11 @@ function enthrone({ name, attributes, era }) {
   CurrentEmperor.儲君資訊 = clearHeir();
 }
 
-function currentDynastyYear() {
-  return Dynasty.起始年份
-    + Dynasty.歷代帝王譜.reduce((sum, emperor) => sum + emperor.在位年數, 0)
-    + CurrentEmperor.在位年數 - 1;
-}
-
 /** 將大事記入本朝起居注，僅保留最近一百則。 */
 export function appendChronicle(text, category = "國政") {
   if (!Array.isArray(Dynasty.本朝起居注)) Dynasty.本朝起居注 = [];
   Dynasty.本朝起居注.push({
-    年份: currentDynastyYear(),
+    年份: CurrentEmperor.在位年數,
     年號: CurrentEmperor.年號,
     類別: category,
     記述: text,
