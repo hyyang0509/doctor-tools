@@ -1,4 +1,4 @@
-const CACHE='hy-tools-v4';
+const CACHE='hy-tools-v5';
 const CORE=['./','./index.html','./assets/styles.css','./assets/app.js','./assets/icon.svg','./manifest.webmanifest','./lipid/','./lipid/app.js','./lipid/rules.js','./lipid/formulary.js','./followup/','./taifex-alert/','./taifex-alert/calculator.js','./taifex-alert/app.js'];
 
 self.addEventListener('install',event=>{

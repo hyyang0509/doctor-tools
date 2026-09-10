@@ -39,7 +39,7 @@
         <div class="field"><label>年齡（歲）＊</label><input id="age" type="number" inputmode="numeric" min="0" max="120" placeholder="例：58"></div>
         <div class="field"><label>LDL-C（mg/dL）＊</label><input id="ldl" type="number" inputmode="decimal" min="0" max="2000" step="any" placeholder="例：132"></div>
         <div class="field"><label>HDL-C（mg/dL）＊</label><input id="hdl" type="number" inputmode="decimal" min="0" max="500" step="any" placeholder="例：42"></div>
-        <div class="field"><label>Total cholesterol（選填）</label><input id="tc" type="number" inputmode="decimal" min="0" max="3000" step="any" placeholder="可自動算 non-HDL-C"></div>
+        <div class="field"><label>總膽固醇（選填）</label><input id="tc" type="number" inputmode="decimal" min="0" max="3000" step="any" placeholder="可自動算 non-HDL-C"></div>
         <div class="field"><label>治療前 LDL-C（選填）</label><input id="baseline" type="number" min="0" max="2000" step="any" placeholder="避免治療後低估 ≥190 的風險"></div>
 <div class="field"><label>目前是否透析</label><select id="dialysis"><option value="no">否</option><option value="yes">是</option></select></div>
       </div>
@@ -109,9 +109,9 @@
             <option value="other">已使用複方／合併治療，單方病史未確認</option><option value="intolerant">statin 無法耐受（如 severe myalgia / myositis）</option>
           </select>
         </div>
-        <div class="field"><label>Ezetimibe 適應症類型</label>
+        <div class="field"><label>診斷類型（ezetimibe 單方／複方給付用）</label>
           <select id="ezDx">
-            <option value="none">不確定 / 非下列診斷</option>
+            <option value="none">請選擇診斷；不確定或不符時保留此項</option>
             <option value="primary">原發性高膽固醇血症</option>
             <option value="hofh">同型接合子家族性高膽固醇血症（HOFH）</option>
             <option value="sitosterol">同型接合子性麥脂醇血症（植物脂醇血症）</option>
@@ -136,14 +136,14 @@
     <div class="card results" id="results" aria-live="polite">
       <div class="resultTop"><span class="riskpill" id="riskpill"></span><div><div class="big" id="headline"></div><div class="muted" id="reason"></div></div></div>
       <div class="metricGrid">
-        <div class="metric"><span>起始藥物 LDL 門檻</span><b id="startThreshold"></b></div>
-        <div class="metric"><span>LDL 治療目標</span><b id="ldlGoal"></b></div>
-        <div class="metric"><span>non-HDL 次要目標</span><b id="nonHdlGoal"></b></div>
+        <div class="metric"><span>開始用藥的 LDL 門檻</span><b id="startThreshold"></b></div>
+        <div class="metric"><span>希望降到的 LDL 目標</span><b id="ldlGoal"></b></div>
+        <div class="metric"><span>non-HDL 目標（次要指標）</span><b id="nonHdlGoal"></b></div>
       </div>
       <div id="eligibility"></div>
       <h2 style="margin-top:18px">院內品項判讀</h2>
       <div id="drugAdvice"></div>
-      <h2 style="margin-top:18px">追蹤節奏</h2>
+      <h2 style="margin-top:18px">何時追蹤血脂</h2>
       <div id="followup"></div>
       <details><summary>查看這次判定用了哪些條件</summary><div class="tiny" id="debug" style="margin-top:8px"></div></details>
     </div>
@@ -170,7 +170,7 @@
           <li>高：LDL ≥100 → 目標 &lt;100（non-HDL &lt;130）</li>
           <li>中：LDL ≥115 → 目標 &lt;115（non-HDL &lt;145）</li>
           <li>低：LDL ≥130 → 目標 &lt;130（non-HDL &lt;160）</li>
-          <li>0 項 RF：LDL ≥160 → 目標 &lt;160</li>
+          <li>0 項風險因子：LDL ≥160 → 目標 &lt;160</li>
         </ul>
       </details>
       <div class="source"><a href="https://www.nhi.gov.tw/ch/dl-100842-f34d34af17374f04ae02e87f1ea8ac56-1.pdf" target="_blank" rel="noopener">健保署修訂對照表</a>｜院內清單：使用者提供截圖（2026-09-10）。資料來源：全民健康保險降血脂藥物給付規定修訂對照表，自 115/9/1 生效。此工具為門診判讀輔助，不取代健保署最新公告、院內藥品代碼或醫師臨床判斷。</div>

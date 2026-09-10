@@ -17,8 +17,8 @@ function calculate(){
   if(r.ldl===null){alert('請先填 LDL-C');$('ldl').focus();return}
   $('results').style.display='block';
   $('riskpill').textContent=r.risk;
-  $('headline').textContent=`LDL-C ${r.ldl} mg/dL · ${r.ldl<r.goal?'已達':'未達'}表一治療目標`;
-  $('reason').textContent='判定依據：'+r.basis.join('、')+(r.rfList.length?`；一般 RF：${r.rfList.join('、')}`:'');
+  $('headline').textContent=`LDL-C ${r.ldl} mg/dL · ${r.ldl<r.goal?'已降至目標':'尚未降至目標'}（目標 <${r.goal}）`;
+  $('reason').textContent='判定依據：'+r.basis.join('、')+(r.rfList.length?`；一般風險因子：${r.rfList.join('、')}`:'');
   $('startThreshold').textContent=`≥ ${r.threshold}`;
   $('ldlGoal').textContent=`< ${r.goal}`;
   $('nonHdlGoal').textContent=r.nonHdl?`< ${r.nonHdl}`:'未列';
@@ -27,7 +27,7 @@ function calculate(){
   let extra='';
   if(tc!==null&&hdl!==null){const nh=Math.round((tc-hdl)*10)/10;extra=`目前 non-HDL-C 約 ${nh} mg/dL${r.nonHdl?`（次要目標 <${r.nonHdl}）`:''}。`}
   const highPlus=['極高風險','非常高風險','高風險'].includes(r.risk);
-  $('eligibility').innerHTML=`<div class="notice purple">表一風險目標僅供對照；實際品項給付請看下方結果。${extra}</div>`;
+  $('eligibility').innerHTML=`<div class="notice purple">「治療目標」是希望降到的數值；「起始用藥門檻」是開始用藥的條件。LDL 尚未降至目標，仍可能符合起始用藥條件；各品項請看下方結果。${extra}</div>`;
   if(v.statinStatus!=='none' && v.baseline===null) $('eligibility').innerHTML+='<div class="notice warn">治療前 LDL-C 未填：若原本 ≥190 mg/dL，風險可能被低估。請補原始數值再核對加藥條件。</div>';
   if(v.dialysis==='yes') $('eligibility').innerHTML+='<div class="notice warn">已透析不能單憑 CKD 歸入表一高風險；請核對個別治療與給付條件。</div>';
   renderHospital(v,r);
@@ -36,7 +36,7 @@ function calculate(){
   if(highPlus){fu='<ul class="timeline"><li>起始治療後 <b>6–8 週</b>追蹤血脂。</li><li>若更動治療，<b>1–3 個月</b>內再追蹤是否達標。</li><li>達標後原則每 <b>6 個月</b>追蹤。</li></ul>'}
   else{fu='<ul class="timeline"><li>先生活型態改變 <b>3–6 個月</b>後檢測。</li><li>開始中強度 statin 後 <b>6–8 週</b>追蹤。</li><li>達標後原則每 <b>6–12 個月</b>追蹤。</li></ul>'}
   $('followup').innerHTML=fu;
-  $('debug').innerHTML=`最高風險優先順序：極高 → 非常高 → 高 → 一般 RF 計數。<br>一般 RF 共 ${r.n} 項：${r.rfList.length?r.rfList.join('、'):'無'}。<br>代謝症候群：${r.met?'是':'否'}。年齡 RF：${r.ageRF?'是':'否'}。低 HDL RF：${r.lowHdl?'是':'否'}。`;
+  $('debug').innerHTML=`最高風險優先順序：極高 → 非常高 → 高 → 一般風險因子 計數。<br>一般風險因子 共 ${r.n} 項：${r.rfList.length?r.rfList.join('、'):'無'}。<br>代謝症候群：${r.met?'是':'否'}。年齡風險因子：${r.ageRF?'是':'否'}。低 HDL 風險因子：${r.lowHdl?'是':'否'}。`;
   $('results').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -49,14 +49,14 @@ function renderHospital(v,r){
  const selected=$('hospitalDrug').value;
  const ds=selected?hospitalDrugs.filter(d=>d.id===selected):hospitalDrugs.filter(d=>['statin','ez','combo'].includes(d.kind));
  const main=ds.filter(d=>drugRule(d)!=='table2'), old=ds.filter(d=>drugRule(d)==='table2');
- $('drugAdvice').innerHTML=main.map(d=>drugHTML(d,assessDrug(d,v,r))).join('')+(old.length?`<details ${selected?'open':''}><summary>表二品項（${old.length} 項，需另核對）</summary>${old.map(d=>drugHTML(d,assessDrug(d,v,r))).join('')}</details>`:'');
+ $('drugAdvice').innerHTML=main.map(d=>drugHTML(d,assessDrug(d,v,r))).join('')+(old.length?`<details ${selected?'open':''}><summary>需另查給付規定的品項（${old.length} 項，適用表二）</summary>${old.map(d=>drugHTML(d,assessDrug(d,v,r))).join('')}</details>`:'');
 }
 function renderCatalog(){
  const q=$('codeSearch').value.trim().toLowerCase();
  const ds=hospitalDrugs.filter(d=>Object.values(d).join(' ').toLowerCase().includes(q));
  $('codeResult').innerHTML=ds.length?ds.map(d=>drugHTML(d,{status:ruleLabels[drugRule(d)],tone:drugRule(d)==='table1'?'purple':'warn',text:'品項規則標示，不代表病人已符合給付。'})).join(''):'<div class="notice warn">查無院內品項；未命中不代表符合表一或健保給付。</div>';
  const exclusions=q?table2Only.filter(d=>d.join(' ').toLowerCase().includes(q)):[];
- if(exclusions.length) $('codeResult').innerHTML+='<details><summary>附件表二例外清單命中 '+exclusions.length+' 項</summary>'+exclusions.map(d=>`<p>${d[1]} · ${d[2]}：僅適用表二</p>`).join('')+'</details>';
+ if(exclusions.length) $('codeResult').innerHTML+='<details><summary>另一套給付規定（表二）查到 '+exclusions.length+' 項</summary>'+exclusions.map(d=>`<p>${d[1]} · ${d[2]}：適用另一套給付規定（表二），不能套用上方門檻</p>`).join('')+'</details>';
 }
 function resetAll(){
   var inputs=document.querySelectorAll('input');
