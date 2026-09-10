@@ -5,7 +5,7 @@
  * 使用 ES Module 載入：<script type="module" src="./gameState.js"></script>
  */
 
-export const SAVE_SCHEMA_VERSION = 1;
+export const SAVE_SCHEMA_VERSION = 2;
 export const STORAGE_KEY = "hy-tools.text-game.save.v1";
 
 const 屬性下限 = 0;
@@ -35,6 +35,12 @@ const 初始天子 = Object.freeze({
     年齡: 0,
     資質: 50,
     正統性: 50,
+    四維屬性: {
+      仁德: 50,
+      威儀: 50,
+      雄略: 50,
+      壽元健康: 100,
+    },
   },
 });
 
@@ -90,6 +96,9 @@ function 整理帝王譜(records) {
       在位迄年: 整數(record.在位迄年, 1, 1),
       在位年數: 整數(record.在位年數, 1, 0),
       帝王評分: 整數(record.帝王評分, 0, 0),
+      諡號: 文字(record.諡號, "未議"),
+      駕崩原因: 文字(record.駕崩原因, "壽終"),
+      繼承結果: 文字(record.繼承結果, "未詳"),
     }));
 }
 
@@ -105,6 +114,7 @@ function 整理王朝(source = {}) {
 function 整理天子(source = {}) {
   const attributes = source.四維屬性 ?? {};
   const heir = source.儲君資訊 ?? {};
+  const heirAttributes = heir.四維屬性 ?? {};
 
   return {
     廟號: 文字(source.廟號, 初始天子.廟號),
@@ -123,6 +133,12 @@ function 整理天子(source = {}) {
       年齡: 整數(heir.年齡, 初始天子.儲君資訊.年齡, 0),
       資質: 百分值(heir.資質, 初始天子.儲君資訊.資質),
       正統性: 百分值(heir.正統性, 初始天子.儲君資訊.正統性),
+      四維屬性: {
+        仁德: 百分值(heirAttributes.仁德, 初始天子.儲君資訊.四維屬性.仁德),
+        威儀: 百分值(heirAttributes.威儀, 初始天子.儲君資訊.四維屬性.威儀),
+        雄略: 百分值(heirAttributes.雄略, 初始天子.儲君資訊.四維屬性.雄略),
+        壽元健康: 百分值(heirAttributes.壽元健康, 初始天子.儲君資訊.四維屬性.壽元健康),
+      },
     },
   };
 }
@@ -293,4 +309,3 @@ export function resetGame(storage = 取得庫房()) {
 
 // 啟建新局。
 套用遊戲狀態(createInitialGameState());
-
