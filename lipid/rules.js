@@ -1,4 +1,4 @@
-// 規則版本：115/9/1。依使用者附件 2.6.1–2.6.3；表二與其他個別規定不作給付判定。
+// 規則版本：115/9/1。依使用者附件 2.6.1–2.6.3；表二獨立判讀；其他個別規定不作給付判定。
 // 前 6 頁：不適用表一、僅適用表二的特定品項
 const table2Only = [
 ['simvastatin','AC46402100','Simvatin film coating tablets 20mg'],['simvastatin','AB47348100','Vatatin F.C. tablets 20mg STANDARD'],['simvastatin','BC24339100','Simvahexal film-coated tablets 40mg'],['simvastatin','AC49672100','Simatin F.C. tablets 20mg'],['simvastatin','AC49841100','Simpotin F.C. tablets 20mg Weidar'],['simvastatin','AC47924100','Zostatin F.C. tablets 20mg S.C.'],['simvastatin','BC23970100','Simvahexal film-coated tablets 20mg'],['simvastatin','AC49360100','Bezostatin F.C. tablets 40mg S.C.'],['simvastatin','AC48813100','Simvatenin F.C. tablets 20mg'],['simvastatin','AC56804100','Simvastatin F.C. tablets 20mg CYH'],['simvastatin','AC49699100','Simatin F.C. tablets 10mg'],['simvastatin','AC47907100','Sinty F.C. tablets 20mg'],['simvastatin','AC48926100','Simva F.C. tablets 20mg'],['simvastatin','AC49190100','Sivasin film coated tablets 40mg'],['simvastatin','AC58207100','Simvatin film coating tablets 40mg'],['simvastatin','AC48608100','Simva F.C. tablets 20mg Union'],['simvastatin','AC49997100','Simatin F.C. tablets 40mg'],['simvastatin','A055967100','Simva F.C. tablets 40mg Union'],['simvastatin','AC56806100','Sinty F.C. tablets 40mg'],
@@ -18,14 +18,14 @@ function classify(v){
   const num=id=>v[id]??null, checked=id=>!!v[id];
   const ldl=num('ldl'), age=num('age'), hdl=num('hdl'), sex=v.sex;
   const dm=checked('dm');
-  const cad=checked('cad')||checked('mi1y')||checked('mi2')||checked('multivessel')||checked('acs');
+  const cad=checked('cad')||checked('mi1y')||checked('mi2')||checked('multivessel')||checked('acs')||checked('revasc');
   const pad=checked('pad')||checked('padClinical');
   const extreme = (cad && (checked('mi1y')||checked('mi2')||checked('multivessel')||(checked('acs')&&dm)||pad||checked('carotid'))) || (pad && (cad||checked('carotid')));
   const veryHigh = checked('acs')||checked('mi1y')||checked('mi2')||checked('revasc')||checked('stroke')||checked('padClinical')||checked('plaque50');
   const high = dm || (checked('ckd') && v.dialysis==='no') || (ldl>=190 || v.baseline>=190) || checked('cac400');
   const ageRF = age!==null && ((sex==='M'&&age>=45)||(sex==='F'&&age>=55));
   const lowHdl = hdl!==null && ((sex==='M'&&hdl<40)||(sex==='F'&&hdl<50));
-  const met = ['metWaist','metBp','metGlu','metTg'].filter(checked).length + ((checked('metHdl') || lowHdl)?1:0)>=3;
+  const met = ['metWaist','metBp','metGlu','metTg'].filter(checked).length + ((hdl===null?checked('metHdl'):lowHdl)?1:0)>=3;
   const rfList=[];
   if(checked('htn')) rfList.push('高血壓');
   if(ageRF) rfList.push(sex==='M'?'男性 ≥45歲':'女性 ≥55歲');
@@ -46,44 +46,93 @@ function classify(v){
 
 
 function validate(v){
- for(const [id,label,max] of [['age','年齡',120],['ldl','LDL-C',2000],['hdl','HDL-C',500],['tc','總膽固醇',3000],['baseline','治療前 LDL-C',2000]]){
+ for(const [id,label,max] of [['age','年齡',120],['ldl','LDL-C',2000],['hdl','HDL-C',500],['tc','總膽固醇',3000],['baseline','治療前 LDL-C',2000],['monoLdl','statin 單藥後 LDL-C',2000]]){
   const n=v[id];
   if(n!==null && n!==undefined && (!Number.isFinite(n)||n<0||n>max||(id==='age'&&!Number.isInteger(n)))) return `請確認${label}，必須是 0–${max} 範圍內的有效${id==='age'?'整數':'數值'}。`;
  }
  if(v.ldl===null||v.ldl===undefined) return '請填寫目前 LDL-C。';
- if(v.age==null||v.hdl==null) return '請填寫年齡與 HDL-C，以免低估風險。';
+ if(v.mode!=='quick'&&(v.age==null||v.hdl==null)) return '請填寫年齡與 HDL-C，以免低估風險。';
  if(v.tc!==null&&v.tc!==undefined&&v.hdl>v.tc) return 'HDL-C 不可高於總膽固醇。';
+ if(v.mode!=='quick'&&!['M','F'].includes(v.sex)) return '請確認性別。';
+ if(v.mode==='quick'&&!riskLevels[v.quickRisk]) return '請選擇已確認的風險層級，或使用自動分級。';
+ if(v.mode==='quick'&&Number(v.quickRisk)>100&&(v.ldl>=190||v.baseline>=190)) return '目前或治療前 LDL-C ≥190，至少屬高風險，請調整風險層級。';
+ if(v.purpose&&v.purpose!=='start'&&!v.currentDrug) return '請選擇目前藥品；院外藥可選其他／未收錄。';
  return '';
 }
 function drugRule(d){
+ if(!d) return 'other';
  if(table2Only.some(x=>x[1]===d.code)) return 'table2';
  if(d.kind==='ez') return ez3mCodes.has(d.code)?'ez3':'ez6';
  if(d.kind==='combo') return combo3mCodes.has(d.code)?'combo3':'combo6';
- if(d.kind==='statin'&&/^[A-Z]{1,2}[0-9]{8,9}$/.test(d.code)) return 'table1';
+ if(['BC22886100','BC22889100','AC58813100','AC58822100','AB49143100','AA57372100','AC58639100','AC57216100'].includes(d.code)) return 'table1';
  return 'other';
 }
-const ruleLabels={table2:'另一套給付規定（表二）',table1:'適用上方門檻（表一）',ez3:'單方加藥｜statin 須滿 3 個月',ez6:'單方加藥｜statin 須用 6–8 週',combo3:'複方｜statin 須滿 3 個月',combo6:'複方｜statin 須用 6–8 週',other:'另有規定｜待確認'};
+const ruleLabels={table2:'表二｜舊制門檻',table1:'表一｜新制門檻',ez3:'單方加藥｜statin 須滿 3 個月',ez6:'單方加藥｜statin 須用 6–8 週',combo3:'複方｜statin 須滿 3 個月',combo6:'複方｜statin 須用 6–8 週',other:'另有規定｜待確認'};
+
+const riskLevels={55:'極高風險',70:'非常高風險',100:'高風險',115:'中風險',130:'低風險',160:'0 項風險因子'};
+function riskFor(v){
+ if(v.mode!=='quick') return classify(v);
+ const goal=Number(v.quickRisk);
+ return {ldl:v.ldl,goal,threshold:goal,nonHdl:goal===160?null:goal+30,risk:riskLevels[goal],high:goal===100,veryHigh:goal===70,extreme:goal===55,rfList:[],basis:['醫師手動確認最高風險層級'],n:null};
+}
+const legacyLevels={acs:{ldl:70,tc:null,label:'ACS 病史／冠狀動脈粥狀硬化曾 PCI 或 CABG'},cvd:{ldl:100,tc:160,label:'表二心血管疾病或糖尿病'},two:{ldl:130,tc:200,label:'至少 2 個表二危險因子'},one:{ldl:160,tc:240,label:'1 個表二危險因子'},zero:{ldl:190,tc:null,label:'0 個表二危險因子'}};
+function classifyLegacy(v){
+ if(v.legacyGroup&&v.legacyGroup!=='auto') return legacyLevels[v.legacyGroup]?{...legacyLevels[v.legacyGroup],key:v.legacyGroup,manual:true}:null;
+ if(v.mode==='quick') return null;
+ const n=[v.htn,(v.sex==='M'&&v.age>=45)||(v.sex==='F'&&(v.age>=55||v.menopause)),v.fhx,v.hdl<40,v.smoke].filter(Boolean).length;
+ const key=v.acs||v.mi1y||v.mi2||v.revasc?'acs':v.dm||v.legacyCvd?'cvd':n>=2?'two':n===1?'one':'zero';
+ return {...legacyLevels[key],key,n,withoutSmoke:n-(v.smoke?1:0)};
+}
+function passesLegacy(l,ldl,tc){return l&&(ldl!=null&&ldl>=l.ldl||l.tc!=null&&tc!=null&&tc>=l.tc);}
 function assessDrug(d,v,r){
- const rule=drugRule(d), result=(status,text,tone='warn')=>({status,text,tone});
- if(d.kind==='combo'&&v.gem==='yes') return result('不得併用','含 ezetimibe + statin 複方不得與 gemfibrozil 併用（2.6.3）。','bad');
- if(rule==='table2') return result('需另查給付條件','此品項適用另一套給付規定（表二），不能套用上方 LDL 門檻。附件未附完整條文，請另查健保署表二規定。');
- if(rule==='other') return result('待確認個別規定','已納入院內清單；本附件不足以判定此品項的個別給付、適應症或申請條件。截圖短碼及 X 不視為完整健保碼。');
+ const rule=drugRule(d), out=(status,text,tone='warn')=>({status,text,tone});
+ const purpose=v.purpose||(v.statinStatus==='none'?'start':'adjust');
+ if(d.kind==='combo'&&v.gem==='yes') return out('不得併用','此複方不得與 gemfibrozil 併用。','bad');
+ if(rule==='other') return out('依個別規定核對','本工具未實作此品項的個別給付條件；短碼及 X 不視為完整健保碼。');
+ if(d.kind!=='ez'&&v.statinStatus==='intolerant') return out('需評估 statin 耐受性','請核對不耐受紀錄及替代治療；不能僅因 LDL 未達標便認定適合使用含 statin 藥品。');
+ if(d.kind!=='ez'&&v.gem==='yes') return out('先核對交互作用','目前使用 gemfibrozil，請核對 statin 及複方各成分仿單。');
+ if(purpose==='continue'){
+  if(v.currentDrug!==d.id) return out('不是本次續用品項','若要更換或新增此藥，請改選「調整／加藥」。');
+  return out('續用需核對原始紀錄',`目前 LDL ${r.ldl<r.goal?'已達':'未達'}表一目標。已達標不代表須停藥；確認原始給付資格、療程與耐受性後維持或調整。`,'purple');
+ }
+ if(rule==='table2'){
+  const l=classifyLegacy(v);
+  if(!l) return out('請補表二分類','展開表二條件，依表二的疾病與危險因子獨立分類。');
+  const threshold=`LDL ≥${l.ldl}${l.tc?' 或 TC ≥'+l.tc:''} mg/dL`;
+  if(purpose!=='start') return out('表二治療中：核對原資格',`${l.label}：起始 ${threshold}。目前數值不能取代治療前紀錄；表一目標仍顯示於上方，換藥請分別核對。`,'purple');
+  if(!passesLegacy(l,v.ldl,v.tc)) return out(l.tc&&v.tc==null?'請補 TC 或核對門檻':'未達表二起始門檻',`${l.label}：需 ${threshold}。`);
+  if(!['acs','cvd'].includes(l.key)){
+   if(v.lifestyle!=='yes') return out('先完成非藥物治療','表二一般族群須先完成 3–6 個月非藥物治療。');
+   if(l.manual&&v.legacySmoking==='yes') return out('吸菸條件：應自費','因吸菸才達表二起始準則，尚未戒菸而要求藥物治療，依表二應自費。','bad');
+   if(l.manual&&v.legacySmoking!=='no') return out('請確認吸菸附帶條件','若因吸菸才符合起始門檻，且尚未戒菸而要求藥物治療，表二規定應自費。請確認並選擇對應項目。');
+   if(!l.manual&&v.smoke){
+    const noSmoke=legacyLevels[l.withoutSmoke>=2?'two':l.withoutSmoke===1?'one':'zero'];
+    if(!passesLegacy(noSmoke,v.ldl,v.tc)) return out('吸菸條件：應自費','此個案因吸菸才達表二起始準則；未戒菸而要求藥物治療，依表二應自費。','bad');
+   }
+  }
+  return out('符合表二起始血脂條件',`${l.label}；${threshold}。仍須核對本品適應症，複方各成分須有使用理由。`,'ok');
+ }
  if(rule==='table1'){
-  if(v.statinStatus==='intolerant') return result('需評估耐受性','已勾選 statin 無法耐受，不能直接視為可開始 statin。');
-  if(v.gem==='yes') return result('先核對交互作用','目前使用 gemfibrozil，請先核對此 statin 的仿單與交互作用。');
-  if(v.statinStatus!=='none') return result(r.ldl<r.goal?'LDL 已降至目標':'LDL 仍未降至目標','目前為治療中數值；續用、調整與原始給付資格需核對用藥史，不重新判定起始資格。','purple');
-  if(r.ldl<r.threshold) return result('尚未達起始用藥門檻',`目前 LDL-C ${r.ldl} mg/dL；此風險層級開始用藥的門檻為 ≥${r.threshold} mg/dL（表一）。`);
-  if(!r.high&&!r.veryHigh&&!r.extreme&&v.lifestyle!=='yes') return result('先生活型態治療','須先完成 3–6 個月生活型態改變仍未達標。');
-  return result('符合起始用藥條件','依輸入條件符合表一門檻；仍須確認個別適應症、劑量、禁忌與交互作用。','ok');
+  if(purpose!=='start') return out(r.ldl<r.goal?'已達標，可評估維持':'未達標，可評估強化','此品項適用表一。請確認原始給付資格、實際每日劑量、依從性及耐受度；改品牌本身不等於強化降脂。','purple');
+  if(r.ldl<r.threshold) return out('未達表一起始 LDL 門檻',`需 LDL ≥${r.threshold} mg/dL。`);
+  if(r.goal>100&&v.lifestyle!=='yes') return out('先完成生活型態治療','須先完成 3–6 個月生活型態改變仍未達標。');
+  return out('符合表一起始血脂條件','仍須確認個別適應症、劑量、禁忌與交互作用；複方各成分須有使用理由。','ok');
  }
  const combo=d.kind==='combo';
- if(!(combo?['primary','hofh']:['primary','hofh','sitosterol']).includes(v.ezDx)) return result('請確認診斷類型',combo?'請在「診斷類型」選擇原發性高膽固醇血症或同型接合子家族性高膽固醇血症；若不屬於這兩類，不能依本項判定給付。':'請在「診斷類型」選擇原發性高膽固醇血症、同型接合子家族性高膽固醇血症或同型接合子植物脂醇血症；若不屬於這三類，不能依本項判定給付。');
- if(!combo&&v.statinStatus==='intolerant') return result('符合不耐受條件','符合診斷且曾因 statin 不良反應無法耐受，可依 ezetimibe 單方的不耐受途徑判斷；此途徑不要求先完成 3 個月（規定 2.6.2）。','ok');
- if(v.statinStatus!=='none'&&v.baseline==null&&!r.high&&!r.veryHigh&&!r.extreme) return result('需補治療前 LDL-C','目前未達高風險以上，請補治療前 LDL-C，以確認是否曾 ≥190 mg/dL 再判斷目標。');
- if(r.ldl<r.goal) return result('LDL 已降至治療目標','不能以目前數值認定新增／換用條件；若已在使用本藥，續方須回看原始治療紀錄。','purple');
- const three=rule.endsWith('3');
- const enough=three?v.statinStatus==='ge3m':['6to8','8to12','ge3m'].includes(v.statinStatus);
- if(!enough) return result('請確認 statin 單方療程',`此品項需 statin 單一治療${three?'滿 3 個月':'6–8 週'}仍未達標；複方治療時間不能當成單方。`);
- return result('符合加藥／換藥條件',`診斷、statin 單方${three?'3 個月':'6–8 週'}及 LDL 尚未降至治療目標的條件符合；請核對原始紀錄與個別用藥適切性。`,'ok');
+ if(!(combo?['primary','hofh']:['primary','hofh','sitosterol']).includes(v.ezDx)) return out('請確認血脂診斷',combo?'須原發性高膽固醇血症或同型接合子家族性高膽固醇血症。':'須原發性高膽固醇血症、同型接合子家族性高膽固醇血症或同型接合子植物脂醇血症。');
+ if(!combo&&v.statinStatus==='intolerant') return out('符合單方不耐受途徑','須有 statin 無法耐受的不良反應紀錄；本途徑不要求先滿 3 個月。','ok');
+ if(r.goal>100&&v.baseline==null&&v.mode!=='quick') return out('請補治療前 LDL','避免遺漏治療前 LDL ≥190 的高風險身分。');
+ if(v.currentCombined&&v.monoLdl==null) return out('請補單藥後 LDL','目前已使用合併或其他治療，不能以目前數值代替 statin 單藥未達標的證據。');
+ const responseLdl=v.currentCombined?v.monoLdl:r.ldl;
+ if(responseLdl<r.goal) return out('已達表一目標','目前數值不符合「statin 單藥未達標」新增途徑；續用請選續藥模式。','purple');
+ const three=rule.endsWith('3'),enough=three?v.statinStatus==='ge3m':['6to8','8to12','ge3m'].includes(v.statinStatus);
+ if(!enough) return out('statin 單藥療程未符合',`此品項需 statin 單一治療${three?'滿 3 個月':'6–8 週'}仍未達表一目標；不能以複方期間替代。`);
+ return out('符合加藥條件',`符合限定診斷，statin 單藥${three?'滿 3 個月':'6–8 週'}且單藥後 LDL ${responseLdl} 未達表一 <${r.goal}。先前 statin 屬表二並不自動排除此途徑，請保留療程紀錄。`,'ok');
 }
-if(typeof module!=='undefined') module.exports={classify,validate,drugRule,assessDrug,table2Only,ez3mCodes,combo3mCodes};
+function compareDrugs(current,next){
+ if(!current||!next||!current.statin||!next.statin) return '';
+ const a=current.statin,b=next.statin;
+ if(a.molecule===b.molecule&&a.mg===b.mg) return `兩品項的 statin 均為 ${a.molecule} ${a.mg} mg／單位。相同每日用量下，換品牌不等於增加 statin 強度${next.kind==='combo'&&current.kind!=='combo'?'；本次另外加入 ezetimibe':''}。`;
+ return `目前品項：${a.molecule} ${a.mg} mg（${a.intensity}）；預計品項：${b.molecule} ${b.mg} mg（${b.intensity}）。這是每錠／膠囊的 statin 強度，需核對實際每日用量及複方其他成分。`;
+}
+if(typeof module!=='undefined') module.exports={classify,validate,drugRule,assessDrug,table2Only,ez3mCodes,combo3mCodes,riskFor,classifyLegacy,passesLegacy,compareDrugs};

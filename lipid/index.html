@@ -1,51 +1,13 @@
 <!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="color-scheme" content="light" />
-<title>血脂用藥工具｜我的工具箱</title>
-<meta name="theme-color" content="#173a70">
-<meta name="robots" content="noindex,nofollow">
-<style>
-:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#60708a;--line:#dfe6ef;--accent:#2563eb;--accent2:#eef4ff;--ok:#147d4f;--okbg:#eaf8f1;--warn:#9a6700;--warnbg:#fff7dc;--bad:#b42318;--badbg:#fff0ee;--purple:#6d3cc6;--purplebg:#f4efff;--shadow:0 8px 28px rgba(22,34,51,.08)}
-
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.5}button,input,select{font:inherit}.wrap{max-width:980px;margin:auto;padding:18px 14px 70px}.back{display:inline-flex;align-items:center;gap:7px;min-height:44px;margin-bottom:6px;color:var(--accent);font-weight:700;text-decoration:none}.back:hover{text-decoration:underline}.back:focus-visible{outline:3px solid color-mix(in srgb,var(--accent) 28%,transparent);outline-offset:3px;border-radius:6px}.hero{padding:18px 4px 8px}.hero h1{font-size:26px;line-height:1.2;margin:0 0 6px}.hero p{margin:0;color:var(--muted)}.badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;color:var(--muted);background:var(--card);margin-bottom:10px}.privacy{font-size:12px;color:var(--muted);margin-top:8px}.grid{display:grid;gap:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.card h2{font-size:18px;margin:0 0 4px}.card .sub{color:var(--muted);font-size:13px;margin-bottom:12px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--text);outline:none}.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.check{display:flex;align-items:flex-start;gap:9px;border:1px solid var(--line);border-radius:12px;padding:10px;background:color-mix(in srgb,var(--card) 96%,var(--bg))}.check input{margin-top:3px;transform:scale(1.1)}.check b{font-size:14px}.check small{display:block;color:var(--muted);margin-top:2px}.sectionlabel{font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 8px}.metbox{border:1px dashed var(--line);border-radius:14px;padding:11px;margin-top:10px}.metcount{margin-top:8px;font-size:13px;color:var(--muted)}.actions{display:flex;gap:10px;position:sticky;bottom:0;padding:12px 0;background:linear-gradient(to top,var(--bg) 65%,transparent);z-index:5}.btn{border:0;border-radius:13px;padding:12px 16px;font-weight:750;cursor:pointer}.primary{background:var(--accent);color:white;flex:1}.secondary{background:var(--card);color:var(--text);border:1px solid var(--line)}.results{display:none}.resultTop{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}.riskpill{font-size:14px;font-weight:800;padding:7px 10px;border-radius:999px;background:var(--accent2);color:var(--accent)}.big{font-size:24px;font-weight:850;line-height:1.15}.muted{color:var(--muted)}.metricGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.metric{border:1px solid var(--line);border-radius:14px;padding:11px}.metric span{display:block;color:var(--muted);font-size:12px}.metric b{font-size:19px}.notice{border-radius:14px;padding:12px 13px;margin:10px 0;border:1px solid transparent}.ok{background:var(--okbg);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 30%,transparent)}.warn{background:var(--warnbg);color:var(--warn);border-color:color-mix(in srgb,var(--warn) 30%,transparent)}.bad{background:var(--badbg);color:var(--bad);border-color:color-mix(in srgb,var(--bad) 30%,transparent)}.purple{background:var(--purplebg);color:var(--purple);border-color:color-mix(in srgb,var(--purple) 30%,transparent)}.drugrow{border-top:1px solid var(--line);padding:12px 0}.drugrow:first-child{border-top:0}.drugtitle{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.status{white-space:nowrap;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800}.status.ok{border:0}.status.warn{border:0}.status.bad{border:0}.status.purple{border:0}.why{font-size:13px;color:var(--muted);margin-top:4px}.timeline{margin:8px 0 0;padding-left:20px}.timeline li{margin:5px 0}.codebox{display:flex;gap:8px}.codebox input{flex:1}.codeResult{margin-top:10px}.matches{max-height:260px;overflow:auto;margin-top:8px;border-top:1px solid var(--line)}.match{padding:9px 0;border-bottom:1px solid var(--line);font-size:13px}.match code{font-weight:800;color:var(--accent)}details{border-top:1px solid var(--line);margin-top:12px;padding-top:10px}summary{cursor:pointer;font-weight:750}.tiny{font-size:12px;color:var(--muted)}.source{font-size:12px;color:var(--muted);padding:4px}.hl{font-weight:800}.split{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.switchline{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:8px}.switch{position:relative;width:48px;height:28px;flex:none}.switch input{display:none}.slider{position:absolute;inset:0;border-radius:999px;background:#adb8c8;transition:.2s}.slider:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:white;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.25)}.switch input:checked+.slider{background:var(--accent)}.switch input:checked+.slider:before{transform:translateX(20px)}
-@media(max-width:720px){.fields,.checks,.split{grid-template-columns:1fr}.metricGrid{grid-template-columns:1fr 1fr}.hero h1{font-size:23px}.card{border-radius:16px;padding:14px}.wrap{padding-left:10px;padding-right:10px}.actions{padding-bottom:calc(12px + env(safe-area-inset-bottom))}}
-.codebox input,.resultTop>div{min-width:0}.match{overflow-wrap:anywhere}.btn{min-height:44px;touch-action:manipulation}
-@media(max-width:420px){.metricGrid{grid-template-columns:1fr}.codebox{display:grid;grid-template-columns:minmax(0,1fr) auto}.codebox .btn{padding-left:12px;padding-right:12px}}
-
-.wrap{max-width:860px;padding-top:24px}.hero{padding:28px 30px;margin-bottom:20px;border-radius:24px;background:linear-gradient(135deg,#173a70,#2d6cdf);color:white;box-shadow:0 16px 42px #173a7033}.hero h1{font-size:clamp(1.9rem,7vw,2.55rem)}.hero p,.hero .privacy{color:#ffffffd0}.hero .badge{background:#ffffff18;color:white;border-color:#ffffff40}.card{padding:24px;border-radius:20px}.grid{gap:18px}.field input,.field select{min-height:52px}.check{min-height:48px}.primary{background:linear-gradient(135deg,#245ebf,#2d6cdf)}.split{grid-template-columns:1fr}.status{white-space:normal;flex-shrink:0;max-width:48%}.codeResult{max-height:440px;overflow:auto}.hero .privacy{font-size:12px}.error{color:#b42318;background:#fff0ee;border-radius:12px;padding:12px}.error:empty{display:none}summary{min-height:44px;padding:8px 0}.drugrow{overflow-wrap:anywhere}.field{min-width:0}select{max-width:100%}.back:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #2d6cdf;outline-offset:3px}
-@media(max-width:560px){.wrap{padding:8px 10px 50px}.hero{padding:24px 21px}.card{padding:18px 15px}.drugtitle{flex-wrap:wrap}.status{max-width:100%}}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <a class="back" href="../" aria-label="返回我的工具箱">‹ 返回工具箱</a>
-  <div class="hero">
-    <div class="badge">健保降膽固醇給付｜115/9/1 新制（表一）</div>
-    <h1>血脂用藥工具</h1>
-    <p>判斷風險與治療目標，直接核對院內藥品。</p>
-    <div class="privacy">🔒 單機版：資料只在此瀏覽器頁面計算，不會上傳或儲存。</div>
-    <div id="jsStatus" class="privacy">⚠️ 若此行一直顯示，代表目前預覽器可能封鎖 JavaScript；請將檔案下載後用 Safari 開啟。</div>
-  </div>
-
-  <div class="grid">
-    <div class="card">
-      <h2>1. 基本資料與血脂</h2>
-      <div class="sub">填寫目前血脂與年齡；未勾選的診斷視為沒有，請確認後分析。</div>
-      <div class="fields">
-        <div class="field"><label>性別</label><select id="sex"><option value="M">男性</option><option value="F">女性</option></select></div>
-        <div class="field"><label>年齡（歲）＊</label><input id="age" type="number" inputmode="numeric" min="0" max="120" placeholder="例：58"></div>
-        <div class="field"><label>LDL-C（mg/dL）＊</label><input id="ldl" type="number" inputmode="decimal" min="0" max="2000" step="any" placeholder="例：132"></div>
-        <div class="field"><label>HDL-C（mg/dL）＊</label><input id="hdl" type="number" inputmode="decimal" min="0" max="500" step="any" placeholder="例：42"></div>
-        <div class="field"><label>總膽固醇（選填）</label><input id="tc" type="number" inputmode="decimal" min="0" max="3000" step="any" placeholder="可自動算 non-HDL-C"></div>
-        <div class="field"><label>治療前 LDL-C（選填）</label><input id="baseline" type="number" min="0" max="2000" step="any" placeholder="避免治療後低估 ≥190 的風險"></div>
-<div class="field"><label>目前是否透析</label><select id="dialysis"><option value="no">否</option><option value="yes">是</option></select></div>
-      </div>
-    </div>
-
-    <div class="card">
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#12685f"><meta name="robots" content="noindex,nofollow"><title>血脂用藥工具｜我的工具箱</title><link rel="stylesheet" href="./style.css?v=20260913"></head>
+<body><main class="wrap"><a class="back" href="../">‹ 返回工具箱</a>
+<header class="hero"><div class="eyebrow">HY TOOLS · CLINICAL WORKSPACE</div><h1>血脂用藥工具</h1><p>先看 LDL 目標，再核對這次要開的藥。</p><div class="badge">115/9/1 給付規則 · 36 項院內藥品</div><small>資料僅於本頁計算，不上傳、不儲存。</small></header>
+<noscript><p class="notice bad">請啟用 JavaScript 後使用本工具。</p></noscript>
+<form id="clinicalForm" novalidate>
+<section class="card"><div class="sectionhead"><h2>01　病人與目標</h2><label class="mode">分級方式<select id="mode"><option value="quick">快速：我已確認風險</option><option value="auto">協助我自動分級</option></select></label></div>
+<div class="fields"><div class="field"><label for="ldl">目前 LDL-C（mg/dL）</label><input id="ldl" type="number" min="0" max="2000" step="any" inputmode="decimal" placeholder="輸入檢驗值"></div><div class="field"><label for="purpose">這次要做什麼？</label><select id="purpose"><option value="start">起始用藥</option><option value="continue">原藥續用</option><option value="adjust">調整／加藥</option></select></div></div>
+<div id="quickPanel"><p class="sub">選擇最高風險層級。治療前 LDL ≥190 者至少為高風險；不確定時請切換自動分級。</p><div class="riskChoices"><label class="riskChoice"><input type="radio" name="quickRisk" value="55"><span><b>極高風險</b><small>高危冠心病／多處血管疾病</small></span><strong>&lt;55</strong></label><label class="riskChoice"><input type="radio" name="quickRisk" value="70"><span><b>非常高風險</b><small>符合定義 ASCVD／狹窄 ≥50%</small></span><strong>&lt;70</strong></label><label class="riskChoice"><input type="radio" name="quickRisk" value="100"><span><b>高風險</b><small>DM、CKD、LDL ≥190、CAC ≥400</small></span><strong>&lt;100</strong></label><label class="riskChoice"><input type="radio" name="quickRisk" value="115"><span><b>中風險</b><small>至少 2 項風險因子</small></span><strong>&lt;115</strong></label><label class="riskChoice"><input type="radio" name="quickRisk" value="130"><span><b>低風險</b><small>1 項風險因子</small></span><strong>&lt;130</strong></label><label class="riskChoice"><input type="radio" name="quickRisk" value="160"><span><b>0 項風險因子</b><small>無前述疾病或風險因子</small></span><strong>&lt;160</strong></label></div></div>
+<div id="autoPanel" hidden><div class="fields"><div class="field"><label for="sex">性別</label><select id="sex"><option value="M">男性</option><option value="F">女性</option></select></div><div class="field"><label for="age">年齡</label><input id="age" type="number" min="0" max="120" inputmode="numeric"></div><div class="field"><label for="hdl">HDL-C</label><input id="hdl" type="number" min="0" max="500" step="any" inputmode="decimal"></div><div class="field"><label for="dialysis">目前是否透析</label><select id="dialysis"><option value="no">否</option><option value="yes">是</option></select></div></div><p class="sub">未勾選項目視為沒有；請核對已知病史後分析。</p>    <div class="card">
       <h2>2. ASCVD / 極高與非常高風險條件</h2>
       <div class="sub">勾選已明確成立的診斷或病史。若只是做過診斷性 CAG，請不要勾「血管再通術」。</div>
       <div class="checks">
@@ -95,11 +57,14 @@
       </div>
     </div>
 
+</div>
+<details><summary>治療前 LDL 與其他血脂（選填）</summary><div class="fields"><div class="field"><label for="baseline">治療前 LDL-C</label><input id="baseline" type="number" min="0" max="2000" step="any" inputmode="decimal" placeholder="保留原始高風險身分"></div><div class="field"><label for="tc">目前總膽固醇 TC</label><input id="tc" type="number" min="0" max="3000" step="any" inputmode="decimal" placeholder="表二可使用 TC 門檻"></div></div></details></section>
+<section class="card"><h2>02　這次用藥</h2><div class="fields"><div class="field" id="currentField"><label for="currentDrug">目前正在使用</label><select id="currentDrug"></select></div><div class="field"><label for="hospitalDrug">預計開立／核對品項</label><select id="hospitalDrug"></select></div></div><p id="drugRuleHint" class="sub"></p><p class="tiny">強度依每錠／膠囊的 statin 成分標示；請核對實際每日劑量。</p></section>
     <div class="card">
-      <h2>5. 目前治療狀態</h2>
-      <div class="sub">這部分主要用來判斷何時可加 ezetimibe 或改用 statin + ezetimibe 複方。</div>
+      <h2>核對療程與給付資料</h2>
+      <div class="sub">依選用品項顯示需要的條件；曾用表二 statin 的療程不會自動歸零。</div>
       <div class="fields">
-        <div class="field"><label>既往 statin 單一治療療程</label>
+        <div class="field" data-ez><label>既往 statin 單一治療療程</label>
           <select id="statinStatus">
             <option value="none">尚未使用 statin</option>
             <option value="lt6">使用未滿 6 週</option>
@@ -109,7 +74,8 @@
             <option value="other">已使用複方／合併治療，單方病史未確認</option><option value="intolerant">statin 無法耐受（如 severe myalgia / myositis）</option>
           </select>
         </div>
-        <div class="field"><label>診斷類型（ezetimibe 單方／複方給付用）</label>
+        <div class="field" data-ez><label for="monoLdl">statin 單藥後 LDL（目前已合併／其他治療時填）</label><input id="monoLdl" type="number" min="0" max="2000" step="any" inputmode="decimal" placeholder="用單藥療程結束時的檢驗值"></div>
+<div class="field" data-ez><label>診斷類型（ezetimibe 單方／複方給付用）</label>
           <select id="ezDx">
             <option value="none">請選擇診斷；不確定或不符時保留此項</option>
             <option value="primary">原發性高膽固醇血症</option>
@@ -117,7 +83,7 @@
             <option value="sitosterol">同型接合子性麥脂醇血症（植物脂醇血症）</option>
           </select>
         </div>
-        <div class="field"><label>中低風險：已完成生活型態改變 3–6 個月？</label>
+        <div class="field" id="lifestyleField"><label>中低風險：已完成生活型態改變 3–6 個月？</label>
           <select id="lifestyle"><option value="no">否 / 不確定</option><option value="yes">是</option></select>
         </div>
         <div class="field"><label>目前是否使用 gemfibrozil？</label>
@@ -126,60 +92,12 @@
       </div>
     </div>
 
-    <div class="card"><h2>6. 要核對的院內藥品</h2><div class="field"><label for="hospitalDrug">選擇品項</label><select id="hospitalDrug"></select></div><p class="tiny">納入 36 個院內碼。短碼、罕藥與其他降脂藥保留原資料，另行核對個別規定。</p></div>
-<div id="error" class="error" role="alert"></div>
-<div class="actions">
-      <button class="btn secondary" id="reset" type="button" onclick="resetAll(); return false;">清空</button>
-      <button class="btn primary" id="calc" type="button" onclick="calculate(); return false;">判斷健保條件</button>
-    </div>
 
-    <div class="card results" id="results" aria-live="polite">
-      <div class="resultTop"><span class="riskpill" id="riskpill"></span><div><div class="big" id="headline"></div><div class="muted" id="reason"></div></div></div>
-      <div class="metricGrid">
-        <div class="metric"><span>開始用藥的 LDL 門檻</span><b id="startThreshold"></b></div>
-        <div class="metric"><span>希望降到的 LDL 目標</span><b id="ldlGoal"></b></div>
-        <div class="metric"><span>non-HDL 目標（次要指標）</span><b id="nonHdlGoal"></b></div>
-      </div>
-      <div id="eligibility"></div>
-      <h2 style="margin-top:18px">院內品項判讀</h2>
-      <div id="drugAdvice"></div>
-      <h2 style="margin-top:18px">何時追蹤血脂</h2>
-      <div id="followup"></div>
-      <details><summary>查看這次判定用了哪些條件</summary><div class="tiny" id="debug" style="margin-top:8px"></div></details>
-    </div>
 
-    <div class="split">
-      <div class="card">
-        <h2>院內藥品快速查詢</h2>
-        <div class="sub">可輸入院內碼、健保碼、中英文藥名或成分；不必先填病人資料。</div>
-        <div class="codebox"><input id="codeSearch" aria-label="院內藥品查詢" placeholder="例：07168、Cretrol 或 脂瑞妥"><button class="btn secondary" id="codeBtn" type="button" onclick="codeLookup(); return false;">查詢</button></div>
-        <div class="codeResult" id="codeResult"></div>
-      </div>
-      <div class="card">
-        <h2>重要限制</h2>
-        <div class="notice warn">本附件把「表二」內容標成「以下略」，所以若品項落在前六頁排除清單，本工具只能告訴你「改走表二」，<b>不能單靠這份 PDF 判斷表二是否給付</b>。</div>
-        <div class="notice purple">PCSK9 單株抗體、siRNA、ATP citrate lyase 抑制劑雖列為未達標時可考慮的 non-statin，但本附件沒有完整列出它們各自的個別給付條件，因此工具不會宣稱「健保可開」。</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <details><summary>規則摘要（115/9/1）</summary>
-        <ul class="timeline">
-          <li>極高：LDL ≥55 → 目標 &lt;55（non-HDL &lt;85）</li>
-          <li>非常高：LDL ≥70 → 目標 &lt;70（non-HDL &lt;100）</li>
-          <li>高：LDL ≥100 → 目標 &lt;100（non-HDL &lt;130）</li>
-          <li>中：LDL ≥115 → 目標 &lt;115（non-HDL &lt;145）</li>
-          <li>低：LDL ≥130 → 目標 &lt;130（non-HDL &lt;160）</li>
-          <li>0 項風險因子：LDL ≥160 → 目標 &lt;160</li>
-        </ul>
-      </details>
-      <div class="source"><a href="https://www.nhi.gov.tw/ch/dl-100842-f34d34af17374f04ae02e87f1ea8ac56-1.pdf" target="_blank" rel="noopener">健保署修訂對照表</a>｜院內清單：使用者提供截圖（2026-09-10）。資料來源：全民健康保險降血脂藥物給付規定修訂對照表，自 115/9/1 生效。此工具為門診判讀輔助，不取代健保署最新公告、院內藥品代碼或醫師臨床判斷。</div>
-    </div>
-  </div>
-</div>
-
-<script src="./formulary.js"></script>
-<script src="./rules.js"></script>
-<script src="./app.js"></script>
-</body>
-</html>
+<details class="card" id="legacyPanel"><summary>表二條件：獨立核對舊制分類</summary><p class="sub">表二不採表一的 CKD、CAC、代謝症候群分類。女性 HDL 門檻也不同。</p><div class="field"><label for="legacyGroup">表二分類</label><select id="legacyGroup"><option value="">請選擇表二分類</option><option value="auto">依自動分級欄位＋下方補充計算</option><option value="acs">ACS 病史／冠狀動脈粥狀硬化曾 PCI、CABG</option><option value="cvd">表二心血管疾病或糖尿病</option><option value="two">至少 2 項表二危險因子</option><option value="one">1 項表二危險因子</option><option value="zero">0 項表二危險因子</option></select></div><div class="checks"><label class="check"><input id="menopause" type="checkbox"><span>女性已停經（供自動計算）</span></label><label class="check"><input id="legacyCvd" type="checkbox"><span>已核對符合表二心血管疾病定義（供自動計算）</span></label></div><p class="tiny">表二心血管疾病：冠狀動脈粥狀硬化（需檢查證據）、腦梗塞，或神經科確診的 TIA／有症狀頸動脈狹窄。因子：高血壓、男 ≥45／女 ≥55 或停經、早發冠心病家族史（男 ≤55／女 ≤65）、HDL &lt;40、吸菸。</p><div class="field"><label for="legacySmoking">手動分類：是否因吸菸才符合起始準則且尚未戒菸？</label><select id="legacySmoking"><option value="">尚未確認</option><option value="no">否：不靠吸菸因子也符合，或已戒菸</option><option value="yes">是：依表二應自費</option></select></div></details>
+<div id="error" class="error" role="alert"></div><div class="actions"><button class="btn secondary" type="reset">清空</button><button class="btn primary" type="submit">分析目標與用藥條件</button></div></form>
+<section class="card results" id="results" hidden aria-live="polite" tabindex="-1"><div class="eyebrow">本次判讀</div><div class="resultTop"><span class="riskpill" id="riskpill"></span><h2 id="headline"></h2></div><p class="sub" id="reason"></p><div class="metricGrid"><div class="metric"><span>目前 LDL</span><b id="currentLdl"></b></div><div class="metric"><span>表一治療目標</span><b id="ldlGoal"></b></div><div class="metric"><span>還需降低</span><b id="gap"></b></div></div><p class="notice" id="clinicalAdvice"></p><div id="comparison"></div><h2>品項給付條件</h2><p class="tiny">以下為輸入條件的比對結果，需搭配原始紀錄與個別仿單。</p><div id="drugAdvice"></div><details><summary>追蹤與判定依據</summary><div id="followup"></div><p id="debug" class="tiny"></p></details></section>
+<details class="card"><summary>院內藥品目錄與表別</summary><div class="field"><label for="codeSearch">搜尋藥名、成分、院內碼或健保碼</label><input id="codeSearch" type="search" placeholder="例如 Cretrol、07137"></div><div id="codeResult"></div></details>
+<details class="card"><summary>規則版本與來源</summary><p>表一：55／70／100／115／130／160；表二：70／100／130／160／190。兩表依藥品與各自病人分類判讀。</p><p>三個月例外品項仍依表一目標核對，療程與適用表別分開處理；此為本工具採用、經使用者確認的條文解讀。個別明列表二者才套用表二。</p><p>PCSK9、inclisiran、bempedoic acid、fibrate、魚油及罕藥等未實作個別給付判定。Linicor 雖適用表一，並不代表是建議首選。</p><p class="sources"><a href="https://www.nhi.gov.tw/ch/dl-100842-f34d34af17374f04ae02e87f1ea8ac56-1.pdf" target="_blank" rel="noopener">115/9/1 修訂條文</a><a href="https://www.nhi.gov.tw/ch/dl-101785-526b0af3459a4b5d9a16babdffc851bc-1.pdf" target="_blank" rel="noopener">品項給付清單</a><a href="https://www.nhi.gov.tw/ch/dl-47972-6ef1f3f8e05e42b6bf167b251e6661b4-1.pdf" target="_blank" rel="noopener">舊制完整表格（附錄一）</a></p><p class="tiny">院內截圖：2026-09-10；規則核對：2026-09-13。臨床判斷與健保給付不同，仍以健保署最新公告及個別仿單為準。</p></details>
+<footer>HY TOOLS · 門診判讀輔助</footer></main>
+<script src="./formulary.js?v=20260913"></script><script src="./rules.js?v=20260913"></script><script src="./app.js?v=20260913"></script></body></html>

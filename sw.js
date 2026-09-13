@@ -1,5 +1,5 @@
-const CACHE='hy-tools-v8';
-const CORE=['./','./index.html','./assets/styles.css','./assets/app.js','./assets/icon.svg','./manifest.webmanifest','./lipid/','./lipid/app.js','./lipid/rules.js','./lipid/formulary.js','./followup/','./taifex-alert/','./taifex-alert/calculator.js','./taifex-alert/app.js','./text-game/','./text-game/style.css','./text-game/app.js','./text-game/gameState.js','./text-game/eventsData.js','./text-game/eventEngine.js'];
+const CACHE='hy-tools-v9';
+const CORE=['./','./index.html','./assets/styles.css','./assets/app.js','./assets/icon.svg','./manifest.webmanifest','./lipid/','./lipid/style.css?v=20260913','./lipid/app.js?v=20260913','./lipid/rules.js?v=20260913','./lipid/formulary.js?v=20260913','./followup/','./taifex-alert/','./taifex-alert/calculator.js','./taifex-alert/app.js','./text-game/','./text-game/style.css','./text-game/app.js','./text-game/gameState.js','./text-game/eventsData.js','./text-game/eventEngine.js'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(CORE)).then(()=>self.skipWaiting()));
@@ -31,3 +31,4 @@ self.addEventListener('fetch',event=>{
     }))
   );
 });
+

@@ -159,7 +159,7 @@ const hospitalDrugs = [
     "code": "AC57216100",
     "name": "理脂膜 Linicor 500/20 mg",
     "ingredient": "niacin 500 mg / lovastatin 20 mg",
-    "kind": "other"
+    "kind": "mixed"
   },
   {
     "id": "07114",
@@ -253,4 +253,20 @@ const hospitalDrugs = [
     "kind": "statin"
   }
 ];
+// 強度指單位劑型的 statin 成分，不代表複方整體降幅或個別處方建議。
+const statinMetadata={
+ '07168':['rosuvastatin',10,'中強度'],'07169':['rosuvastatin',20,'高強度'],
+ '07135':['atorvastatin',10,'中強度'],'07109':['atorvastatin',10,'中強度'],
+ '07159':['atorvastatin',20,'中強度'],'07161':['rosuvastatin',20,'高強度'],
+ '07136':['atorvastatin',40,'高強度'],'07171':['rosuvastatin',5,'中強度'],
+ '07155':['simvastatin',20,'中強度'],'07162':['atorvastatin',20,'中強度'],
+ '07084':['atorvastatin',20,'中強度'],'07163':['pravastatin',40,'中強度'],
+ '07113':['lovastatin',20,'低強度'],'07137':['lovastatin',20,'低強度'],
+ '07114':['atorvastatin',40,'高強度'],'07157':['pitavastatin',2,'中強度'],
+ '07142':['pitavastatin',2,'中強度'],'07167':['pitavastatin',2,'中強度'],
+ '07145':['pravastatin',40,'中強度'],'07146':['rosuvastatin',10,'中強度'],
+ '07176':['pitavastatin',2,'中強度'],'07149':['pitavastatin',4,'中強度']
+};
+for(const d of hospitalDrugs){const m=statinMetadata[d.id];if(m)d.statin={molecule:m[0],mg:m[1],intensity:m[2]};}
 if(typeof module!=="undefined") module.exports=hospitalDrugs;
+

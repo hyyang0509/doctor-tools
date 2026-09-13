@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {classify,validate,drugRule,assessDrug}=require('./rules');
 const drugs=require('./formulary');
-const base={age:30,sex:'M',hdl:50,ldl:160,tc:null,baseline:null,dialysis:'no',statinStatus:'none',ezDx:'primary',gem:'no',lifestyle:'yes'};
+const base={age:30,sex:'M',hdl:50,ldl:160,tc:null,baseline:null,dialysis:'no',statinStatus:'none',ezDx:'primary',gem:'no',lifestyle:'yes',originalEligible:'yes'};
 const v=x=>({...base,...x});
 const assess=(id,x)=>{const a=v(x);return assessDrug(drugs.find(d=>d.id===id),a,classify(a));};
 test('six tiers and exact boundaries',()=>{
@@ -52,11 +52,72 @@ test('6–8 weeks vs three months, diagnosis, goal equality and contraindication
  assert.equal(assess('07162',{...x,statinStatus:'intolerant'}).tone,'warn');
  assert.equal(assess('07162',{...x,statinStatus:'other'}).tone,'warn');
 });
-test('never grants table two, unknown individual rules, intolerance or missing history',()=>{
- for(const id of ['07135','07175','07177','21227','07152']) assert.notEqual(assess(id,{dm:true}).tone,'ok');
+test('unknown individual rules, intolerance and missing history remain distinguishable',()=>{
+ for(const id of ['07175','07177','21227','07152']) assert.notEqual(assess(id,{dm:true}).tone,'ok');
  assert.notEqual(assess('07109',{dm:true,statinStatus:'intolerant'}).tone,'ok');
  assert.notEqual(assess('07162',{statinStatus:'ge3m'}).tone,'ok');
  assert.equal(assess('07109',{ldl:160}).tone,'ok');
  assert.equal(assess('07109',{ldl:159.9}).tone,'warn');
  assert.equal(assess('07109',{lifestyle:'no'}).tone,'warn');
+});
+
+const {riskFor,classifyLegacy,compareDrugs}=require('./rules');
+test('quick mode requires deliberate risk selection and rejects underestimated severe LDL',()=>{
+ assert.equal(validate(v({mode:'quick',quickRisk:'70',age:null,hdl:null})), '');
+ for(const x of [{quickRisk:''},{quickRisk:'115',ldl:190},{quickRisk:'160',baseline:190},{purpose:'adjust',currentDrug:''}]) assert.ok(validate(v({mode:'quick',quickRisk:'70',...x})));
+ for(const goal of [55,70,100,115,130,160]) assert.equal(riskFor(v({mode:'quick',quickRisk:String(goal)})).goal,goal);
+});
+test('PCI implies CAD for PAD combination; normal HDL overrides contradictory checkbox',()=>{
+ assert.equal(classify(v({revasc:true,pad:true})).goal,55);
+ assert.equal(classify(v({hdl:55,metHdl:true,metWaist:true,metBp:true})).met,false);
+});
+test('Linicor uses table one; unknown codes are not inferred eligible',()=>{
+ assert.equal(drugRule(drugs.find(d=>d.id==='07137')),'table1');
+ assert.equal(drugRule({kind:'statin',code:'AC99999100'}),'other');
+});
+test('table two preserves ACS, menopause, HDL threshold and no metabolic factor',()=>{
+ assert.equal(classifyLegacy(v({acs:true})).ldl,70);
+ assert.equal(classifyLegacy(v({dm:true})).tc,160);
+ assert.equal(classifyLegacy(v({age:40,sex:'F',menopause:true,hdl:45})).key,'one');
+ assert.equal(classifyLegacy(v({age:40,sex:'F',hdl:45,metWaist:true,metBp:true,metTg:true})).key,'zero');
+ assert.equal(classifyLegacy(v({mode:'quick'})),null);
+});
+test('table two LDL/TC boundaries and smoking dependent eligibility',()=>{
+ const x={purpose:'start',mode:'quick',legacyGroup:'two',legacySmoking:'no',ldl:120};
+ assert.equal(assess('07135',{...x,tc:200}).tone,'ok');
+ assert.notEqual(assess('07135',{...x,tc:199.9}).tone,'ok');
+ assert.notEqual(assess('07135',{...x,tc:null}).tone,'ok');
+ assert.equal(assess('07135',{...x,tc:200,legacySmoking:'yes'}).tone,'bad');
+ assert.equal(assess('07135',{age:45,smoke:true,ldl:130}).tone,'bad');
+ assert.equal(assess('07135',{age:45,smoke:true,ldl:160}).tone,'ok');
+ assert.equal(assess('07135',{age:30,ldl:190}).tone,'ok');
+ assert.notEqual(assess('07135',{age:30,ldl:189.9}).tone,'ok');
+ assert.equal(assess('07135',{acs:true,ldl:70}).tone,'ok');
+ assert.notEqual(assess('07135',{acs:true,ldl:69.9}).tone,'ok');
+});
+test('three month exceptions follow table one regardless of prior table two statin',()=>{
+ const x={purpose:'adjust',currentDrug:'07157',mi1y:true,ldl:62,statinStatus:'ge3m'};
+ assert.equal(assess('07168',x).tone,'ok');
+ assert.equal(assess('07178',x).tone,'ok');
+ assert.notEqual(assess('07168',{...x,statinStatus:'8to12'}).tone,'ok');
+ assert.equal(assess('07168',{...x,originalEligible:'no'}).tone,'ok');
+});
+test('continuation does not rerun initiation; amended ez rules do not add old eligibility gate',()=>{
+ assert.equal(assess('07168',{purpose:'continue',currentDrug:'07168',mi1y:true,ldl:40}).tone,'purple');
+ assert.notEqual(assess('07168',{purpose:'continue',currentDrug:'07109'}).tone,'ok');
+ assert.equal(assess('07178',{dm:true,statinStatus:'intolerant',originalEligible:'no'}).tone,'ok');
+});
+test('same dose warning and all statin metadata',()=>{
+ const find=id=>drugs.find(d=>d.id===id);
+ assert.match(compareDrugs(find('07135'),find('07109')),/換品牌不等於/);
+ assert.match(compareDrugs(find('07146'),find('07168')),/另外加入 ezetimibe/);
+ for(const d of drugs.filter(d=>['statin','mixed','combo'].includes(d.kind))) assert.ok(d.statin);
+});
+
+test('combined-treatment LDL cannot stand in for statin-only response',()=>{
+ const x={purpose:'adjust',dm:true,currentDrug:'07168',currentCombined:true,statinStatus:'ge3m',ldl:110};
+ assert.notEqual(assess('07162',x).tone,'ok');
+ assert.notEqual(assess('07162',{...x,monoLdl:90}).tone,'ok');
+ assert.equal(assess('07162',{...x,monoLdl:110}).tone,'ok');
+ assert.ok(validate(v({monoLdl:-1})));
 });
