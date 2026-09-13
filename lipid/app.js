@@ -5,7 +5,7 @@ const num=id=>{const v=parseFloat($(id).value);return Number.isFinite(v)?v:null}
 
 function metUpdate(){
   const low=num('hdl')!==null && num('hdl')<($('sex').value==='M'?40:50);
-  $('metHdl').disabled=low; if(low) $('metHdl').checked=true;
+  $('metHdl').disabled=true; $('metHdl').checked=low;
   const n=[...document.querySelectorAll('.met')].filter(x=>x.checked).length;
   $('metCount').textContent=`目前 ${n} / 5 項 → ${n>=3?'符合代謝症候群（算 1 個風險因子）':'尚不符合代謝症候群'}`;
 }
@@ -22,21 +22,21 @@ function calculate(){
   $('startThreshold').textContent=`≥ ${r.threshold}`;
   $('ldlGoal').textContent=`< ${r.goal}`;
   $('nonHdlGoal').textContent=r.nonHdl?`< ${r.nonHdl}`:'未列';
-  const tc=num('tc');
-  const hdl=num('hdl');
+  const tc=v.mode==='quick'?null:num('tc');
+  const hdl=v.mode==='quick'?null:num('hdl');
   let extra='';
   if(tc!==null&&hdl!==null){const nh=Math.round((tc-hdl)*10)/10;extra=`目前 non-HDL-C 約 ${nh} mg/dL${r.nonHdl?`（次要目標 <${r.nonHdl}）`:''}。`}
   const highPlus=['極高風險','非常高風險','高風險'].includes(r.risk);
   $('eligibility').innerHTML=`<div class="notice purple">「治療目標」是希望降到的數值；「起始用藥門檻」是開始用藥的條件。LDL 尚未降至目標，仍可能符合起始用藥條件；各品項請看下方結果。${extra}</div>`;
-  if(v.statinStatus!=='none' && v.baseline===null) $('eligibility').innerHTML+='<div class="notice warn">治療前 LDL-C 未填：若原本 ≥190 mg/dL，風險可能被低估。請補原始數值再核對加藥條件。</div>';
-  if(v.dialysis==='yes') $('eligibility').innerHTML+='<div class="notice warn">已透析不能單憑 CKD 歸入表一高風險；請核對個別治療與給付條件。</div>';
+  if(v.mode!=='quick' && v.statinStatus!=='none' && v.baseline===null) $('eligibility').innerHTML+='<div class="notice warn">治療前 LDL-C 未填：若原本 ≥190 mg/dL，風險可能被低估。請補原始數值再核對加藥條件。</div>';
+  if(v.mode!=='quick' && v.dialysis==='yes') $('eligibility').innerHTML+='<div class="notice warn">已透析不能單憑 CKD 歸入表一高風險；請核對個別治療與給付條件。</div>';
   renderHospital(v,r);
   const status=$('statinStatus').value;
   let fu='';
   if(highPlus){fu='<ul class="timeline"><li>起始治療後 <b>6–8 週</b>追蹤血脂。</li><li>若更動治療，<b>1–3 個月</b>內再追蹤是否達標。</li><li>達標後原則每 <b>6 個月</b>追蹤。</li></ul>'}
   else{fu='<ul class="timeline"><li>先生活型態改變 <b>3–6 個月</b>後檢測。</li><li>開始中強度 statin 後 <b>6–8 週</b>追蹤。</li><li>達標後原則每 <b>6–12 個月</b>追蹤。</li></ul>'}
   $('followup').innerHTML=fu;
-  $('debug').innerHTML=`最高風險優先順序：極高 → 非常高 → 高 → 一般風險因子 計數。<br>一般風險因子 共 ${r.n} 項：${r.rfList.length?r.rfList.join('、'):'無'}。<br>代謝症候群：${r.met?'是':'否'}。年齡風險因子：${r.ageRF?'是':'否'}。低 HDL 風險因子：${r.lowHdl?'是':'否'}。`;
+  $('debug').innerHTML=v.mode==='quick'?'快速模式：使用醫師確認的分級，隱藏的詳細條件不參與判定。':`最高風險優先順序：極高 → 非常高 → 高 → 一般風險因子 計數。<br>一般風險因子 共 ${r.n} 項：${r.rfList.length?r.rfList.join('、'):'無'}。<br>代謝症候群：${r.met?'是':'否'}。年齡風險因子：${r.ageRF?'是':'否'}。低 HDL 風險因子：${r.lowHdl?'是':'否'}。`;
   $('results').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -69,7 +69,7 @@ function resetAll(){
   $('results').style.display='none';
   $('codeResult').innerHTML=''; $('error').textContent='';
   $('dialysisNote').style.display='none';
-  metUpdate();
+  metUpdate(); modeUpdate();
   try{ window.scrollTo(0,0); }catch(e){}
 }
 
@@ -104,3 +104,15 @@ $('hospitalDrug').innerHTML='<option value="">全部院內 statin / ezetimibe �
 document.querySelectorAll('.field').forEach(f=>{const label=f.querySelector('label'),input=f.querySelector('input,select');if(label&&input) label.htmlFor=input.id;});
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',()=>{$('results').style.display='none';$('error').textContent='';}));
 $('jsStatus').hidden=true;
+
+function modeUpdate(){
+ const quick=$('mode').value==='quick';
+ $('ldl').closest('.card').querySelector('.sub').textContent=quick?'填寫目前 LDL-C；治療前數值為選填。':'填寫目前血脂與年齡；未勾選的診斷視為沒有，請確認後分析。';
+ $('tierField').hidden=!quick;
+ ['sex','age','hdl','tc','dialysis'].forEach(id=>{$(id).closest('.field').hidden=quick;});
+ ['cad','dm','htn'].forEach(id=>{$(id).closest('.card').hidden=quick;});
+ $('dialysisNote').style.display=!quick&&$('dialysis').value==='yes'?'block':'none';
+ $('results').style.display='none';
+}
+$('mode').addEventListener('change',modeUpdate);
+modeUpdate();

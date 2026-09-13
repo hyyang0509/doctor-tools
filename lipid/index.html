@@ -18,6 +18,7 @@
 .wrap{max-width:860px;padding-top:24px}.hero{padding:28px 30px;margin-bottom:20px;border-radius:24px;background:linear-gradient(135deg,#173a70,#2d6cdf);color:white;box-shadow:0 16px 42px #173a7033}.hero h1{font-size:clamp(1.9rem,7vw,2.55rem)}.hero p,.hero .privacy{color:#ffffffd0}.hero .badge{background:#ffffff18;color:white;border-color:#ffffff40}.card{padding:24px;border-radius:20px}.grid{gap:18px}.field input,.field select{min-height:52px}.check{min-height:48px}.primary{background:linear-gradient(135deg,#245ebf,#2d6cdf)}.split{grid-template-columns:1fr}.status{white-space:normal;flex-shrink:0;max-width:48%}.codeResult{max-height:440px;overflow:auto}.hero .privacy{font-size:12px}.error{color:#b42318;background:#fff0ee;border-radius:12px;padding:12px}.error:empty{display:none}summary{min-height:44px;padding:8px 0}.drugrow{overflow-wrap:anywhere}.field{min-width:0}select{max-width:100%}.back:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #2d6cdf;outline-offset:3px}
 @media(max-width:560px){.wrap{padding:8px 10px 50px}.hero{padding:24px 21px}.card{padding:18px 15px}.drugtitle{flex-wrap:wrap}.status{max-width:100%}}
 </style>
+<style>[hidden]{display:none!important}</style>
 </head>
 <body>
 <div class="wrap">
@@ -31,6 +32,14 @@
   </div>
 
   <div class="grid">
+    <div class="card">
+      <h2>判定方式</h2>
+      <div class="fields">
+        <div class="field"><label for="mode">模式</label><select id="mode"><option value="quick">快速模式：直接選分級</option><option value="detailed">詳細模式：自動判定</option></select></div>
+        <div class="field" id="tierField"><label for="riskTier">已確認的風險分級＊</label><select id="riskTier"><option value="">請選擇</option><option value="extreme">極高風險 · LDL &lt;55</option><option value="veryHigh">非常高風險 · LDL &lt;70</option><option value="high">高風險 · LDL &lt;100</option><option value="moderate">中風險 · LDL &lt;115</option><option value="low">低風險 · LDL &lt;130</option><option value="none">0 項風險因子 · LDL &lt;160</option></select></div>
+      </div>
+      <p class="tiny">快速模式由醫師確認分級；加藥仍須核對診斷、單藥療程與抽血紀錄。</p>
+    </div>
     <div class="card">
       <h2>1. 基本資料與血脂</h2>
       <div class="sub">填寫目前血脂與年齡；未勾選的診斷視為沒有，請確認後分析。</div>
@@ -49,7 +58,7 @@
       <h2>2. ASCVD / 極高與非常高風險條件</h2>
       <div class="sub">勾選已明確成立的診斷或病史。若只是做過診斷性 CAG，請不要勾「血管再通術」。</div>
       <div class="checks">
-        <label class="check"><input id="cad" type="checkbox"><span><b>冠狀動脈疾病（CAD）</b><small>用於判斷「極高風險」的組合條件</small></span></label>
+        <label class="check"><input id="cad" type="checkbox"><span><b>冠狀動脈疾病（CAD）</b><small>確診 CAD 至少列為非常高風險；有組合條件時列為極高風險</small></span></label>
         <label class="check"><input id="mi1y" type="checkbox"><span><b>一年內曾心肌梗塞</b></span></label>
         <label class="check"><input id="mi2" type="checkbox"><span><b>≥2 次心肌梗塞病史</b></span></label>
         <label class="check"><input id="multivessel" type="checkbox"><span><b>多支冠狀動脈阻塞</b></span></label>
@@ -89,7 +98,7 @@
           <label class="check"><input class="met" id="metBp" type="checkbox"><span><b>BP ≥130/85 或使用降壓藥</b></span></label>
           <label class="check"><input class="met" id="metGlu" type="checkbox"><span><b>FPG ≥100 或使用糖尿病藥</b></span></label>
           <label class="check"><input class="met" id="metTg" type="checkbox"><span><b>TG ≥150 或使用治療 TG 藥物</b></span></label>
-          <label class="check"><input class="met" id="metHdl" type="checkbox"><span><b>HDL 偏低</b><small>男 &lt;40；女 &lt;50</small></span></label>
+          <label class="check"><input class="met" id="metHdl" type="checkbox"><span><b>HDL 偏低（依實測值自動判定）</b><small>男 &lt;40；女 &lt;50</small></span></label>
         </div>
         <div class="metcount" id="metCount">目前 0 / 5 項 → 尚不符合代謝症候群</div>
       </div>
@@ -109,6 +118,7 @@
             <option value="other">已使用複方／合併治療，單方病史未確認</option><option value="intolerant">statin 無法耐受（如 severe myalgia / myositis）</option>
           </select>
         </div>
+        <div class="field"><label for="records">單藥用藥時間與療程後抽血紀錄完整？</label><select id="records"><option value="no">否／待確認</option><option value="yes">是（先前表一或表二 statin 皆可採計）</option></select></div>
         <div class="field"><label>診斷類型（ezetimibe 單方／複方給付用）</label>
           <select id="ezDx">
             <option value="none">請選擇診斷；不確定或不符時保留此項</option>
@@ -179,6 +189,7 @@
 </div>
 
 <script src="./formulary.js"></script>
+<script src="./drug-policy.js"></script>
 <script src="./rules.js"></script>
 <script src="./app.js"></script>
 </body>
