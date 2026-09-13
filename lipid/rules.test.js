@@ -2,7 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const {classify,validate,drugRule,assessDrug}=require('./rules');
 const drugs=require('./formulary');
-const base={age:30,sex:'M',hdl:50,ldl:160,tc:null,baseline:null,dialysis:'no',statinStatus:'none',ezDx:'primary',gem:'no',lifestyle:'yes'};
+const base={age:30,sex:'M',hdl:50,ldl:160,tc:null,baseline:null,dialysis:'no',statinStatus:'none',ezDx:'primary',gem:'no',lifestyle:'yes',records:'yes'};
 const v=x=>({...base,...x});
 const assess=(id,x)=>{const a=v(x);return assessDrug(drugs.find(d=>d.id===id),a,classify(a));};
 test('six tiers and exact boundaries',()=>{
