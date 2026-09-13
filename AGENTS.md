@@ -137,6 +137,16 @@ For irreversible, high-impact, or architecture-changing actions, explain the imp
 
 ---
 
+## Token Efficiency & Output Rules
+
+To prevent context window overflow and keep changes clean:
+1. **Targeted Code Output**: Do NOT re-print entire files. Only output the exact diff, changed functions, or clear line replacement instructions.
+2. **Concise Tool Outputs**: When analyzing logs, test results, or codebase scans, summarize findings in 3-5 bullet points. Avoid pasting massive raw logs.
+3. **Keep Files Modular**: Each file should remain under 200 lines if possible. Split complex logic (e.g., separating UI from calculation logic) into separate helper files.
+4. **State Checkpoints**: When completing a multi-step task, summarize the current milestone and update `PROGRESS.md` so future chats can start fresh without historical baggage.
+
+---
+
 ## Decision-making
 
 Do not stop for minor implementation decisions.
