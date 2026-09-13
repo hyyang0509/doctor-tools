@@ -109,6 +109,8 @@ function modeUpdate(){
  const quick=$('mode').value==='quick';
  $('ldl').closest('.card').querySelector('.sub').textContent=quick?'填寫目前 LDL-C；治療前數值為選填。':'填寫目前血脂與年齡；未勾選的診斷視為沒有，請確認後分析。';
  $('tierField').hidden=!quick;
+ $('riskDefinitions').hidden=!quick;
+ $('riskDefinitions').open=false;
  ['sex','age','hdl','tc','dialysis'].forEach(id=>{$(id).closest('.field').hidden=quick;});
  ['cad','dm','htn'].forEach(id=>{$(id).closest('.card').hidden=quick;});
  $('dialysisNote').style.display=!quick&&$('dialysis').value==='yes'?'block':'none';
