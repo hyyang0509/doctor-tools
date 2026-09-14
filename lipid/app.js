@@ -17,7 +17,7 @@ function calculate(){
   if(r.ldl===null){alert('請先填 LDL-C');$('ldl').focus();return}
   $('results').style.display='block';
   $('riskpill').textContent=r.risk;
-  $('headline').textContent=`LDL-C ${r.ldl} mg/dL · ${r.ldl<r.goal?'已降至目標':'尚未降至目標'}（目標 <${r.goal}）`;
+  $('headline').textContent=`LDL-C ${r.ldl} mg/dL · ${r.ldl<r.goal?'已達標':'尚未達標'}（目標 <${r.goal}）`;
   $('reason').textContent='判定依據：'+r.basis.join('、')+(r.rfList.length?`；一般風險因子：${r.rfList.join('、')}`:'');
   $('startThreshold').textContent=`≥ ${r.threshold}`;
   $('ldlGoal').textContent=`< ${r.goal}`;
@@ -27,11 +27,10 @@ function calculate(){
   let extra='';
   if(tc!==null&&hdl!==null){const nh=Math.round((tc-hdl)*10)/10;extra=`目前 non-HDL-C 約 ${nh} mg/dL${r.nonHdl?`（次要目標 <${r.nonHdl}）`:''}。`}
   const highPlus=['極高風險','非常高風險','高風險'].includes(r.risk);
-  $('eligibility').innerHTML=`<div class="notice purple">「治療目標」是希望降到的數值；「起始用藥門檻」是開始用藥的條件。LDL 尚未降至目標，仍可能符合起始用藥條件；各品項請看下方結果。${extra}</div>`;
-  if(v.mode!=='quick' && v.statinStatus!=='none' && v.baseline===null) $('eligibility').innerHTML+='<div class="notice warn">治療前 LDL-C 未填：若原本 ≥190 mg/dL，風險可能被低估。請補原始數值再核對加藥條件。</div>';
+  $('eligibility').innerHTML=`<div class="notice purple"><b>此分級的 LDL-C 分界為 ${r.goal} mg/dL。</b><br>未接受治療時，LDL-C ≥${r.threshold} mg/dL 為起始治療門檻；已接受治療者則以 LDL-C &lt;${r.goal} mg/dL 判斷是否達標。<b>達標後維持適當治療，不代表應停藥。</b>${extra}</div>`;
+  if(v.mode!=='quick' && v.statinStatus!=='none' && v.baseline===null) $('eligibility').innerHTML+='<div class="notice warn">治療前 LDL-C 未填：若原本 ≥190 mg/dL，風險可能被低估。請補原始數值再核對需要原始資格的加藥路徑。</div>';
   if(v.mode!=='quick' && v.dialysis==='yes') $('eligibility').innerHTML+='<div class="notice warn">已透析不能單憑 CKD 歸入表一高風險；請核對個別治療與給付條件。</div>';
   renderHospital(v,r);
-  const status=$('statinStatus').value;
   let fu='';
   if(highPlus){fu='<ul class="timeline"><li>起始治療後 <b>6–8 週</b>追蹤血脂。</li><li>若更動治療，<b>1–3 個月</b>內再追蹤是否達標。</li><li>達標後原則每 <b>6 個月</b>追蹤。</li></ul>'}
   else{fu='<ul class="timeline"><li>先生活型態改變 <b>3–6 個月</b>後檢測。</li><li>開始中強度 statin 後 <b>6–8 週</b>追蹤。</li><li>達標後原則每 <b>6–12 個月</b>追蹤。</li></ul>'}
@@ -44,7 +43,10 @@ function codeLookup(){renderCatalog();}
 function readInputs(){
  const v={}; document.querySelectorAll('input,select').forEach(el=>{v[el.id]=el.type==='checkbox'?el.checked:el.type==='number'?(el.value.trim()===''?null:Number(el.value)):el.value;}); return v;
 }
-function drugHTML(d,a){return `<div class="drugrow"><div class="drugtitle"><b>${d.name}</b><span class="status ${a.tone}">${a.status}</span></div><div class="why">${d.ingredient}<br>院內碼 ${d.id} · 健保欄 ${d.code}<br>${a.text}</div></div>`;}
+function drugHTML(d,a){
+ const therapy=a.therapyStatus?`<div class="therapyStatus">${a.therapyStatus}</div>`:'';
+ return `<div class="drugrow"><div class="drugtitle"><b>${d.name}</b><span class="status ${a.tone}">${a.status}</span></div><div class="why">${d.ingredient}<br>院內碼 ${d.id} · 健保欄 ${d.code}${therapy}<div class="adviceText">${a.text}</div></div></div>`;
+}
 function renderHospital(v,r){
  const selected=$('hospitalDrug').value;
  const ds=selected?hospitalDrugs.filter(d=>d.id===selected):hospitalDrugs.filter(d=>['statin','ez','combo'].includes(d.kind));
@@ -54,7 +56,7 @@ function renderHospital(v,r){
 function renderCatalog(){
  const q=$('codeSearch').value.trim().toLowerCase();
  const ds=hospitalDrugs.filter(d=>Object.values(d).join(' ').toLowerCase().includes(q));
- $('codeResult').innerHTML=ds.length?ds.map(d=>drugHTML(d,{status:ruleLabels[drugRule(d)],tone:drugRule(d)==='table1'?'purple':'warn',text:'品項規則標示，不代表病人已符合給付。'})).join(''):'<div class="notice warn">查無院內品項；未命中不代表符合表一或健保給付。</div>';
+ $('codeResult').innerHTML=ds.length?ds.map(d=>drugHTML(d,{status:ruleLabels[drugRule(d)],tone:drugRule(d)==='table1'?'purple':'warn',text:'品項規則標示，不代表病人已符合給付。',therapyStatus:''})).join(''):'<div class="notice warn">查無院內品項；未命中不代表符合表一或健保給付。</div>';
  const exclusions=q?table2Only.filter(d=>d.join(' ').toLowerCase().includes(q)):[];
  if(exclusions.length) $('codeResult').innerHTML+='<details><summary>另一套給付規定（表二）查到 '+exclusions.length+' 項</summary>'+exclusions.map(d=>`<p>${d[1]} · ${d[2]}：適用另一套給付規定（表二），不能套用上方門檻</p>`).join('')+'</details>';
 }
