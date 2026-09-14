@@ -6,6 +6,8 @@ This file defines how AI coding agents should work in this repository.
 
 Before making changes, always read `README.md`.
 
+If `PROGRESS.md` exists, read it when the task continues earlier work, spans multiple steps, or may depend on pending validation, an active branch, or an open Pull Request. For a clearly independent small task, a full progress review is optional.
+
 `README.md` is the authoritative source for:
 - project structure
 - tool organization
@@ -14,6 +16,8 @@ Before making changes, always read `README.md`.
 - validation and testing requirements
 - PWA / Service Worker behavior
 - GitHub branch and Pull Request workflow
+
+`PROGRESS.md` is only a concise handoff checkpoint for unfinished or recently completed multi-step work. It must not duplicate the README or replace checking the repository, branch, PR, and test state.
 
 Do not duplicate or override those rules unless explicitly instructed.
 
@@ -137,13 +141,18 @@ For irreversible, high-impact, or architecture-changing actions, explain the imp
 
 ---
 
-## Token Efficiency & Output Rules
+## Token efficiency and handoff
 
-To prevent context window overflow and keep changes clean:
-1. **Targeted Code Output**: Do NOT re-print entire files. Only output the exact diff, changed functions, or clear line replacement instructions.
-2. **Concise Tool Outputs**: When analyzing logs, test results, or codebase scans, summarize findings in 3-5 bullet points. Avoid pasting massive raw logs.
-3. **Keep Files Modular**: Each file should remain under 200 lines if possible. Split complex logic (e.g., separating UI from calculation logic) into separate helper files.
-4. **State Checkpoints**: When completing a multi-step task, summarize the current milestone and update `PROGRESS.md` so future chats can start fresh without historical baggage.
+Reduce wasted context without reducing implementation quality or requiring the user to manage technical details.
+
+1. **Read selectively but sufficiently**: Start with `README.md`, relevant source files, and relevant tests. Avoid broad file dumps or unrelated history unless the task genuinely requires them.
+2. **Keep outputs concise**: Do not paste entire files, large diffs, or raw logs into chat unless requested. Summarize code changes and test results; include only errors or excerpts needed for a decision.
+3. **Prefer focused files, not arbitrary limits**: Keep each file cohesive and understandable. Split code only when responsibilities are clearly separable or testing and maintenance materially improve. Do not split files merely to meet a line-count target.
+4. **Avoid repeated analysis**: Reuse verified repository facts within the same task, but re-check facts that may have changed, such as branch, PR, deployment, and test status.
+5. **Use checkpoints only when useful**: Update `PROGRESS.md` for unfinished multi-step work, cross-chat handoff, unresolved medical or calculation decisions, pending validation, blockers, or meaningful work at risk of context loss. Do not update it for every completed small task.
+6. **Keep checkpoints factual and current**: Record the active task, branch, PR, latest relevant commit, completed work, completed and pending validation, blockers, and exact next actions. Remove or replace stale active-task information after completion.
+7. **Protect the vibe-coding workflow**: Token efficiency must never be used as a reason to skip implementation, tests, mobile checks, GitHub Pages checks, or a requested Pull Request. The agent should handle these steps without asking the user to restate repository rules.
+8. **Before a likely interruption**: If substantial work remains and context is becoming constrained, commit a coherent checkpoint to the task branch when safe, update `PROGRESS.md`, and clearly distinguish completed, unverified, and pending work. Never mark an item complete merely because code was written.
 
 ---
 
