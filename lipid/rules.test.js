@@ -45,18 +45,35 @@ test('6–8 weeks vs three months, diagnosis, goal equality and contraindication
  assert.equal(assess('07178',x).tone,'warn');
  assert.equal(assess('07168',{...x,statinStatus:'ge3m'}).tone,'ok');
  assert.equal(assess('07178',{...x,statinStatus:'ge3m'}).tone,'ok');
- assert.equal(assess('07162',{...x,ldl:99.9}).tone,'purple');
+ assert.equal(assess('07162',{...x,ldl:99.9}).status,'目前無新增／換用條件');
  assert.equal(assess('07162',{...x,gem:'yes'}).tone,'bad');
  assert.equal(assess('07162',{...x,ezDx:'sitosterol'}).tone,'warn');
  assert.equal(assess('07178',{...x,statinStatus:'intolerant'}).tone,'ok');
  assert.equal(assess('07162',{...x,statinStatus:'intolerant'}).tone,'warn');
  assert.equal(assess('07162',{...x,statinStatus:'other'}).tone,'warn');
 });
+test('existing statin treatment stays eligible after LDL reaches goal',()=>{
+ const reached=assess('07109',{dm:true,ldl:82,statinStatus:'ge3m'});
+ assert.equal(reached.tone,'ok');
+ assert.equal(reached.status,'可維持既有 statin 治療');
+ assert.match(reached.therapyStatus,/LDL 已達標/);
+ const notReached=assess('07109',{dm:true,ldl:118,statinStatus:'ge3m'});
+ assert.equal(notReached.status,'可持續既有 statin 治療');
+ assert.match(notReached.therapyStatus,/LDL 尚未達標/);
+});
+test('ezetimibe intolerance path also requires documented lipid eligibility',()=>{
+ assert.equal(assess('07178',{dm:true,ldl:100,statinStatus:'intolerant'}).status,'符合 ezetimibe 不耐受途徑給付條件');
+ const missing=assess('07178',{dm:true,ldl:82,baseline:null,statinStatus:'intolerant'});
+ assert.equal(missing.tone,'warn');
+ assert.equal(missing.status,'需確認原始降血脂給付資格');
+ const documented=assess('07178',{dm:true,ldl:82,baseline:135,statinStatus:'intolerant'});
+ assert.equal(documented.tone,'ok');
+});
 test('never grants table two, unknown individual rules, intolerance or missing history',()=>{
  for(const id of ['07135','07175','07177','21227','07152']) assert.notEqual(assess(id,{dm:true}).tone,'ok');
  assert.notEqual(assess('07109',{dm:true,statinStatus:'intolerant'}).tone,'ok');
  assert.notEqual(assess('07162',{statinStatus:'ge3m'}).tone,'ok');
  assert.equal(assess('07109',{ldl:160}).tone,'ok');
- assert.equal(assess('07109',{ldl:159.9}).tone,'warn');
+ assert.equal(assess('07109',{ldl:159.9}).tone,'bad');
  assert.equal(assess('07109',{lifestyle:'no'}).tone,'warn');
 });
