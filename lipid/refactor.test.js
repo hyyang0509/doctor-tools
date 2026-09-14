@@ -34,7 +34,7 @@ test('exception target table remains table one for each tier and prior table-two
    const v={...base,mode:'quick',riskTier,ldl,priorStatinCode:'AC55272100'};
    assert.equal(assessDrug(d,v,classify(v)).tone,'ok');
    assert.equal(assessDrug(d,{...v,statinStatus:'8to12'},classify(v)).tone,'warn');
-   assert.equal(assessDrug(d,{...v,ldl:ldl-0.1},classify({...v,ldl:ldl-0.1})).tone,'purple');
+   assert.equal(assessDrug(d,{...v,ldl:ldl-0.1},classify({...v,ldl:ldl-0.1})).status,'目前無新增／換用條件');
   }
  }
  assert.equal(drugPolicy(drugs.find(d=>d.id==='07135')).table,2);
