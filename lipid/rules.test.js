@@ -45,10 +45,11 @@ test('6–8 weeks vs three months, diagnosis, goal equality and contraindication
  assert.equal(assess('07178',x).tone,'warn');
  assert.equal(assess('07168',{...x,statinStatus:'ge3m'}).tone,'ok');
  assert.equal(assess('07178',{...x,statinStatus:'ge3m'}).tone,'ok');
- assert.equal(assess('07162',{...x,ldl:99.9}).tone,'purple');
+ assert.equal(assess('07162',{...x,ldl:99.9}).tone,'neutral');
  assert.equal(assess('07162',{...x,gem:'yes'}).tone,'bad');
  assert.equal(assess('07162',{...x,ezDx:'sitosterol'}).tone,'warn');
  assert.equal(assess('07178',{...x,statinStatus:'intolerant'}).tone,'ok');
+ assert.equal(assess('07178',{ldl:90,statinStatus:'intolerant',lifestyle:'no'}).tone,'warn');
  assert.equal(assess('07162',{...x,statinStatus:'intolerant'}).tone,'warn');
  assert.equal(assess('07162',{...x,statinStatus:'other'}).tone,'warn');
 });
@@ -59,4 +60,7 @@ test('never grants table two, unknown individual rules, intolerance or missing h
  assert.equal(assess('07109',{ldl:160}).tone,'ok');
  assert.equal(assess('07109',{ldl:159.9}).tone,'warn');
  assert.equal(assess('07109',{lifestyle:'no'}).tone,'warn');
+ assert.equal(assess('07109',{dm:true,ldl:80,statinStatus:'ge3m'}).tone,'ok');
+ assert.match(assess('07109',{dm:true,ldl:80,statinStatus:'ge3m'}).status,/維持既有/);
+ assert.match(assess('07109',{dm:true,ldl:118,statinStatus:'ge3m'}).therapy,/尚未達標/);
 });
