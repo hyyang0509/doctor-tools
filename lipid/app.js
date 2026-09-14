@@ -27,7 +27,7 @@ function calculate(){
   let extra='';
   if(tc!==null&&hdl!==null){const nh=Math.round((tc-hdl)*10)/10;extra=`目前 non-HDL-C 約 ${nh} mg/dL${r.nonHdl?`（次要目標 <${r.nonHdl}）`:''}。`}
   const highPlus=['極高風險','非常高風險','高風險'].includes(r.risk);
-  $('eligibility').innerHTML=`<div class="notice purple">「治療目標」是希望降到的數值；「起始用藥門檻」是開始用藥的條件。LDL 尚未降至目標，仍可能符合起始用藥條件；各品項請看下方結果。${extra}</div>`;
+  $('eligibility').innerHTML=`<div class="notice purple"><b>LDL 目標 <${r.goal} mg/dL。</b>未接受治療時，LDL ≥${r.threshold} mg/dL 是此風險層級的起始治療門檻；已接受治療者則以 <${r.goal} mg/dL 判斷是否達標。<b>達標後維持適當治療，不代表應停藥。</b>${extra}</div>`;
   if(v.mode!=='quick' && v.statinStatus!=='none' && v.baseline===null) $('eligibility').innerHTML+='<div class="notice warn">治療前 LDL-C 未填：若原本 ≥190 mg/dL，風險可能被低估。請補原始數值再核對加藥條件。</div>';
   if(v.mode!=='quick' && v.dialysis==='yes') $('eligibility').innerHTML+='<div class="notice warn">已透析不能單憑 CKD 歸入表一高風險；請核對個別治療與給付條件。</div>';
   renderHospital(v,r);
@@ -44,7 +44,7 @@ function codeLookup(){renderCatalog();}
 function readInputs(){
  const v={}; document.querySelectorAll('input,select').forEach(el=>{v[el.id]=el.type==='checkbox'?el.checked:el.type==='number'?(el.value.trim()===''?null:Number(el.value)):el.value;}); return v;
 }
-function drugHTML(d,a){return `<div class="drugrow"><div class="drugtitle"><b>${d.name}</b><span class="status ${a.tone}">${a.status}</span></div><div class="why">${d.ingredient}<br>院內碼 ${d.id} · 健保欄 ${d.code}<br>${a.text}</div></div>`;}
+function drugHTML(d,a){return `<div class="drugrow"><div class="drugtitle"><b>${d.name}</b><span class="status ${a.tone}">${a.status}</span></div><div class="why">${d.ingredient}<br>院內碼 ${d.id} · 健保欄 ${d.code}</div>${a.therapy?`<div class="therapy">${a.therapy}</div>`:''}<div class="why">${a.text}</div></div>`;}
 function renderHospital(v,r){
  const selected=$('hospitalDrug').value;
  const ds=selected?hospitalDrugs.filter(d=>d.id===selected):hospitalDrugs.filter(d=>['statin','ez','combo'].includes(d.kind));
