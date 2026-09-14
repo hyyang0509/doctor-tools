@@ -1,55 +1,52 @@
-# PROGRESS.md - Project State & Memory Checkpoint
+# PROGRESS.md
 
-這個檔案是 AI Agents（Gemini / ChatGPT / Codex）跨對話的記憶中繼站。
-每次開啟全新對話視窗時，請先閱讀本檔案以快速同步專案現況。
+> Concise checkpoint for work that may need to continue in another chat. Repository rules and project structure belong in `README.md` and `AGENTS.md`.
 
----
+**Last updated:** 2026-09-14
 
-## 1. 專案整體現況 (Overview)
-- **專案定位**：個人臨床與生活純前端實用工具箱 (HY Doctor Tools)
-- **部署環境**：GitHub Pages (支援 PWA 與 Service Worker 離線快取)
-- **架構規範**：純前端、Mobile-first、不儲存病患個資、計算與 UI 分離、Git Branch + PR 工作流
+## Active task
 
----
+- No unfinished implementation task is currently recorded.
+- Before resuming work, verify the current GitHub branch, open PRs, deployed Pages version, and relevant tests rather than relying on this file alone.
 
-## 2. 工具模組狀態清單 (Modules Status)
+## Latest completed milestone
 
-| 工具資料夾 | 功能描述 | 目前狀態 | 備註 / 注意事項 |
-| :--- | :--- | :---: | :--- |
-| `assets/` & 首頁 | 首頁 App Shell、搜尋、共用樣式 | 🟢 穩定 | 含 `index.html`, `sw.js`, PWA 設定 |
-| `lipid/` | 血脂用藥工具 | 🟢 穩定 | 臨床規則需確保指引版本一致 |
-| `followup/` | 回診日期計算器 | 🟢 穩定 | 需注意月底、跨年與閏年邊界值 |
-| `taifex-alert/` | 台指期槓桿與保證金壓力測試 | 🟢 穩定 | 包含計算模組與單元測試 (`calculator.test.js`) |
-| `text-game/` | 王朝事件決策文字遊戲 | 🟡 開發中 | 宣紙/黑金視覺，含狀態機、事件引擎與繼承邏輯 |
+### Lipid drug-assessment wording and eligibility alignment
 
----
+- PR: [#17](https://github.com/hyyang0509/doctor-tools/pull/17) — merged into `main`
+- Completed:
+  - separated medication eligibility from LDL target status
+  - corrected ongoing statin wording after LDL reaches target
+  - tightened the ezetimibe statin-intolerance path
+  - clarified that reaching target does not imply stopping treatment
+  - updated related tests and Service Worker cache to v11
 
-## 3. 當前進行中任務 (Active Task)
-> *提示：開啟新對話時，直接請 AI 接續此處的待辦事項。*
+## Validation state
 
-- **當前焦點**：血脂工具藥物評估語意修正與 statin／ezetimibe 給付判定一致化
-- **已完成事項 (Done)**：
-  - [x] 快速／詳細模式共用品項判定；分離藥碼表別與療程要求
-  - [x] 3 個月例外採表一目標、跨表既往單藥療程採計、完整紀錄確認
-  - [x] 修正 CAD／PCI／CABG 組合與 HDL 矛盾輸入
-  - [x] statin 治療中改為「維持／持續既有治療」，LDL 達標狀態獨立顯示
-  - [x] ezetimibe statin 不耐受路徑加入原始降血脂給付資格確認
-  - [x] 重寫起始門檻／治療目標說明，明確註明達標不代表停藥
-  - [x] 更新相關單元測試與 Service Worker v11
-- **下一步待辦 (Next Steps)**：
-  - [ ] PR 合併前執行 Node 測試與瀏覽器 375px／1280px 驗證
-  - [ ] 取得表二完整官方條文後補齊表二判定
-  - [ ] 合併後驗證 GitHub Pages 與離線快取更新
+- [x] `node --test lipid/rules.test.js lipid/refactor.test.js` — 14/14 passed
+- [x] JavaScript syntax checks passed for the modified lipid modules
+- [ ] Perform a post-deployment smoke test on GitHub Pages
+- [ ] Confirm interactive layout at approximately 375px and 1280px when a browser environment is available
 
----
+## Known follow-up
 
-## 4. 最近重大變更紀錄 (Recent Log)
-- **2026-09-14**：藥物卡主判定與 LDL 治療狀態分離；既有 statin 達標不再重新判定起始資格；修正 ezetimibe 不耐受路徑避免只憑不耐受直接綠燈；Service Worker 更新 v11。
-- **2026-09-13**：快速模式加入使用者截圖的六級「風險定義提示」，預設收合、點開閱讀；詳細模式隱藏，切換／清空後重新收合。Service Worker 更新 v10。
-- **2026-09-13**：建立 `PROGRESS.md` 狀態檢查點機制，納入 Token 節約工作流。
+- Complete the Table 2 reimbursement logic only after the full official text is available and clinically confirmed.
+- Do not infer missing medical reimbursement rules from UI wording or secondary summaries.
 
----
+## Important decisions
 
-## 5. 給 AI Agent 的更新指南
-1. **完成小任務後**：請主動勾選 `[x]` 並在「下一步待辦」列出後續 1~2 個具體行動。
-2. **開新對話前**：確保本檔案已反映最新進度，以便關閉舊視窗並開啟全新 Chat。
+- For the relevant three-month exception pathway, use the confirmed Table 1 target interpretation unless official wording explicitly says otherwise.
+- Existing eligible statin treatment is not reclassified as ineligible merely because LDL has reached target.
+- `PROGRESS.md` records handoff state only; it should not become a duplicate README or an indefinite change log.
+
+## Checkpoint maintenance
+
+Update this file only when work is unfinished across chats, validation remains pending, a blocker or important decision must be preserved, or substantial work is at risk of context loss.
+
+When updating it:
+
+1. replace stale active-task information instead of appending endlessly
+2. include branch, PR, and relevant commit when available
+3. distinguish completed, verified, unverified, and pending work
+4. state the next one to three concrete actions
+5. remove resolved blockers and obsolete instructions
