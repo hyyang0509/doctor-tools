@@ -1,8 +1,10 @@
-const {test}=require('node:test');
-const assert=require('node:assert/strict');
-const {classify,validate,assessDrug}=require('./rules');
-const {drugPolicy}=require('./drug-policy');
-const drugs=require('./formulary');
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {classify,validate} from './modules/riskAssessment.mjs';
+import {assessDrug} from './modules/nhiEligibility.mjs';
+import {drugRule} from './modules/drugPolicy.mjs';
+import {drugPolicy} from './modules/drugPolicy.mjs';
+import drugs from './config/drugs.mjs';
 const base={mode:'detailed',age:30,sex:'M',hdl:50,ldl:80,dialysis:'no',statinStatus:'ge3m',ezDx:'primary',lifestyle:'yes',records:'yes'};
 test('CAD and coronary revascularization imply very high risk and combine with PAD/carotid',()=>{
  for(const x of [{cad:true},{revasc:true}]) {

@@ -28,14 +28,14 @@
     <h1>血脂用藥工具</h1>
     <p>判斷風險與治療目標，直接核對院內藥品。</p>
     <div class="privacy">🔒 單機版：資料只在此瀏覽器頁面計算，不會上傳或儲存。</div>
-    <div id="jsStatus" class="privacy">⚠️ 若此行一直顯示，代表目前預覽器可能封鎖 JavaScript；請將檔案下載後用 Safari 開啟。</div>
+    <div id="jsStatus" class="privacy">⚠️ 若此行一直顯示，代表目前預覽器可能封鎖 JavaScript；請重新整理網站，或用 Safari 開啟網站連結。</div>
   </div>
 
   <div class="grid">
     <div class="card">
       <h2>判定方式</h2>
       <select id="mode" hidden aria-hidden="true"><option value="quick">醫師確認分級</option></select>
-      <div class="field" id="tierField"><label for="riskTier">已確認的風險分級＊</label><select id="riskTier"><option value="">請選擇</option><option value="extreme">極高風險 · LDL &lt;55</option><option value="veryHigh">非常高風險 · LDL &lt;70</option><option value="high">高風險 · LDL &lt;100</option><option value="moderate">中風險 · LDL &lt;115</option><option value="low">低風險 · LDL &lt;130</option><option value="none">0 項風險因子 · LDL &lt;160</option></select></div>
+      <div class="field" id="tierField"><label for="riskTier">已確認的風險分級＊</label><select id="riskTier"></select></div>
       <p class="tiny">由醫師確認分級；加藥仍須核對診斷、單藥療程與抽血紀錄。</p>
       <details id="riskDefinitions" class="notice purple">
         <summary><b>風險定義提示</b><span class="tiny">（點開查看）</span></summary>
@@ -54,11 +54,11 @@
       <div class="sub">填寫目前血脂與年齡；未勾選的診斷視為沒有，請確認後分析。</div>
       <div class="fields">
         <div class="field"><label>性別</label><select id="sex"><option value="M">男性</option><option value="F">女性</option></select></div>
-        <div class="field"><label>年齡（歲）＊</label><input id="age" type="number" inputmode="numeric" min="0" max="120" placeholder="例：58"></div>
-        <div class="field"><label>LDL-C（mg/dL）＊</label><input id="ldl" type="number" inputmode="decimal" min="0" max="2000" step="any" placeholder="例：132"></div>
-        <div class="field"><label>HDL-C（mg/dL）＊</label><input id="hdl" type="number" inputmode="decimal" min="0" max="500" step="any" placeholder="例：42"></div>
-        <div class="field"><label>總膽固醇（選填）</label><input id="tc" type="number" inputmode="decimal" min="0" max="3000" step="any" placeholder="可自動算 non-HDL-C"></div>
-        <div class="field"><label>治療前 LDL-C（選填）</label><input id="baseline" type="number" min="0" max="2000" step="any" placeholder="避免治療後低估 ≥190 的風險"></div>
+        <div class="field"><label>年齡（歲）＊</label><input id="age" type="number" inputmode="numeric" min="0" placeholder="例：58"></div>
+        <div class="field"><label>LDL-C（mg/dL）＊</label><input id="ldl" type="number" inputmode="decimal" min="0" step="any" placeholder="例：132"></div>
+        <div class="field"><label>HDL-C（mg/dL）＊</label><input id="hdl" type="number" inputmode="decimal" min="0" step="any" placeholder="例：42"></div>
+        <div class="field"><label>總膽固醇（選填）</label><input id="tc" type="number" inputmode="decimal" min="0" step="any" placeholder="可自動算 non-HDL-C"></div>
+        <div class="field"><label>治療前 LDL-C（選填）</label><input id="baseline" type="number" min="0" step="any" placeholder="避免治療後低估 ≥190 的風險"></div>
 <div class="field"><label>目前是否透析</label><select id="dialysis"><option value="no">否</option><option value="yes">是</option></select></div>
       </div>
     </div>
@@ -118,23 +118,11 @@
       <div class="sub">這部分主要用來判斷何時可加 ezetimibe 或改用 statin + ezetimibe 複方。</div>
       <div class="fields">
         <div class="field"><label>既往 statin 單一治療療程</label>
-          <select id="statinStatus">
-            <option value="none">尚未使用 statin</option>
-            <option value="lt6">使用未滿 6 週</option>
-            <option value="6to8">已使用 6–8 週</option>
-            <option value="8to12">已使用 &gt;8 週但未滿 3 個月</option>
-            <option value="ge3m">已使用 ≥3 個月</option>
-            <option value="other">已使用複方／合併治療，單方病史未確認</option><option value="intolerant">statin 無法耐受（如 severe myalgia / myositis）</option>
-          </select>
+          <select id="statinStatus"></select>
         </div>
         <div class="field"><label for="records">單藥用藥時間與療程後抽血紀錄完整？</label><select id="records"><option value="no">否／待確認</option><option value="yes">是（先前表一或表二 statin 皆可採計）</option></select></div>
         <div class="field"><label>診斷類型（ezetimibe 單方／複方給付用）</label>
-          <select id="ezDx">
-            <option value="none">請選擇診斷；不確定或不符時保留此項</option>
-            <option value="primary">原發性高膽固醇血症</option>
-            <option value="hofh">同型接合子家族性高膽固醇血症（HOFH）</option>
-            <option value="sitosterol">同型接合子性麥脂醇血症（植物脂醇血症）</option>
-          </select>
+          <select id="ezDx"></select>
         </div>
         <div class="field"><label>中低風險：已完成生活型態改變 3–6 個月？</label>
           <select id="lifestyle"><option value="no">否 / 不確定</option><option value="yes">是</option></select>
@@ -148,8 +136,8 @@
     <div class="card"><h2>6. 要核對的院內藥品</h2><div class="field"><label for="hospitalDrug">選擇品項</label><select id="hospitalDrug"></select></div><p class="tiny">納入 36 個院內碼。短碼、罕藥與其他降脂藥保留原資料，另行核對個別規定。</p></div>
 <div id="error" class="error" role="alert"></div>
 <div class="actions">
-      <button class="btn secondary" id="reset" type="button" onclick="resetAll(); return false;">清空</button>
-      <button class="btn primary" id="calc" type="button" onclick="calculate(); return false;">判斷健保條件</button>
+      <button class="btn secondary" id="reset" type="button">清空</button>
+      <button class="btn primary" id="calc" type="button">判斷健保條件</button>
     </div>
 
     <div class="card results" id="results" aria-live="polite">
@@ -171,7 +159,7 @@
       <div class="card">
         <h2>院內藥品快速查詢</h2>
         <div class="sub">可輸入院內碼、健保碼、中英文藥名或成分；不必先填病人資料。</div>
-        <div class="codebox"><input id="codeSearch" aria-label="院內藥品查詢" placeholder="例：07168、Cretrol 或 脂瑞妥"><button class="btn secondary" id="codeBtn" type="button" onclick="codeLookup(); return false;">查詢</button></div>
+        <div class="codebox"><input id="codeSearch" aria-label="院內藥品查詢" placeholder="例：07168、Cretrol 或 脂瑞妥"><button class="btn secondary" id="codeBtn" type="button">查詢</button></div>
         <div class="codeResult" id="codeResult"></div>
       </div>
       <div class="card">
@@ -183,23 +171,13 @@
 
     <div class="card">
       <details><summary>規則摘要（115/9/1）</summary>
-        <ul class="timeline">
-          <li>極高：LDL ≥55 → 目標 &lt;55（non-HDL &lt;85）</li>
-          <li>非常高：LDL ≥70 → 目標 &lt;70（non-HDL &lt;100）</li>
-          <li>高：LDL ≥100 → 目標 &lt;100（non-HDL &lt;130）</li>
-          <li>中：LDL ≥115 → 目標 &lt;115（non-HDL &lt;145）</li>
-          <li>低：LDL ≥130 → 目標 &lt;130（non-HDL &lt;160）</li>
-          <li>0 項風險因子：LDL ≥160 → 目標 &lt;160</li>
-        </ul>
+        <ul class="timeline" id="ruleSummary"></ul>
       </details>
       <div class="source"><a href="https://www.nhi.gov.tw/ch/dl-100842-f34d34af17374f04ae02e87f1ea8ac56-1.pdf" target="_blank" rel="noopener">健保署修訂對照表</a>｜院內清單：使用者提供截圖（2026-09-10）。資料來源：全民健康保險降血脂藥物給付規定修訂對照表，自 115/9/1 生效。此工具為門診判讀輔助，不取代健保署最新公告、院內藥品代碼或醫師臨床判斷。</div>
     </div>
   </div>
 </div>
 
-<script src="./formulary.js"></script>
-<script src="./drug-policy.js"></script>
-<script src="./rules.js"></script>
-<script src="./app.js"></script>
+<script type="module" src="./app.mjs"></script>
 </body>
 </html>
