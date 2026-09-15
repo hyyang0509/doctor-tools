@@ -7,7 +7,8 @@
 - Lipid config + ES module refactor; implementation complete, real-browser validation pending.
 - Branch: `refactor/lipid-config-modules`
 - Base: `b977f64e1466fcaabd93d06b0473caa8bdaff73f` (main after PR #19)
-- PR: draft to be opened; do not merge main.
+- PR: [#20](https://github.com/hyyang0509/doctor-tools/pull/20), open draft; do not merge main.
+- Implementation commit: `4a6fc3266974d9111ee576ac01a469794bdd530e` (submitted via GitHub connector; source tree matches the tested local checkout).
 
 ## Completed
 
@@ -33,3 +34,4 @@
 
 1. Finish real-browser tests in an environment that can serve this branch; use the checklist in `lipid/VALIDATION.md`.
 2. Update PR validation status, then let the user review and merge.
+
