@@ -35,7 +35,7 @@ function calculate(){
   if(highPlus){fu='<ul class="timeline"><li>起始治療後 <b>6–8 週</b>追蹤血脂。</li><li>若更動治療，<b>1–3 個月</b>內再追蹤是否達標。</li><li>達標後原則每 <b>6 個月</b>追蹤。</li></ul>'}
   else{fu='<ul class="timeline"><li>先生活型態改變 <b>3–6 個月</b>後檢測。</li><li>開始中強度 statin 後 <b>6–8 週</b>追蹤。</li><li>達標後原則每 <b>6–12 個月</b>追蹤。</li></ul>'}
   $('followup').innerHTML=fu;
-  $('debug').innerHTML=v.mode==='quick'?'快速模式：使用醫師確認的分級，隱藏的詳細條件不參與判定。':`最高風險優先順序：極高 → 非常高 → 高 → 一般風險因子 計數。<br>一般風險因子 共 ${r.n} 項：${r.rfList.length?r.rfList.join('、'):'無'}。<br>代謝症候群：${r.met?'是':'否'}。年齡風險因子：${r.ageRF?'是':'否'}。低 HDL 風險因子：${r.lowHdl?'是':'否'}。`;
+  $('debug').innerHTML=v.mode==='quick'?'使用醫師確認的風險分級；自動分級條件不參與本次判定。':`最高風險優先順序：極高 → 非常高 → 高 → 一般風險因子 計數。<br>一般風險因子 共 ${r.n} 項：${r.rfList.length?r.rfList.join('、'):'無'}。<br>代謝症候群：${r.met?'是':'否'}。年齡風險因子：${r.ageRF?'是':'否'}。低 HDL 風險因子：${r.lowHdl?'是':'否'}。`;
   $('results').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
