@@ -35,6 +35,15 @@ When modifying this repository:
 6. Do not introduce unnecessary frameworks, dependencies, build systems, or backend services.
 7. If a larger architectural change is genuinely beneficial, explain the reason and impact clearly.
 
+## Config and modules
+
+- For complex tools, put adjustable data, policy and parameters in config, and separate calculations and decisions into independent, testable modules.
+- Small tools do not need modularization for its own sake. Avoid unnecessary files and complexity.
+- Preserve the existing architecture when modifying a product. Split files only when they clearly cause maintenance difficulty, coupling or duplication.
+- Config should be the single source of truth for policy parameters, numerical thresholds and static data; modules implement business logic. UI rendering must not decide medical or reimbursement eligibility.
+- Keep initial treatment eligibility, continuation eligibility and treatment targets semantically separate.
+- The purpose is greater reliability and a smaller scope (and token cost) for future AI changes, not architectural complexity.
+
 ---
 
 ## Product priorities

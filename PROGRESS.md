@@ -1,52 +1,37 @@
 # PROGRESS.md
 
-> Concise checkpoint for work that may need to continue in another chat. Repository rules and project structure belong in `README.md` and `AGENTS.md`.
-
-**Last updated:** 2026-09-14
+**Last updated:** 2026-09-15
 
 ## Active task
 
-- No unfinished implementation task is currently recorded.
-- Before resuming work, verify the current GitHub branch, open PRs, deployed Pages version, and relevant tests rather than relying on this file alone.
+- Lipid config + ES module refactor; implementation complete, real-browser validation pending.
+- Branch: `refactor/lipid-config-modules`
+- Base: `b977f64e1466fcaabd93d06b0473caa8bdaff73f` (main after PR #19)
+- PR: [#20](https://github.com/hyyang0509/doctor-tools/pull/20), open draft; do not merge main.
+- Implementation commit: `4a6fc3266974d9111ee576ac01a469794bdd530e` (submitted via GitHub connector; source tree matches the tested local checkout).
 
-## Latest completed milestone
+## Completed
 
-### Lipid drug-assessment wording and eligibility alignment
+- Four config files, six focused modules and `app.mjs` orchestration; original UI/CSS and medical behavior preserved.
+- AGENTS.md: added lightweight config/module principles without rewriting other rules.
+- Service Worker v12 precaches new modules; new entry filename avoids v11 serving the old global-script app.
+- 17 Node tests passed, including 17,780 patient / 640,080 drug-assessment comparisons against the fixed baseline.
+- 12 jsdom interaction scenarios matched original result HTML; inputs/options/search/reset/error behavior passed.
+- Relative imports, syntax, subpath HTTP resources and JavaScript MIME verified; CSS unchanged.
 
-- PR: [#17](https://github.com/hyyang0509/doctor-tools/pull/17) — merged into `main`
-- Completed:
-  - separated medication eligibility from LDL target status
-  - corrected ongoing statin wording after LDL reaches target
-  - tightened the ezetimibe statin-intolerance path
-  - clarified that reaching target does not imply stopping treatment
-  - updated related tests and Service Worker cache to v11
+## Pending / blockers
 
-## Validation state
+- Actual 375px / 1280px browser checks, console, navigation and offline/cache-upgrade testing remain unverified.
+- Local Chromium was unavailable and its download timed out. Cloud Browser rejected the local test URL (`ERR_BLOCKED_BY_CLIENT`). DOM tests do not verify visual rendering or Service Worker runtime.
+- Actual GitHub Pages smoke test follows an authorized merge; no main deployment performed.
 
-- [x] `node --test lipid/rules.test.js lipid/refactor.test.js` — 14/14 passed
-- [x] JavaScript syntax checks passed for the modified lipid modules
-- [ ] Perform a post-deployment smoke test on GitHub Pages
-- [ ] Confirm interactive layout at approximately 375px and 1280px when a browser environment is available
+## Medical boundaries
 
-## Known follow-up
+- No rule changes. Preserve Table 1 interpretation of three-month exceptions; Table 2 remains unimplemented.
+- Existing statin continuation and current combination-treatment identification limitations are documented in `lipid/VALIDATION.md`; do not infer new eligibility rules.
 
-- Complete the Table 2 reimbursement logic only after the full official text is available and clinically confirmed.
-- Do not infer missing medical reimbursement rules from UI wording or secondary summaries.
+## Next actions
 
-## Important decisions
+1. Finish real-browser tests in an environment that can serve this branch; use the checklist in `lipid/VALIDATION.md`.
+2. Update PR validation status, then let the user review and merge.
 
-- For the relevant three-month exception pathway, use the confirmed Table 1 target interpretation unless official wording explicitly says otherwise.
-- Existing eligible statin treatment is not reclassified as ineligible merely because LDL has reached target.
-- `PROGRESS.md` records handoff state only; it should not become a duplicate README or an indefinite change log.
-
-## Checkpoint maintenance
-
-Update this file only when work is unfinished across chats, validation remains pending, a blocker or important decision must be preserved, or substantial work is at risk of context loss.
-
-When updating it:
-
-1. replace stale active-task information instead of appending endlessly
-2. include branch, PR, and relevant commit when available
-3. distinguish completed, verified, unverified, and pending work
-4. state the next one to three concrete actions
-5. remove resolved blockers and obsolete instructions

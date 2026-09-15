@@ -1,0 +1,46 @@
+// 給付判讀文字；{0} 等占位符由純文字格式化器代入。
+export const policyCopy = {
+  "therapy": "{0}：目前 {1} mg/dL，目標 <{2} mg/dL",
+  "comboContraindicated": "不可併用",
+  "comboContraindicatedDetail": "含 ezetimibe + statin 複方不得與 gemfibrozil 併用（2.6.3）。",
+  "table2": "本工具未判定：適用表二",
+  "table2Detail": "此品項適用另一套給付規定（表二），不能套用上方表一 LDL 門檻；請另查健保署表二規定。",
+  "unsupported": "本工具未涵蓋此藥給付規定",
+  "unsupportedDetail": "已納入院內清單，但目前資料不足以判定此品項的個別給付、適應症或申請條件。截圖短碼及 X 不視為完整健保碼。",
+  "intolerantStatin": "需評估 statin 耐受性",
+  "intolerantStatinDetail": "已勾選 statin 無法耐受；請依不良反應與替代治療路徑評估，不直接視為可開始此 statin。",
+  "interaction": "先核對交互作用",
+  "interactionDetail": "目前使用 gemfibrozil，請先核對此 statin 的仿單與交互作用。",
+  "maintainStatin": "可維持既有 statin 治療",
+  "maintainStatinDetail": "目前 LDL 已達標；達標本身不是停用 statin 的理由，請依臨床狀況維持適當強度。",
+  "continueStatin": "可持續既有 statin 治療",
+  "continueStatinDetail": "目前 LDL 尚未達標；可續用 statin，並依臨床需要考慮調高強度或在符合條件時加用其他降脂治療。",
+  "belowEntry": "目前不符合健保新開 statin 條件",
+  "belowEntryDetail": "目前 LDL-C {0} mg/dL；此風險層級的起始治療門檻為 ≥{1} mg/dL。",
+  "lifestyleRequired": "需先完成生活型態治療",
+  "lifestyleRequiredDetail": "此風險層級須先完成 3–6 個月生活型態改變，若仍未達標再評估開始 statin。",
+  "statinEntry": "符合健保 statin 起始條件",
+  "statinEntryDetail": "依輸入條件符合表一起始治療門檻；仍須確認個別適應症、劑量、禁忌與交互作用。",
+  "diagnosisRequired": "缺少符合的診斷條件",
+  "comboDiagnosisDetail": "請在「診斷類型」選擇原發性高膽固醇血症或同型接合子家族性高膽固醇血症；若不屬於這兩類，不能依本項判定給付。",
+  "ezDiagnosisDetail": "請在「診斷類型」選擇原發性高膽固醇血症、同型接合子家族性高膽固醇血症或同型接合子植物脂醇血症；若不屬於這三類，不能依本項判定給付。",
+  "ezIntolerance": "符合 ezetimibe 不耐受途徑給付條件",
+  "ezIntoleranceDetail": "已符合降血脂藥物表一給付條件，且有 statin 無法耐受紀錄；可依 ezetimibe 單方的不耐受途徑判斷，此途徑不要求先完成 3 個月療程。",
+  "originalEntryRequired": "需確認原始降血脂給付資格",
+  "originalEntryRequiredDetail": "已符合 statin 無法耐受情境，但目前輸入不足以確認原先符合降血脂藥物給付規定；請核對治療前 LDL-C、風險分級及必要的生活型態治療紀錄。",
+  "baselineRequired": "需補治療前 LDL-C",
+  "baselineRequiredDetail": "目前未達高風險以上，請補治療前 LDL-C，以確認是否曾 ≥{0} mg/dL 並避免低估風險。",
+  "noNewTherapy": "目前無新增／換用條件",
+  "noNewTherapyDetail": "LDL 已達治療目標；若尚未使用本藥，目前不符合「statin 治療後仍未達標」的加藥／換藥條件。若本藥已是既有療程，達標本身不是停藥理由。",
+  "recordsRequired": "缺少完整療程／抽血紀錄",
+  "recordsRequiredDetail": "請確認有完整 statin 單藥用藥時間與療程後抽血紀錄；先前表一或表二品項皆可採計。",
+  "courseRequired": "statin 單方療程尚未符合",
+  "courseRequiredDetail": "此品項需 statin 單一治療{0}仍未達標；複方治療時間不能當成單方。",
+  "addonEligible": "符合健保加藥／換藥條件",
+  "addonEligibleDetail": "診斷、statin 單方{0}及 LDL 尚未降至治療目標的條件符合；採表一 LDL 目標 <{1} mg/dL；先前表一或表二 statin 單藥療程均可採計，須有完整用藥與抽血紀錄。請核對個別用藥適切性。"
+};
+
+export const followup = {
+  "high": "<ul class=\"timeline\"><li>起始治療後 <b>6–8 週</b>追蹤血脂。</li><li>若更動治療，<b>1–3 個月</b>內再追蹤是否達標。</li><li>達標後原則每 <b>6 個月</b>追蹤。</li></ul>",
+  "general": "<ul class=\"timeline\"><li>先生活型態改變 <b>3–6 個月</b>後檢測。</li><li>開始中強度 statin 後 <b>6–8 週</b>追蹤。</li><li>達標後原則每 <b>6–12 個月</b>追蹤。</li></ul>"
+};

@@ -1,7 +1,9 @@
-const {test}=require('node:test');
-const assert=require('node:assert/strict');
-const {classify,validate,drugRule,assessDrug}=require('./rules');
-const drugs=require('./formulary');
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {classify,validate} from './modules/riskAssessment.mjs';
+import {assessDrug} from './modules/nhiEligibility.mjs';
+import {drugRule} from './modules/drugPolicy.mjs';
+import drugs from './config/drugs.mjs';
 const base={age:30,sex:'M',hdl:50,ldl:160,tc:null,baseline:null,dialysis:'no',statinStatus:'none',ezDx:'primary',gem:'no',lifestyle:'yes',records:'yes'};
 const v=x=>({...base,...x});
 const assess=(id,x)=>{const a=v(x);return assessDrug(drugs.find(d=>d.id===id),a,classify(a));};

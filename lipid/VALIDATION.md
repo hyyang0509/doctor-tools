@@ -4,8 +4,8 @@
 
 官方修訂表：https://www.nhi.gov.tw/ch/dl-100842-f34d34af17374f04ae02e87f1ea8ac56-1.pdf
 
-- `formulary.js` 保存院內碼、原圖健保欄、藥名、劑量與成分。截圖短碼和 X 原樣保留，不自行補成健保碼。
-- `rules.js` 為不依賴 DOM 的規則；`app.js` 管理畫面。院內品項先依完整健保碼比對表二例外，再套用 2.6.2 / 2.6.3 療程例外。
+- `config/drugs.mjs` 保存院內碼、原圖健保欄、藥名、劑量與成分。截圖短碼和 X 原樣保留，不自行補成健保碼。
+- `modules/` 保存不依賴 DOM 的規則與獨立呈現層；`app.mjs` 串接輸入、計算與畫面。院內品項先依完整健保碼比對表二例外，再套用 2.6.2 / 2.6.3 療程例外。
 - 表二、PCSK9、inclisiran、bempedoic acid、lomitapide、TG 藥物及其他未提供完整個別條件者，僅提供品項查詢，不宣稱可給付。
 - 表一的一般治療策略提到起始可合併 ezetimibe；實際品項仍逐項核對 2.6.2 / 2.6.3 的診斷、單方療程及不耐受途徑，不能由表一直接跳過個別限制。
 - CAD 與 PAD/頸動脈狹窄組合、PAD 的臨床條件分開輸入。MI / ACS / 多支冠脈阻塞視為已有 CAD。≥50% 影像狹窄仍需獨立勾選。
@@ -17,7 +17,53 @@
 - 手動 HDL 低值與實測 HDL 不重複計算代謝症候群；已填實測 HDL 低值時自動勾選該項。
 - 不儲存、不上傳病人輸入。更新醫療規則前仍需醫師確認來源與解讀。
 
-測試：`node --test lipid/rules.test.js lipid/refactor.test.js`。涵蓋六層風險、性別年齡/HDL/LDL 邊界、PAD 組合、透析、代謝症候群、輸入錯誤、36 品項路徑、6–8 週/3 個月例外、不耐受、既有 statin 達標續用及 gemfibrozil。
+測試：`node --test lipid/*.test.mjs`（Node 18+、完整 Git checkout；parity 測試需保留基準 commit 歷史）。涵蓋六層風險、性別年齡/HDL/LDL 邊界、PAD 組合、透析、代謝症候群、輸入錯誤、36 品項路徑、6–8 週/3 個月例外、不耐受、既有 statin 達標續用及 gemfibrozil。
+
+## 2026-09-15 Config + ES modules（本次驗證狀態）
+
+保留既有 UI、CSS、醫療規則及已移除詳細模式的入口狀態；保留仍有測試覆蓋的自動分級邏輯。本次沒有重新解讀醫療／給付政策。
+
+| 位置 | 職責 |
+| --- | --- |
+| `config/targets.mjs` | 六級 LDL 起始門檻／目標、non-HDL、風險參數、輸入範圍 |
+| `config/drugs.mjs` | 36 個院內品項，完整保留名稱、成分、劑量、類別及原始代碼 |
+| `config/nhi.mjs` | 表二例外、三個月例外、單方療程狀態、診斷集合、規則標籤及表單選項 |
+| `config/copy.mjs` | 給付提示文字與追蹤建議；使用具名文字鍵，不放病人判斷流程 |
+| `modules/riskAssessment.mjs` | 分級與輸入驗證 |
+| `modules/treatmentStatus.mjs` | 達標、治療中、不耐受、紀錄與單方療程狀態 |
+| `modules/drugPolicy.mjs` | 依品項判定適用表別及單方療程要求 |
+| `modules/nhiEligibility.mjs` | 起始、既有 statin、加藥／換藥及不耐受途徑 |
+| `modules/drugRecommendation.mjs` | 選用品項、產生評估結果並分組 |
+| `modules/resultPresenter.mjs` | 消費評估結果並呈現畫面／品項查詢 |
+| `app.mjs` | 表單、事件及流程串接；不公開全域醫療判斷函式 |
+
+資料流：輸入 → 分級／療程狀態 → 品項規則／資格 → 藥品建議 → 畫面。
+
+- 以 `.mjs` 明確宣告 ES modules，全部使用相對 import；HTML 只有一個 `type="module"` 入口。無新增 npm 專案、build、framework 或後端。
+- 入口改名為 `app.mjs`，避免已安裝的 v11 Service Worker 將舊 `app.js` 回傳給新 HTML。`sw.js` 更新 v12，快取所有新模組；策略本身不變。
+- 分級選單、規則摘要與判定讀取同一份 targets；起始門檻與治療目標仍為獨立欄位。表單療程選項讀取 config。
+- 移除代謝症候群／透析控制項重複事件綁定，不改變判斷結果。
+
+已完成：
+
+- `node --test lipid/*.test.mjs`：17 組通過；保留原 14 組測試、加入架構／語意分離及基準比對。
+- `parity.test.mjs` 固定比較重構前 `b977f64e1466fcaabd93d06b0473caa8bdaff73f`：17,780 組病人、640,080 次品項評估，分類、驗證、狀態及文字完全一致。基準不隨 main 移動；日後經確認修改規則時，需明確更新此回歸基準。
+- 暫存 jsdom + Node VM 模組環境：12 組主要病人情境的結果 HTML、四個選單、四種查詢／Enter、修改輸入隱藏結果、清空、缺值與負值均與舊版一致；11 個 ES 模組實際執行無 runtime error。jsdom 僅用於本次外部測試環境，未加入網站依賴。
+- Node 語法、完整 import graph／快取清單、以 `/doctor-tools/` 子路徑提供資源的 HTTP 200／JavaScript MIME 通過。CSS 與重構前逐字相同。
+
+尚未完成，不能視為通過：
+
+- 真正瀏覽器開啟、console、375px／1280px 視覺與返回導航互動、離線與快取升級實測。
+- 原因：本機未附 Chromium，官方下載逾時；雲端瀏覽器拒絕本機測試網址（`ERR_BLOCKED_BY_CLIENT`）。DOM 模擬不等於瀏覽器驗證。
+- 實際 GitHub Pages 部署後測試（本次依要求不合併、不部署 main）。
+
+保留待醫師確認的既有範圍（本次未猜測修改）：
+
+1. 表二及其他個別給付規定仍未完整提供，維持「未判定」。
+2. 既有 statin 續用提示沿用原實作：療程狀態判為使用中且非不耐受時提供續用提示，並未逐項驗證原始給付資格。是否需要新增原始資格核對，屬後續規則／輸入設計決策。
+3. 未記錄「目前正在用哪個複方」；`other` 表示複方／合併使用且單方病史未確認，不能自動推定已滿三個月單方。既有複方達標時保留原先的條件式說明，不能當成個別續用資格已確認。
+
+以下為歷次紀錄，舊檔名與舊測試指令僅描述當時版本。
 
 ## 2026-09-14 藥物評估語意修正
 

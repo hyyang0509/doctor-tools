@@ -253,4 +253,5 @@ const hospitalDrugs = [
     "kind": "statin"
   }
 ];
-if(typeof module!=="undefined") module.exports=hospitalDrugs;
+export { hospitalDrugs };
+export default hospitalDrugs;

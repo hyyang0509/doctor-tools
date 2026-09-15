@@ -14,19 +14,63 @@ const table2Only = [
 const ez3mCodes = new Set(['AC60610100','BC27311100','BC28252100','BC26552100']);
 const combo3mCodes = new Set(['AC59251100','AC60402100','BC28502100','AC62052100','AC62053100','AC62140100','AC62139100','BC28181100','BC28182100','BC28884100']);
 
-function drugRule(d){
- if(table2Only.some(x=>x[1]===d.code)) return 'table2';
- if(d.kind==='ez') return ez3mCodes.has(d.code)?'ez3':'ez6';
- if(d.kind==='combo') return combo3mCodes.has(d.code)?'combo3':'combo6';
- if(d.kind==='statin'&&/^[A-Z]{1,2}[0-9]{8,9}$/.test(d.code)) return 'table1';
- return 'other';
-}
+const ruleLabels={table2:'另一套給付規定（表二）',table1:'適用上方門檻（表一）',ez3:'單方加藥｜statin 須滿 3 個月',ez6:'單方加藥｜statin 須用 6–8 週',combo3:'複方｜statin 須滿 3 個月',combo6:'複方｜statin 須用 6–8 週',other:'另有規定｜待確認'};
 
-function drugPolicy(d){
- const rule=drugRule(d);
- return {rule,table:rule==='table2'?2:rule==='other'?null:1,
-  targetTable:rule==='table2'?2:rule==='other'?null:1,
-  minimumMonotherapy:rule.endsWith('3')?'3months':/^(ez|combo)6$/.test(rule)?'6weeks':null};
-}
-if(typeof module!=='undefined') module.exports={drugRule,drugPolicy,table2Only,ez3mCodes,combo3mCodes};
-else window.LipidDrugPolicy={drugRule,drugPolicy,table2Only,ez3mCodes,combo3mCodes};
+// Select values represent documented monotherapy history, not current combination duration.
+export const monotherapy = {
+ '3months': {statuses:['ge3m'], requirement:'滿 3 個月', duration:'3 個月'},
+ '6weeks': {statuses:['6to8','8to12','ge3m'], requirement:'6–8 週', duration:'6–8 週'}
+};
+export const diagnoses = {combo:['primary','hofh'], ez:['primary','hofh','sitosterol']};
+export {table2Only, ez3mCodes, combo3mCodes, ruleLabels};
+
+export const formOptions = {
+  "statinStatus": [
+    {
+      "value": "none",
+      "label": "尚未使用 statin"
+    },
+    {
+      "value": "lt6",
+      "label": "使用未滿 6 週"
+    },
+    {
+      "value": "6to8",
+      "label": "已使用 6–8 週"
+    },
+    {
+      "value": "8to12",
+      "label": "已使用 >8 週但未滿 3 個月"
+    },
+    {
+      "value": "ge3m",
+      "label": "已使用 ≥3 個月"
+    },
+    {
+      "value": "other",
+      "label": "已使用複方／合併治療，單方病史未確認"
+    },
+    {
+      "value": "intolerant",
+      "label": "statin 無法耐受（如 severe myalgia / myositis）"
+    }
+  ],
+  "ezDx": [
+    {
+      "value": "none",
+      "label": "請選擇診斷；不確定或不符時保留此項"
+    },
+    {
+      "value": "primary",
+      "label": "原發性高膽固醇血症"
+    },
+    {
+      "value": "hofh",
+      "label": "同型接合子家族性高膽固醇血症（HOFH）"
+    },
+    {
+      "value": "sitosterol",
+      "label": "同型接合子性麥脂醇血症（植物脂醇血症）"
+    }
+  ]
+};
