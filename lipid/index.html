@@ -34,11 +34,9 @@
   <div class="grid">
     <div class="card">
       <h2>判定方式</h2>
-      <div class="fields">
-        <div class="field"><label for="mode">模式</label><select id="mode"><option value="quick">快速模式：直接選分級</option><option value="detailed">詳細模式：自動判定</option></select></div>
-        <div class="field" id="tierField"><label for="riskTier">已確認的風險分級＊</label><select id="riskTier"><option value="">請選擇</option><option value="extreme">極高風險 · LDL &lt;55</option><option value="veryHigh">非常高風險 · LDL &lt;70</option><option value="high">高風險 · LDL &lt;100</option><option value="moderate">中風險 · LDL &lt;115</option><option value="low">低風險 · LDL &lt;130</option><option value="none">0 項風險因子 · LDL &lt;160</option></select></div>
-      </div>
-      <p class="tiny">快速模式由醫師確認分級；加藥仍須核對診斷、單藥療程與抽血紀錄。</p>
+      <select id="mode" hidden aria-hidden="true"><option value="quick">醫師確認分級</option></select>
+      <div class="field" id="tierField"><label for="riskTier">已確認的風險分級＊</label><select id="riskTier"><option value="">請選擇</option><option value="extreme">極高風險 · LDL &lt;55</option><option value="veryHigh">非常高風險 · LDL &lt;70</option><option value="high">高風險 · LDL &lt;100</option><option value="moderate">中風險 · LDL &lt;115</option><option value="low">低風險 · LDL &lt;130</option><option value="none">0 項風險因子 · LDL &lt;160</option></select></div>
+      <p class="tiny">由醫師確認分級；加藥仍須核對診斷、單藥療程與抽血紀錄。</p>
       <details id="riskDefinitions" class="notice purple">
         <summary><b>風險定義提示</b><span class="tiny">（點開查看）</span></summary>
         <div class="tiny">
