@@ -1,17 +1,16 @@
 # PROGRESS.md
 
-**Last updated:** 2026-09-15
+**Last updated:** 2026-09-22
 
 ## Active task
 
-- Lipid config + ES module refactor; implementation complete, real-browser validation pending.
-- Branch: `refactor/lipid-config-modules`
-- Base: `b977f64e1466fcaabd93d06b0473caa8bdaff73f` (main after PR #19)
-- PR: [#20](https://github.com/hyyang0509/doctor-tools/pull/20), open draft; do not merge main.
-- Implementation commit: `4a6fc3266974d9111ee576ac01a469794bdd530e` (submitted via GitHub connector; source tree matches the tested local checkout).
+- Intelligent mobile-clinic sarcopenia screening MVP on branch `feat/sarcopenia-screening-mvp`.
+- Implementation complete; Google Forms production connection is intentionally pending because form URLs and entry IDs have not yet been supplied.
 
 ## Completed
 
+- Added the mobile-first `sarcopenia/` tool, AWGS 2025 rule module, local pending queue, duplicate warning, manual retry, CSV export, event locking and result workflow.
+- Added the tool to the home page and Service Worker v13 offline cache.
 - Four config files, six focused modules and `app.mjs` orchestration; original UI/CSS and medical behavior preserved.
 - AGENTS.md: added lightweight config/module principles without rewriting other rules.
 - Service Worker v12 precaches new modules; new entry filename avoids v11 serving the old global-script app.
@@ -21,6 +20,7 @@
 
 ## Pending / blockers
 
+- Fill each event's Google Form `formResponse` URL and entry IDs in `sarcopenia/config.mjs`, then verify submissions against the response sheet before field use.
 - Actual 375px / 1280px browser checks, console, navigation and offline/cache-upgrade testing remain unverified.
 - Local Chromium was unavailable and its download timed out. Cloud Browser rejected the local test URL (`ERR_BLOCKED_BY_CLIENT`). DOM tests do not verify visual rendering or Service Worker runtime.
 - Actual GitHub Pages smoke test follows an authorized merge; no main deployment performed.
@@ -34,4 +34,3 @@
 
 1. Finish real-browser tests in an environment that can serve this branch; use the checklist in `lipid/VALIDATION.md`.
 2. Update PR validation status, then let the user review and merge.
-

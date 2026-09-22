@@ -5,6 +5,7 @@
 ## 目前工具
 
 - `lipid/`：血脂用藥工具
+- `sarcopenia/`：智能車肌少症篩檢紀錄工具
 - `followup/`：回診日期計算器
 - `taifex-alert/`：台指期槓桿與保證金壓力測試
 - `text-game/`：王朝事件決策文字遊戲
@@ -20,6 +21,13 @@ doctor-tools/
 │   └── icon.svg            # PWA 圖示
 ├── lipid/
 │   └── index.html
+├── sarcopenia/
+│   ├── index.html          # 現場單頁操作介面
+│   ├── config.mjs          # 場次與 Google 表單欄位設定
+│   ├── screeningRules.mjs  # AWGS 2025 篩檢判讀
+│   ├── storage.mjs         # 本機紀錄與待送佇列
+│   ├── formSync.mjs        # Google 表單送出
+│   └── rules.test.mjs      # 判讀邊界測試
 ├── followup/
 │   └── index.html
 ├── taifex-alert/
