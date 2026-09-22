@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#173a70">
+<title>智能車肌少症篩檢紀錄工具</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="page">
+  <a class="back" href="../">‹ 返回工具箱</a>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">智能行動醫療巡迴</p>
+      <h1>肌少症篩檢紀錄</h1>
+      <p>快速記錄握力與小腿圍，完成篩檢與轉介判讀。</p>
+    </div>
+    <div class="sync-summary" aria-live="polite">
+      <strong id="pendingCount">尚無待送資料</strong>
+      <button id="retryButton" class="text-button" type="button" disabled>補送未同步資料</button>
+    </div>
+  </header>
+
+  <section id="eventSetup" class="card event-setup" aria-labelledby="eventSetupTitle">
+    <h2 id="eventSetupTitle">選擇今天的活動場次</h2>
+    <p>選定後會固定顯示，避免資料送錯場次。</p>
+    <label for="eventSelect">活動場次</label>
+    <select id="eventSelect"><option value="">請選擇場次</option></select>
+    <button id="confirmEvent" class="primary" type="button">開始紀錄</button>
+  </section>
+
+  <section id="workspace" hidden>
+    <div class="event-bar">
+      <div><span>目前場次</span><strong id="currentEventLabel"></strong></div>
+      <button id="changeEvent" class="secondary small" type="button">更換場次</button>
+    </div>
+    <div id="configWarning" class="notice warning" role="status" hidden>
+      <strong>此場次尚未完成 Google 表單連結設定</strong>
+      <span>紀錄可先保存在本機，設定完成後再補送。</span>
+    </div>
+
+    <form id="screeningForm" class="card" novalidate>
+      <div class="section-title">
+        <div><span class="step">01</span><h2>基本資料</h2></div>
+        <span class="required-note">＊為必填</span>
+      </div>
+      <div class="form-grid">
+        <div class="field full">
+          <label for="participantNo">民眾編號＊</label>
+          <input id="participantNo" name="participant_no" type="text" autocomplete="off" enterkeyhint="next" maxlength="40">
+          <p class="field-error" data-error-for="participant_no"></p>
+        </div>
+        <div class="field">
+          <label for="age">年齡＊</label>
+          <div class="input-unit"><input id="age" name="age" type="number" inputmode="numeric" min="50" max="130" step="1"><span>歲</span></div>
+          <p class="field-error" data-error-for="age"></p>
+        </div>
+        <fieldset class="field sex-field">
+          <legend>性別＊</legend>
+          <div class="segmented">
+            <label><input type="radio" name="sex" value="male"><span>男性</span></label>
+            <label><input type="radio" name="sex" value="female"><span>女性</span></label>
+          </div>
+          <p class="field-error" data-error-for="sex"></p>
+        </fieldset>
+      </div>
+
+      <div class="section-title measurements">
+        <div><span class="step">02</span><h2>量測結果</h2></div>
+      </div>
+      <div class="form-grid">
+        <div class="field">
+          <label for="grip">最大握力＊</label>
+          <div class="input-unit"><input id="grip" name="grip_strength_kg" type="number" inputmode="decimal" min="0" max="100" step="0.1"><span>kg</span></div>
+          <small>依現場 SOP 完成雙手量測後，輸入最大值。</small>
+          <p class="field-error" data-error-for="grip_strength_kg"></p>
+        </div>
+        <div class="field">
+          <label for="calf">小腿圍＊</label>
+          <div class="input-unit"><input id="calf" name="calf_circumference_cm" type="number" inputmode="decimal" min="10" max="80" step="0.1"><span>cm</span></div>
+          <small>依現場統一 SOP 量測並輸入數值。</small>
+          <p class="field-error" data-error-for="calf_circumference_cm"></p>
+        </div>
+      </div>
+      <label class="check-row">
+        <input id="gripSpecial" name="grip_special_cause" type="checkbox">
+        <span><strong>握力有特殊影響原因</strong><small>此項檢驗數值僅供參考，不會改變自動判讀。</small></span>
+      </label>
+
+      <div id="formError" class="notice error" role="alert" hidden></div>
+      <button id="submitButton" class="primary submit" type="submit">儲存並送出</button>
+    </form>
+
+    <section id="resultCard" class="result-card" aria-live="polite" hidden>
+      <span id="resultIcon" class="result-icon" aria-hidden="true"></span>
+      <p class="result-kicker">篩檢結果</p>
+      <h2 id="resultTitle"></h2>
+      <p id="resultReason" class="result-reason"></p>
+      <p id="resultAdvice"></p>
+      <p id="specialNote" class="special-note" hidden>握力可能受特殊原因影響，本次數值僅供參考。</p>
+      <div id="syncStatus" class="sync-status"></div>
+      <button id="nextButton" class="primary" type="button">下一位</button>
+    </section>
+
+    <details class="data-tools">
+      <summary>本機資料管理</summary>
+      <p>本機紀錄僅保存在這台裝置的瀏覽器。活動結束後請依現場 SOP 處理。</p>
+      <div class="tool-actions">
+        <button id="exportButton" class="secondary" type="button">匯出 CSV 備份</button>
+        <button id="clearButton" class="danger-button" type="button">清除本機資料</button>
+      </div>
+    </details>
+  </section>
+
+  <footer>本結果為篩檢參考，不等同正式診斷；陽性者建議接受進一步評估。</footer>
+</main>
+
+<dialog id="duplicateDialog">
+  <form method="dialog" class="dialog-card">
+    <h2>發現重複編號</h2>
+    <p>此編號在目前場次已有紀錄，請先核對。</p>
+    <div class="dialog-actions">
+      <button value="cancel" class="secondary">返回修改</button>
+      <button value="confirm" class="primary">確認仍要新增</button>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="app.mjs"></script>
+</body>
+</html>
