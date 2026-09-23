@@ -5,18 +5,42 @@ export const GRIP_THRESHOLDS = Object.freeze({
 
 export const CALF_THRESHOLDS = Object.freeze({ male: 34, female: 33 });
 
+export function resolveAgeInput(input, referenceDate = new Date()) {
+  const method = input.age_input_method === 'roc_year' ? 'roc_year' : 'age';
+  const errorKey = method === 'roc_year' ? 'roc_birth_year' : 'age';
+  const rawValue = method === 'roc_year' ? input.roc_birth_year : input.age;
+  const value = Number(rawValue);
+
+  if (rawValue === '' || rawValue == null || !Number.isFinite(value)) {
+    return { method, age: null, errorKey, error: method === 'roc_year' ? '請輸入有效的民國出生年。' : '請輸入有效年齡。' };
+  }
+  if (!Number.isInteger(value)) {
+    return { method, age: null, errorKey, error: method === 'roc_year' ? '民國出生年請輸入整數。' : '年齡請輸入整數。' };
+  }
+
+  let age = value;
+  if (method === 'roc_year') {
+    const currentRocYear = referenceDate.getFullYear() - 1911;
+    if (value < 1 || value > currentRocYear) {
+      return { method, age: null, errorKey, error: `民國出生年須介於 1–${currentRocYear} 年。` };
+    }
+    age = currentRocYear - value;
+  }
+
+  if (age < 50) return { method, age, errorKey, error: '本版 AWGS 2025 自動判讀適用 50 歲以上。' };
+  if (age > 130) return { method, age, errorKey, error: '年齡超出合理範圍，請核對。' };
+  return { method, age, errorKey, error: '' };
+}
+
 export function validateInput(input) {
   const errors = {};
   const participantNo = String(input.participant_no ?? '').trim();
-  const age = Number(input.age);
+  const ageResult = resolveAgeInput(input);
   const grip = Number(input.grip_strength_kg);
   const calf = Number(input.calf_circumference_cm);
 
   if (!participantNo) errors.participant_no = '請輸入民眾編號。';
-  if (input.age === '' || input.age == null || !Number.isFinite(age)) errors.age = '請輸入有效年齡。';
-  else if (!Number.isInteger(age)) errors.age = '年齡請輸入整數。';
-  else if (age < 50) errors.age = '本版 AWGS 2025 自動判讀適用 50 歲以上。';
-  else if (age > 130) errors.age = '年齡超出合理範圍，請核對。';
+  if (ageResult.error) errors[ageResult.errorKey] = ageResult.error;
 
   if (!['male', 'female'].includes(input.sex)) errors.sex = '請選擇性別。';
   if (input.grip_strength_kg === '' || input.grip_strength_kg == null || !Number.isFinite(grip)) errors.grip_strength_kg = '請輸入有效的最大握力。';

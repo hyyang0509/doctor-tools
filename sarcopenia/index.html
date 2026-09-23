@@ -52,11 +52,24 @@
           <input id="participantNo" name="participant_no" type="text" autocomplete="off" enterkeyhint="next" maxlength="40">
           <p class="field-error" data-error-for="participant_no"></p>
         </div>
-        <div class="field">
-          <label for="age">年齡＊</label>
-          <div class="input-unit"><input id="age" name="age" type="number" inputmode="numeric" min="50" max="130" step="1"><span>歲</span></div>
-          <p class="field-error" data-error-for="age"></p>
-        </div>
+        <fieldset class="field full age-entry">
+          <legend>年齡＊</legend>
+          <div class="segmented age-mode">
+            <label><input type="radio" name="age_input_method" value="age" checked><span>直接輸入年齡</span></label>
+            <label><input type="radio" name="age_input_method" value="roc_year"><span>輸入民國出生年</span></label>
+          </div>
+          <div id="agePanel" class="age-input-panel">
+            <label for="age">實足年齡</label>
+            <div class="input-unit"><input id="age" name="age" type="number" inputmode="numeric" min="50" max="130" step="1"><span>歲</span></div>
+            <p class="field-error" data-error-for="age"></p>
+          </div>
+          <div id="rocYearPanel" class="age-input-panel" hidden>
+            <label for="rocBirthYear">民國出生年</label>
+            <div class="input-unit"><input id="rocBirthYear" name="roc_birth_year" type="number" inputmode="numeric" min="1" step="1"><span>年</span></div>
+            <small id="computedAgeHint">將依今年年份換算約略年齡。</small>
+            <p class="field-error" data-error-for="roc_birth_year"></p>
+          </div>
+        </fieldset>
         <fieldset class="field sex-field">
           <legend>性別＊</legend>
           <div class="segmented">
