@@ -1,3 +1,5 @@
+/** @OnlyCurrentDoc */
+
 const SHEET_NAME = '工作表1';
 
 const HEADERS = Object.freeze([
