@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.0.0';
+export const APP_VERSION = '1.1.0';
 
 // 正式啟用前，請填入各場 Google 表單的 formResponse 網址與 entry ID。
 // 設定未完成時資料仍會安全保存於本機，但不會顯示為已送出。
@@ -19,7 +19,9 @@ function createEvent(eventId, eventLabel) {
       event_id: '',
       event_label: '',
       participant_no: '',
+      age_input_method: '',
       age: '',
+      roc_birth_year: '',
       sex: '',
       grip_strength_kg: '',
       grip_special_cause: '',
