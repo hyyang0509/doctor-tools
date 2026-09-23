@@ -1,11 +1,12 @@
 # PROGRESS.md
 
-**Last updated:** 2026-09-22
+**Last updated:** 2026-09-23
 
 ## Active task
 
-- Intelligent mobile-clinic sarcopenia screening MVP on branch `feat/sarcopenia-screening-mvp`.
-- Implementation complete; Google Forms production connection is intentionally pending because form URLs and entry IDs have not yet been supplied.
+- Sarcopenia MVP follow-up on branch `feat/sarcopenia-age-input-and-sync`.
+- Age entry now supports direct age (default) or ROC birth year; validation and cloud/CSV fields are updated.
+- First-event cloud upload remains pending: the supplied Google Sheets URL is a blank response spreadsheet, not a Google Form `formResponse` endpoint. A linked Google Form URL and entry IDs are still required before real upload testing.
 
 ## Completed
 
