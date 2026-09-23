@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assessScreening, validateInput } from './screeningRules.mjs';
+import { assessScreening, resolveAgeInput, validateInput } from './screeningRules.mjs';
 
 const base = { age: 60, sex: 'male', grip_strength_kg: 40, calf_circumference_cm: 40 };
 
@@ -32,4 +32,24 @@ test('拒絕不適用年齡與超出合理範圍', () => {
   assert.equal(validateInput({ ...base, participant_no: '1', age: 49 }).age.includes('50 歲以上'), true);
   assert.ok(validateInput({ ...base, participant_no: '1', grip_strength_kg: 101 }).grip_strength_kg);
   assert.ok(validateInput({ ...base, participant_no: '1', calf_circumference_cm: 9 }).calf_circumference_cm);
+});
+
+
+test('民國出生年依當年度換算約略年齡', () => {
+  const referenceDate = new Date('2026-09-23T00:00:00Z');
+  assert.deepEqual(
+    resolveAgeInput({ age_input_method: 'roc_year', roc_birth_year: '50' }, referenceDate),
+    { method: 'roc_year', age: 65, errorKey: 'roc_birth_year', error: '' }
+  );
+});
+
+test('直接輸入年齡為預設且優先採用', () => {
+  const referenceDate = new Date('2026-09-23T00:00:00Z');
+  assert.equal(resolveAgeInput({ age: '66', roc_birth_year: '50' }, referenceDate).age, 66);
+});
+
+test('民國出生年錯誤顯示在對應欄位', () => {
+  const errors = validateInput({ ...base, participant_no: '1', age_input_method: 'roc_year', roc_birth_year: '' });
+  assert.ok(errors.roc_birth_year);
+  assert.equal(errors.age, undefined);
 });
