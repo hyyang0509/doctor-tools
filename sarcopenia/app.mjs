@@ -1,4 +1,4 @@
-import { APP_VERSION, EVENTS, isEventConfigured } from './config.mjs';
+import { APP_VERSION, EVENTS, isEventConfigured } from './config.mjs?v=16';
 import { assessScreening, resolveAgeInput, triggerReasonLabel, validateInput } from './screeningRules.mjs';
 import {
   addPendingRecord, clearAll, createRecordId, getPendingRecords, isDuplicate,
