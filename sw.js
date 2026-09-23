@@ -1,4 +1,4 @@
-const CACHE='hy-tools-v14';
+const CACHE='hy-tools-v15';
 const CORE=['./','./index.html','./assets/styles.css','./assets/app.js','./assets/icon.svg','./manifest.webmanifest','./lipid/','./lipid/app.mjs','./lipid/config/copy.mjs','./lipid/config/drugs.mjs','./lipid/config/nhi.mjs','./lipid/config/targets.mjs','./lipid/modules/drugPolicy.mjs','./lipid/modules/drugRecommendation.mjs','./lipid/modules/nhiEligibility.mjs','./lipid/modules/resultPresenter.mjs','./lipid/modules/riskAssessment.mjs','./lipid/modules/treatmentStatus.mjs','./sarcopenia/','./sarcopenia/styles.css','./sarcopenia/app.mjs','./sarcopenia/config.mjs','./sarcopenia/screeningRules.mjs','./sarcopenia/storage.mjs','./sarcopenia/formSync.mjs','./followup/','./taifex-alert/','./taifex-alert/calculator.js','./taifex-alert/app.js','./text-game/','./text-game/style.css','./text-game/app.js','./text-game/gameState.js','./text-game/eventsData.js','./text-game/eventEngine.js'];
 
 self.addEventListener('install',event=>{

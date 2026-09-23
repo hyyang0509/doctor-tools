@@ -6,7 +6,7 @@
 
 - Sarcopenia MVP follow-up on branch `feat/sarcopenia-age-input-and-sync`.
 - Age entry now supports direct age (default) or ROC birth year; validation and cloud/CSV fields are updated.
-- First-event cloud upload remains pending: the supplied Google Sheets URL is a blank response spreadsheet, not a Google Form `formResponse` endpoint. A linked Google Form URL and entry IDs are still required before real upload testing.
+- Google Forms route was replaced with a smaller bound Apps Script receiver because the supplied first-event file is a blank Google Sheet and Cloud Browser cannot reach Google sign-in. Receiver source and deployment instructions are in `sarcopenia/google-apps-script/`.
 
 ## Completed
 
@@ -21,7 +21,7 @@
 
 ## Pending / blockers
 
-- Fill each event's Google Form `formResponse` URL and entry IDs in `sarcopenia/config.mjs`, then verify submissions against the response sheet before field use.
+- Deploy `sarcopenia/google-apps-script/Code.gs` from the first-event spreadsheet, fill its `/exec` URL into `sarcopenia/config.mjs`, then verify one test submission before field use.
 - Actual 375px / 1280px browser checks, console, navigation and offline/cache-upgrade testing remain unverified.
 - Local Chromium was unavailable and its download timed out. Cloud Browser rejected the local test URL (`ERR_BLOCKED_BY_CLIENT`). DOM tests do not verify visual rendering or Service Worker runtime.
 - Actual GitHub Pages smoke test follows an authorized merge; no main deployment performed.

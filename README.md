@@ -23,10 +23,11 @@ doctor-tools/
 │   └── index.html
 ├── sarcopenia/
 │   ├── index.html          # 現場單頁操作介面
-│   ├── config.mjs          # 場次與 Google 表單欄位設定
+│   ├── config.mjs          # 場次與雲端接收端設定
 │   ├── screeningRules.mjs  # AWGS 2025 篩檢判讀
 │   ├── storage.mjs         # 本機紀錄與待送佇列
-│   ├── formSync.mjs        # Google 表單送出
+│   ├── formSync.mjs        # Google Apps Script 雲端送出
+│   ├── google-apps-script/ # 試算表接收程式與部署說明
 │   └── rules.test.mjs      # 判讀邊界測試
 ├── followup/
 │   └── index.html
