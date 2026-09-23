@@ -1,18 +1,19 @@
 import { isEventConfigured } from './config.mjs';
 
-export async function submitToGoogleForm(record, event) {
+export async function submitToCloud(record, event, options = {}) {
   if (!isEventConfigured(event)) {
     throw new Error('EVENT_NOT_CONFIGURED');
   }
-  if (!navigator.onLine) throw new Error('OFFLINE');
+  const online = options.online ?? globalThis.navigator?.onLine ?? true;
+  if (!online) throw new Error('OFFLINE');
 
   const body = new URLSearchParams();
-  Object.entries(event.fields).forEach(([recordKey, entryId]) => {
-    const value = record[recordKey];
-    body.set(entryId, typeof value === 'boolean' ? String(value) : String(value ?? ''));
+  Object.entries(record).forEach(([key, value]) => {
+    body.set(key, typeof value === 'boolean' ? String(value) : String(value ?? ''));
   });
 
-  await fetch(event.formActionUrl, {
+  const fetchImpl = options.fetchImpl ?? globalThis.fetch;
+  await fetchImpl(event.endpointUrl, {
     method: 'POST',
     mode: 'no-cors',
     body

@@ -4,7 +4,7 @@ import {
   addPendingRecord, clearAll, createRecordId, getPendingRecords, isDuplicate,
   loadCurrentEvent, loadRecords, markRecordSent, saveCurrentEvent
 } from './storage.mjs';
-import { submitToGoogleForm } from './formSync.mjs';
+import { submitToCloud } from './formSync.mjs';
 
 const $ = id => document.getElementById(id);
 const elements = {
@@ -148,7 +148,7 @@ async function saveAndSync(input, duplicateOverride = false) {
     ? '⚠ 尚未送出，已保存在本機'
     : '⚠ 尚未送出：目前場次尚未完成資料連結設定，已保存在本機';
   try {
-    await submitToGoogleForm(record, currentEvent);
+    await submitToCloud(record, currentEvent);
     markRecordSent(record.record_id);
     syncResult = 'sent';
     syncMessage = '✓ 已送出，並保留本機紀錄';
@@ -222,7 +222,7 @@ async function retryPending() {
     const event = findEvent(record.event_id);
     if (!isEventConfigured(event)) { unconfigured += 1; continue; }
     try {
-      await submitToGoogleForm(record, event);
+      await submitToCloud(record, event);
       markRecordSent(record.record_id);
       sent += 1;
     } catch { /* 保留 pending，讓工作人員稍後再次補送 */ }
