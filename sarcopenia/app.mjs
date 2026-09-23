@@ -1,5 +1,5 @@
 import { APP_VERSION, EVENTS, isEventConfigured } from './config.mjs';
-import { assessScreening, triggerReasonLabel, validateInput } from './screeningRules.mjs';
+import { assessScreening, resolveAgeInput, triggerReasonLabel, validateInput } from './screeningRules.mjs';
 import {
   addPendingRecord, clearAll, createRecordId, getPendingRecords, isDuplicate,
   loadCurrentEvent, loadRecords, markRecordSent, saveCurrentEvent
@@ -15,7 +15,9 @@ const elements = {
   duplicateDialog: $('duplicateDialog'), resultCard: $('resultCard'), resultIcon: $('resultIcon'),
   resultTitle: $('resultTitle'), resultReason: $('resultReason'), resultAdvice: $('resultAdvice'),
   specialNote: $('specialNote'), syncStatus: $('syncStatus'), nextButton: $('nextButton'),
-  exportButton: $('exportButton'), clearButton: $('clearButton'), participantNo: $('participantNo')
+  exportButton: $('exportButton'), clearButton: $('clearButton'), participantNo: $('participantNo'),
+  agePanel: $('agePanel'), rocYearPanel: $('rocYearPanel'), rocBirthYear: $('rocBirthYear'),
+  computedAgeHint: $('computedAgeHint')
 };
 
 let currentEvent = null;
@@ -55,11 +57,26 @@ function showEventPicker() {
   elements.eventSelect.focus();
 }
 
+function updateAgeInputMode() {
+  const method = elements.form.elements.age_input_method.value || 'age';
+  const useRocYear = method === 'roc_year';
+  elements.agePanel.hidden = useRocYear;
+  elements.rocYearPanel.hidden = !useRocYear;
+  if (useRocYear) {
+    const resolved = resolveAgeInput({ age_input_method: method, roc_birth_year: elements.rocBirthYear.value });
+    elements.computedAgeHint.textContent = resolved.error
+      ? '將依今年年份換算約略年齡。'
+      : `換算今年約 ${resolved.age} 歲；若已知實足年齡，建議優先直接輸入。`;
+  }
+}
+
 function readInput() {
   const formData = new FormData(elements.form);
   return {
     participant_no: String(formData.get('participant_no') || '').trim(),
+    age_input_method: String(formData.get('age_input_method') || 'age'),
     age: String(formData.get('age') || ''),
+    roc_birth_year: String(formData.get('roc_birth_year') || ''),
     sex: String(formData.get('sex') || ''),
     grip_strength_kg: String(formData.get('grip_strength_kg') || ''),
     grip_special_cause: formData.get('grip_special_cause') === 'on',
@@ -87,13 +104,16 @@ function showErrors(errors) {
 }
 
 function buildRecord(input, duplicateOverride) {
-  const assessment = assessScreening(input);
+  const resolvedAge = resolveAgeInput(input);
+  const assessment = assessScreening({ ...input, age: resolvedAge.age });
   return {
     record_id: createRecordId(),
     event_id: currentEvent.eventId,
     event_label: currentEvent.eventLabel,
     participant_no: input.participant_no,
-    age: Number(input.age),
+    age_input_method: resolvedAge.method,
+    age: resolvedAge.age,
+    roc_birth_year: resolvedAge.method === 'roc_year' ? Number(input.roc_birth_year) : '',
     sex: input.sex,
     grip_strength_kg: Number(input.grip_strength_kg),
     grip_special_cause: input.grip_special_cause,
@@ -173,6 +193,7 @@ function renderResult(record, syncResult, syncMessage) {
 
 function resetForNext() {
   elements.form.reset();
+  updateAgeInputMode();
   showErrors({});
   elements.formError.hidden = true;
   elements.resultCard.hidden = true;
@@ -222,7 +243,7 @@ function csvCell(value) {
 function exportCsv() {
   const records = loadRecords();
   if (!records.length) { window.alert('目前沒有可匯出的本機紀錄。'); return; }
-  const headers = ['record_id','event_id','event_label','participant_no','age','sex','grip_strength_kg','grip_special_cause','calf_circumference_cm','grip_low','calf_low','screening_result','trigger_reason','measured_at','app_version','duplicate_override','sync_status','sent_at'];
+  const headers = ['record_id','event_id','event_label','participant_no','age_input_method','age','roc_birth_year','sex','grip_strength_kg','grip_special_cause','calf_circumference_cm','grip_low','calf_low','screening_result','trigger_reason','measured_at','app_version','duplicate_override','sync_status','sent_at'];
   const rows = [headers.map(csvCell).join(','), ...records.map(record => headers.map(key => csvCell(record[key])).join(','))];
   const blob = new Blob([`\uFEFF${rows.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -278,10 +299,15 @@ elements.duplicateDialog.addEventListener('close', () => {
   if (elements.duplicateDialog.returnValue === 'confirm' && queuedDuplicateInput) saveAndSync(queuedDuplicateInput, true);
   queuedDuplicateInput = null;
 });
+document.querySelectorAll('input[name="age_input_method"]').forEach(input => {
+  input.addEventListener('change', updateAgeInputMode);
+});
+elements.rocBirthYear.addEventListener('input', updateAgeInputMode);
 elements.nextButton.addEventListener('click', resetForNext);
 elements.retryButton.addEventListener('click', retryPending);
 elements.exportButton.addEventListener('click', exportCsv);
 elements.clearButton.addEventListener('click', clearLocalData);
 window.addEventListener('online', updatePendingStatus);
 
+updateAgeInputMode();
 initializeEvents();
