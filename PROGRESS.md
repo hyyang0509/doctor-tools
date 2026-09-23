@@ -17,7 +17,7 @@
 - Service Worker v12 precaches new modules; new entry filename avoids v11 serving the old global-script app.
 - 17 Node tests passed, including 17,780 patient / 640,080 drug-assessment comparisons against the fixed baseline.
 - 12 jsdom interaction scenarios matched original result HTML; inputs/options/search/reset/error behavior passed.
-- Relative imports, syntax, subpath HTTP resources and JavaScript MIME verified; CSS unchanged.
+- Relative imports, syntax, subpath HTTP resources and JavaScript MIME verified; CSS unchanged.\n- First-event Apps Script was deployed and configured; live test record `TEST-001` populated all 18 columns in `工作表1` with correct numeric, boolean and blank values.
 
 ## Pending / blockers
 
