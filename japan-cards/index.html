@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#173a70"><title>日本刷卡小幫手｜HY Tools</title>
 <style>
-:root{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;color:#1e3046;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}main{max-width:860px;margin:auto;padding:20px 16px 60px}h1{font-size:1.8rem;margin:10px 0 4px}h2{font-size:1.18rem}a{color:#174b94}p,small{line-height:1.6}.muted{color:#637487}.panel{background:white;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 3px 20px #1e3e6710}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600}input,select,button{font:inherit;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;min-width:0}input[type=checkbox]{width:auto;accent-color:#2166b7}button{cursor:pointer;background:#2063ac;color:white;border:0;font-weight:700}button.secondary{background:#ebf2fa;color:#174b94}button.danger{background:#fff0f0;color:#9d2424}.check{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:14px}.rank{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:13px 0;border-bottom:1px solid #e8edf3}.rank:last-child{border:0}.rank:first-child strong{color:#0d7c60}.pill{display:inline-block;padding:3px 8px;background:#e9f6ee;color:#167348;border-radius:99px;font-size:12px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid #edf0f4;padding:9px 5px;text-align:left;vertical-align:top}th{color:#596b7d}summary{cursor:pointer;font-weight:700}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.actions button{font-size:13px}#status{font-size:14px;color:#167348;min-height:24px} .notice{background:#fff9e6;padding:12px;border-radius:10px;font-size:13px} .hide{display:none}.nowrap{white-space:nowrap}@media(max-width:550px){main{padding:14px 12px}.panel{padding:14px}td,th{font-size:12px}.optional{display:none}}
+:root{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",sans-serif;color:#1e3046;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}main{max-width:860px;margin:auto;padding:20px 16px 60px}h1{font-size:1.8rem;margin:10px 0 4px}h2{font-size:1.18rem}a{color:#174b94}p,small{line-height:1.6}.muted{color:#637487}.panel{background:white;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 3px 20px #1e3e6710}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.field{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600}input,select,button{font:inherit;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;min-width:0}input[type=checkbox]{width:auto;accent-color:#2166b7}button{cursor:pointer;background:#2063ac;color:white;border:0;font-weight:700}button.secondary{background:#ebf2fa;color:#174b94}button.danger{background:#fff0f0;color:#9d2424}.check{display:flex;align-items:center;gap:9px;padding:7px 0;font-size:14px}.rank{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:13px 0;border-bottom:1px solid #e8edf3}.rank:last-child{border:0}.rank:first-child strong{color:#0d7c60}.pill{display:inline-block;padding:3px 8px;background:#e9f6ee;color:#167348;border-radius:99px;font-size:12px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid #edf0f4;padding:9px 5px;text-align:left;vertical-align:top}th{color:#596b7d}summary{cursor:pointer;font-weight:700}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.actions button{font-size:13px}#status{font-size:14px;color:#167348;min-height:24px} .notice{background:#fff9e6;padding:12px;border-radius:10px;font-size:13px} .store-results{display:grid;gap:8px;margin:10px 0}.store-results button{text-align:left;white-space:normal;line-height:1.5;background:#ebf2fa;color:#174b94;overflow-wrap:anywhere}.store-results small{display:block;font-weight:400}.rank>div{min-width:0}.rank>div:first-child{flex:1}.hide{display:none}.nowrap{white-space:nowrap}@media(max-width:550px){main{padding:14px 12px}.panel{padding:14px}td,th{font-size:12px}.optional{display:none}}
 </style></head><body><main>
 <a href="../">← 返回 HY Tools 工具箱</a><h1>💳 日本刷卡小幫手</h1><p class="muted">四張卡優惠比較＋消費記帳＋額度自動扣除｜2026 年 10 月規則</p>
 <div class="panel"><h2>這筆刷哪張？</h2>
@@ -10,79 +10,101 @@
 <label class="field">消費金額（日圓 JPY）<input type="number" min="1" step="1" id="jpy" placeholder="例如 5000"></label>
 <label class="field">估算匯率（1 JPY = NTD）<input type="number" min=".001" step=".001" id="fx" value="0.22"></label>
 <label class="field">商店類型<select id="merchant"><option value="general">一般日本實體商店</option><option value="cube5">CUBE 指定 5% 商店</option><option value="airport">成田機場指定免稅店（CUBE 4%）</option></select></label>
-</div><label class="field" style="margin-top:12px">商店／備註<input id="store" placeholder="例如 唐吉訶德、UNIQLO"></label>
+</div><label class="field" style="margin-top:12px">商店／備註<input id="store" placeholder="搜尋品牌或分店，例如 UNIQLO、3coins、寶可夢" aria-describedby="storeHelp" autocomplete="off"></label>
+<p id="storeHelp" class="muted" style="font-size:13px">輸入即可查 CUBE 5% 名單，點選結果套用商店類型；備註可照常輸入。</p><div id="storeResults" class="store-results" aria-live="polite"></div>
+<details><summary>查看全部 CUBE 5% 品牌</summary><div id="storeDirectory" class="store-results"></div><small>適用 2026/10/1–11/30。百貨／商場門市、店中櫃等可能排除，請依各品牌說明及銀行請款認定。餐廳預約平台線上付款不在本工具實體刷卡比較範圍。<a href="https://www.cathaybk.com.tw/cathaybk/promo/event/credit-card/product/japanrewards/index.html" target="_blank" rel="noopener">官方完整名單</a></small></details>
 <p class="muted" id="ntd">輸入金額後顯示約當台幣</p>
 <div id="ranking" aria-live="polite"></div>
 <div class="actions"><button id="saveBest">用推薦卡記帳</button><button id="saveCustom" class="secondary">選擇其他卡記帳</button><select id="cardPick" aria-label="自選信用卡"><option value="uniopen">中信 uniopen</option><option value="j">富邦 J</option><option value="unicard">玉山 Unicard</option><option value="cube">國泰 CUBE</option></select></div><p id="status" role="status"></p>
 </div>
-<div class="panel"><details open><summary>優惠資格與設定（請先確認）</summary>
-<p class="notice">登錄、指定扣繳與帳戶任務需自行確認。未確認就不會假設取得加碼；銀行活動可能提前額滿、變更或有排除交易。</p>
+<div class="panel"><details><summary>優惠資格與設定（預設皆符合）</summary>
+<p class="notice">依你的設定，預設各卡資格皆符合、玉山使用 UP選。富邦 J 先按回國後成功登錄試算；若未搶到名額，請取消勾選並以 3% 比較。</p>
 <div class="grid">
 <label class="check"><input type="checkbox" id="uniLinked">uniopen 已連結會員／符合海外11%資格</label>
-<label class="check"><input type="checkbox" id="jEligible">富邦 J 已完成並成功登錄 6% 活動</label>
+<label class="check"><input type="checkbox" id="jEligible">富邦 J 先按回國後成功登錄 6% 活動試算</label>
 <label class="check"><input type="checkbox" id="cubeEligible">國泰 CUBE 已切換秋日遊方案且符合資格</label>
 <label class="field">玉山 Unicard 方案<select id="yuPlan"><option value="none">不確定／一般回饋</option><option value="simple">簡單選（3%）</option><option value="any">任意選，日本已選（3.5%）</option><option value="up">UP選且已符合條件（4.5%）</option></select></label>
-</div><p class="muted">各卡回饋為估算值，預設扣除1.5%海外手續費。uniopen 額外8%每月限500點、富邦 J 額外3%每季限1,000元。其他卡上限可在下面調整。</p>
+</div><p class="muted">各卡回饋為估算值，預設扣除1.5%海外手續費。uniopen 額外8%每月限500點、富邦 J 額外3%每季限1,000元。uniopen 約刷 NT$6,250／月用完加碼，之後仍有 3%；J 卡合格消費約 NT$33,333／季，之後仍有 3%（加碼每筆須滿 NT$1,000）。</p>
 <div class="grid">
 <label class="field">玉山 Unicard 簡單選額外回饋月上限（點）<input id="yuSimpleCap" type="number" min="0" value="1000"></label>
 <label class="field">玉山 Unicard 任意選額外回饋月上限（點）<input id="yuAnyCap" type="number" min="0" value="1000"></label>
-<label class="field">玉山 Unicard UP選額外回饋月上限（點）<input id="yuUpCap" type="number" min="0" value="1000"></label>
-</div><button id="saveSettings" class="secondary" style="margin-top:10px">儲存資格設定</button></details></div>
+<label class="field">玉山 Unicard UP選額外回饋月上限（點）<input id="yuUpCap" type="number" min="0" value="5000"></label>
+<label class="field">UP選每月優惠消費預算（NT$）<input id="yuUpSpendCap" type="number" min="0" value="140000"></label></div><p class="muted" style="font-size:13px">依你的規劃帶入 NT$140,000，保守使用加碼額度 4,900 點；銀行正式上限為加碼 5,000 點，約可刷 NT$142,857。一般 1% 無上限。</p><button id="saveSettings" class="secondary" style="margin-top:10px">儲存資格設定</button></details></div>
 <div class="panel"><h2>回饋額度使用狀態</h2><div id="limits"></div></div>
 <div class="panel"><h2>消費紀錄</h2><p class="muted">資料儲存在本裝置瀏覽器，手機和電腦不會自動同步。請定期匯出備份。</p>
 <div class="actions"><button class="secondary" id="exportJSON">匯出備份 JSON</button><button class="secondary" id="exportCSV">匯出 CSV</button><button class="secondary" id="importBtn">匯入 JSON</button><input type="file" accept=".json,application/json" id="importFile" hidden></div>
 <div style="overflow:auto"><table><thead><tr><th>日期</th><th>店家</th><th>金額</th><th>卡片</th><th>預估回饋</th><th></th></tr></thead><tbody id="ledger"></tbody></table></div></div>
-<div class="panel"><details><summary>計算原則與限制</summary><p>本工具為 2026/10 日本實體刷卡優惠試算，不處理網購、分期、新戶禮、特殊通路排除、跨行/跨境額外費用及回饋入帳時間。使用預估新台幣消費額與各筆順序，計算當月／當季可用加碼；回饋點數與現金視為等值供比較，實際使用價值可能不同。僅記帳的消費會占用額度；請將同期間其他合格消費也補記。跨月／跨季額度分開計算。消費退款請刪除原筆並重新記錄。活動到期後需重新檢查規則。</p></details></div>
+<div class="panel"><details><summary>計算原則與限制／官方依據</summary><p>查核日期：2026/10/15。<a href="https://www.ctbcbank.com/twrbo/zh_tw/cc_index/cc_product/cc_introduction_index/C_uniopen.html" target="_blank" rel="noopener">uniopen</a> · <a href="https://www.fubon.com/banking/Personal/credit_card/all_card/omiyage/omiyage.htm" target="_blank" rel="noopener">富邦 J</a> · <a href="https://www.esunbank.com/zh-tw/personal/credit-card/intro/bank-card/unicard" target="_blank" rel="noopener">玉山 Unicard</a> · <a href="https://www.cathaybk.com.tw/cathaybk/promo/event/credit-card/product/japanrewards/index.html" target="_blank" rel="noopener">CUBE 秋日遊</a>。uniopen 國外實體加碼至 12/31、J 卡本季加碼至 12/31、CUBE 秋日遊至 11/30。</p><p>本工具為 2026/10 日本實體刷卡優惠試算，不處理網購、分期、新戶禮、特殊通路排除、跨行/跨境額外費用及回饋入帳時間。使用預估新台幣消費額與各筆順序，計算當月／當季可用加碼；回饋點數與現金視為等值供比較，實際使用價值可能不同。僅記帳的消費會占用額度；請將同期間其他合格消費也補記。跨月／跨季額度分開計算。消費退款請刪除原筆並重新記錄。活動到期後需重新檢查規則。</p></details></div>
 </main><script>
 "use strict";
 const KEY="hy-japan-cards-v1";
 const NAMES={uniopen:"中信 uniopen",j:"富邦 J",unicard:"玉山 Unicard",cube:"國泰 CUBE"};
 const $=x=>document.getElementById(x);
-let data={transactions:[],settings:{uniLinked:false,jEligible:false,cubeEligible:false,yuPlan:"none",yuSimpleCap:1000,yuAnyCap:1000,yuUpCap:1000}};
-try{const old=JSON.parse(localStorage.getItem(KEY));if(old&&Array.isArray(old.transactions)&&old.settings)data={transactions:old.transactions,settings:{...data.settings,...old.settings}}}catch(e){}
+const DEFAULTS={uniLinked:true,jEligible:true,cubeEligible:true,yuPlan:"up",yuSimpleCap:1000,yuAnyCap:1000,yuUpCap:5000,yuUpSpendCap:140000};
+let data={version:2,transactions:[],settings:{...DEFAULTS}};
+try{const old=JSON.parse(localStorage.getItem(KEY));if(old&&Array.isArray(old.transactions)&&old.settings)data={version:2,transactions:old.transactions,settings:old.version===2?{...DEFAULTS,...old.settings}:{...old.settings,...DEFAULTS}}}catch(e){}
+// Brand aliases are search aids; a match is never applied until the user selects a result.
+const CUBE_STORES=[
+{name:"UNIQLO",aliases:"優衣庫 ユニクロ",branches:[],note:"日本獨立實體門市；不含百貨／商場門市、網購、儲值禮品卡及快閃店"},
+{name:"Alpen GROUP",aliases:"Alpen SPORTS DEPO GOLF5 アルペン",branches:[],note:"Alpen、SPORTS DEPO、GOLF5；請款名稱須為 ALPEN GROUP"},
+{name:"ABC-MART",aliases:"ABC MART ABCMART エービーシーマート",branches:[],note:"含 GRAND STAGE、SPORTS；請款名稱須為 ABC-MART"},
+{name:"Loft",aliases:"COSME LOFT ロフト",branches:[],note:"含 COSME LOFT；請款名稱須為 Loft"},
+{name:"3COINS",aliases:"3coin 3coins スリーコインズ",branches:["沖繩 +plus 那霸 Main Place","東京 +plus 西武新宿 PePe","北海道 札幌地下街 Pole Town","大阪 LINKS UMEDA","東京 OOOPS! 上野 Echika fit","東京 八重洲地下街","京都 京都寺町","北海道 OOOPS! 札幌地下街 Aurora Town","兵庫 神戶","東京 原宿本店","東京 下北澤","兵庫 神戶 Sanchika","東京 飯田橋 Metropia","東京 東急 Plaza 蒲田","北海道 +plus 新札幌 Sunpiazza"],note:"僅這 15 家門市；請款名稱須為 3COINS"},
+{name:"寶可夢中心",aliases:"Pokemon Pokémon Pokemon Senta ポケモンセンター",branches:["大阪 LUCUA SOUTH","京都 SUINA室町","札幌 大丸札幌店","澀谷 PARCO","東京 DX 日本橋高島屋 S.C."],note:"僅這 5 家門市；請款名稱須為 Pokemon Center／Pokemon Senta"},
+{name:"SANRIO 三麗鷗",aliases:"Sanrio サンリオ",branches:["淺草","上野","紀伊國屋書店新宿本店","原宿 竹下通","池袋","Vivitix Sunshine City Alpa","大崎 OHSAKI NEW CITY","橫濱 Sky Building","京都","心齋橋","難波戎橋","神戶三宮","廣島本通","那霸 Main Place"],note:"僅這 14 家門市；請款名稱須為 SANRIO"},
+{name:"KIDDY LAND",aliases:"KIDDYLAND キデイランド",branches:["原宿","新宿","京都四條河原町","三宮","OMO KADO","橫濱"],note:"僅這 6 家門市；請款名稱須為 KIDDY LAND"}
+];
+const normalize=s=>s.normalize("NFKD").replace(/\p{M}/gu,"").toLowerCase().replace(/[\s\-・.]/g,"");
+function searchStores(query){const q=normalize(query.trim());return CUBE_STORES.filter(s=>!q||normalize([s.name,s.aliases,...s.branches].join(" ")).includes(q))}
+function storeCards(stores){return stores.map(s=>{const i=CUBE_STORES.indexOf(s);return '<div><strong>'+escapeHTML(s.name)+' · CUBE 5%</strong><small>'+escapeHTML(s.note)+(s.branches.length?'':'；不含百貨／商場門市、店中櫃、網購及快閃店')+'</small>'+(s.branches.length?s.branches.map((b,n)=>'<button type="button" data-store="'+i+'" data-branch="'+n+'">'+escapeHTML(b)+'</button>').join(" "):'<button type="button" data-store="'+i+'">套用 '+escapeHTML(s.name)+'</button>')+'</div>'}).join("")}
+function showStoreResults(){const query=$("store").value;const matches=searchStores(query);$("storeResults").innerHTML=query.trim()?(matches.length?storeCards(matches):'<small>查無 CUBE 5% 名單；維持一般實體商店試算。也可查閱下方官方名單。</small>'):""}
+function selectStore(e){const b=e.target.closest("button[data-store]");if(!b)return;const s=CUBE_STORES[Number(b.dataset.store)];$("store").value=s.name+(b.dataset.branch!==undefined?' '+s.branches[Number(b.dataset.branch)]:"");$("merchant").value="cube5";$("storeResults").innerHTML='<small>已套用 CUBE 5%：'+escapeHTML($("store").value)+'。'+escapeHTML(s.note)+'</small>';render()}
+$("store").addEventListener("input",()=>{$("merchant").value="general";showStoreResults();render()});
+$("storeResults").addEventListener("click",selectStore);$("storeDirectory").addEventListener("click",selectStore);$("storeDirectory").innerHTML=storeCards(CUBE_STORES);
 const today=()=>new Date().toLocaleDateString("sv-SE",{timeZone:"Asia/Taipei"});
 $("date").value=today();
 function persist(){localStorage.setItem(KEY,JSON.stringify(data))}
 function ym(date){return date.slice(0,7)} function yq(date){return date.slice(0,4)+"-Q"+(Math.floor((Number(date.slice(5,7))-1)/3)+1)}
-function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!isNaN(Date.parse(s))}
+function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!isNaN(Date.parse(s))&&new Date(s).toISOString().slice(0,10)===s}
 function spent(card,date,kind){const same=t=>t.card===card&&(kind==="quarter"?yq(t.date)===yq(date):ym(t.date)===ym(date));return data.transactions.filter(same).reduce((a,t)=>a+Number(t.extra||0),0)}
 function capBonus(rate,cap,used,amount){return Math.max(0,Math.min(amount*rate,Math.max(0,cap-used)))}
+function upCap(){return Math.min(Number(data.settings.yuUpCap),Number(data.settings.yuUpSpendCap)*.035)}
 function calc(card,amount,date,merchant){
-const S=data.settings;let base=0,extra=0,eligible=true,detail="";
-if(card==="uniopen"){base=.03;extra=S.uniLinked?capBonus(.08,500,spent(card,date,"month"),amount):0;detail=S.uniLinked?"8%加碼月上限500點":"尚未勾選會員連結資格"}
-if(card==="j"){base=.03;extra=(S.jEligible&&amount>=1000)?capBonus(.03,1000,spent(card,date,"quarter"),amount):0;detail=S.jEligible?(amount>=1000?"6%加碼需符合單筆滿千條件":"未滿NT$1,000，不計3%加碼"):"尚未確認活動登錄"}
-if(card==="unicard"){base=.01;let p=S.yuPlan;let rates={none:0,simple:.02,any:.025,up:.035};let caps={none:0,simple:Number(S.yuSimpleCap),any:Number(S.yuAnyCap),up:Number(S.yuUpCap)};extra=capBonus(rates[p]||0,caps[p]||0,spent(card,date,"month"),amount);detail="目前方案："+({none:"未確認",simple:"簡單選",any:"任意選",up:"UP選"}[p])}
-if(card==="cube"){base=S.cubeEligible?.035:.003; if(S.cubeEligible&&merchant==="cube5")base=.05;if(S.cubeEligible&&merchant==="airport")base=.04;detail=S.cubeEligible?"秋日遊（指定店加碼需符合名單）":"尚未確認秋日遊資格，僅用保守基礎回饋試算"}
+const S=data.settings;let base=0,extra=0,detail="";
+if(card==="uniopen"){base=.03;extra=S.uniLinked?capBonus(.08,500,spent(card,date,"month"),amount):0;detail=S.uniLinked?"3%無上限＋8%加碼每月500點（約刷NT$6,250）":"尚未勾選會員連結資格"}
+if(card==="j"){base=.03;extra=(S.jEligible&&amount>=1000)?capBonus(.03,1000,spent(card,date,"quarter"),amount):0;detail=S.jEligible?(amount>=1000?"3%無上限＋3%加碼每季1,000元；回國後記得登錄（10/20 16:00開放，限量；成功才享6%）":"未滿NT$1,000，不計3%加碼；回國後仍記得登錄（10/20 16:00，限量）"):"尚未確認活動登錄"}
+if(card==="unicard"){base=.01;let p=S.yuPlan;let rates={none:0,simple:.02,any:.025,up:.035};let caps={none:0,simple:Number(S.yuSimpleCap),any:Number(S.yuAnyCap),up:upCap()};extra=capBonus(rates[p]||0,caps[p]||0,spent(card,date,"month"),amount);detail="目前方案："+({none:"未確認",simple:"簡單選",any:"任意選",up:"UP選"}[p])}
+if(card==="cube"){const active=date>="2026-10-01"&&date<="2026-11-30";base=S.cubeEligible&&active?.035:.003; if(S.cubeEligible&&active&&merchant==="cube5")base=.05;if(S.cubeEligible&&active&&merchant==="airport")base=.04;detail=!active?"秋日遊已超出活動期間（10/1–11/30），僅用基本0.3%試算":S.cubeEligible?"秋日遊（5%商店須符合分店與排除條件）":"尚未確認秋日遊資格，僅用保守基礎回饋試算"}
 const gross=amount*base+extra;return {card,amount,base,extra,gross,net:gross-amount*.015,rate:amount?gross/amount:0,detail}}
 function context(){const date=$("date").value,jpy=Number($("jpy").value),fx=Number($("fx").value);return{date,jpy,fx,amount:jpy*fx,merchant:$("merchant").value}}
-function rank(){const c=context();if(!validDate(c.date)||!(c.jpy>0)||!(c.fx>0))return[];return Object.keys(NAMES).map(card=>calc(card,c.amount,c.date,c.merchant)).sort((a,b)=>b.net-a.net)}
+function rank(){const c=context();if(!validDate(c.date)||c.date<"2026-10-01"||c.date>"2026-12-31"||!Number.isFinite(c.amount)||!(c.jpy>0)||!(c.fx>0))return[];return Object.keys(NAMES).map(card=>calc(card,c.amount,c.date,c.merchant)).sort((a,b)=>b.net-a.net)}
 function money(x){return Number(x).toLocaleString("zh-TW",{maximumFractionDigits:1})}
 function escapeHTML(x){return String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function render(){
 const c=context(),r=rank();
 $("ntd").textContent=c.amount>0?"約 NT$"+money(c.amount)+"（實際請依銀行清算匯率）":"輸入日圓金額即可開始比較";
-$("ranking").innerHTML=r.length?r.map((v,i)=>'<div class="rank"><div><strong>'+ (i===0?"🏆 ":"") +escapeHTML(NAMES[v.card])+'</strong><div class="muted" style="font-size:12px">'+escapeHTML(v.detail)+'</div></div><div style="text-align:right"><strong>'+money(v.rate*100)+'%</strong><div class="muted" style="font-size:12px">淨回饋約 NT$'+money(v.net)+'</div></div></div>').join(""):'<p class="muted">請輸入日期、日圓金額與匯率。</p>';
+$("ranking").innerHTML=r.length?r.map((v,i)=>'<div class="rank"><div><strong>'+ (i===0?"🏆 ":"") +escapeHTML(NAMES[v.card])+'</strong><div class="muted" style="font-size:12px">'+escapeHTML(v.detail)+'</div></div><div style="text-align:right"><strong>'+money(v.rate*100)+'%</strong><div class="muted" style="font-size:12px">淨回饋約 NT$'+money(v.net)+'</div></div></div>').join(""):'<p class="muted">請輸入有效日期、日圓金額與匯率（規則適用 2026/10–12）。</p>';
 let d=validDate(c.date)?c.date:today();
 $("limits").innerHTML=[
-["uniopen 8%加碼（月）","uniopen",500,"month"],["富邦J 3%加碼（季）","j",1000,"quarter"],["玉山 Unicard 加碼（月）","unicard",Number(data.settings[({none:"yuSimpleCap",simple:"yuSimpleCap",any:"yuAnyCap",up:"yuUpCap"})[data.settings.yuPlan]]||0),"month"]
-].map(([title,card,cap,kind])=>'<p><strong>'+title+'</strong>：已用 '+money(spent(card,d,kind))+' / '+money(cap)+'，剩餘 '+money(Math.max(0,cap-spent(card,d,kind)))+'</p>').join("");
+["uniopen 8%加碼（月）","uniopen",500,"month"],["富邦J 3%加碼（季）","j",1000,"quarter"],["玉山 Unicard 加碼（月）","unicard",data.settings.yuPlan==="up"?upCap():Number(data.settings[({none:"yuSimpleCap",simple:"yuSimpleCap",any:"yuAnyCap",up:"yuUpCap"})[data.settings.yuPlan]]||0),"month"]
+].map(([title,card,cap,kind])=>'<p><strong>'+title+'</strong>：已用 '+money(spent(card,d,kind))+' / '+money(cap)+'，剩餘 '+money(Math.max(0,cap-spent(card,d,kind)))+' 點／元（加碼回饋）<br><small class="muted">'+(card==='uniopen'?'滿額加碼可刷約 NT$6,250／月；剩餘加碼可刷約 NT$'+money(Math.max(0,cap-spent(card,d,kind))/.08):card==='j'?'滿額加碼可刷約 NT$33,333／季；剩餘合格消費約 NT$'+money(Math.max(0,cap-spent(card,d,kind))/.03)+'，每筆須滿 NT$1,000':data.settings.yuPlan==='up'?'UP選優惠消費預算 NT$'+money(data.settings.yuUpSpendCap)+'／月；剩餘約 NT$'+money(Math.max(0,cap-spent(card,d,kind))/.035)+'（正式加碼上限5,000點）':'依目前方案上限計算')+'</small></p>').join("");
 $("ledger").innerHTML=[...data.transactions].sort((a,b)=>b.date.localeCompare(a.date)||b.created-a.created).map(t=>'<tr><td class="nowrap">'+escapeHTML(t.date)+'</td><td>'+escapeHTML(t.store||"—")+'</td><td>¥'+money(t.jpy)+'<div class="muted">NT$'+money(t.amount)+'</div></td><td>'+escapeHTML(NAMES[t.card]||t.card)+'</td><td>NT$'+money(t.net)+'</td><td><button class="danger delete" data-id="'+escapeHTML(t.id)+'" aria-label="刪除紀錄">×</button></td></tr>').join("")||'<tr><td colspan="6" class="muted">尚無紀錄</td></tr>';
 }
 function record(card){
-const c=context();if(!validDate(c.date)||!(c.amount>0)||!NAMES[card]){alert("請確認日期、日圓金額及匯率");return}
+const c=context();if(!rank().length||!NAMES[card]){alert("請確認日期、日圓金額及匯率");return}
 const x=calc(card,c.amount,c.date,c.merchant);const id=String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
-data.transactions.push({id,date:c.date,created:Date.now(),store:$("store").value.trim(),merchant:c.merchant,jpy:c.jpy,fx:c.fx,amount:c.amount,card,base:x.base,extra:x.extra,gross:x.gross,net:x.net});persist();render();$("status").textContent="✓ 已記錄 "+NAMES[card]+" 消費 ¥"+money(c.jpy)+"，剩餘額度已更新";$("jpy").value="";
+data.transactions.push({id,date:c.date,created:Date.now(),store:$("store").value.trim(),merchant:c.merchant,jpy:c.jpy,fx:c.fx,amount:c.amount,card,base:x.base,extra:x.extra,gross:x.gross,net:x.net});persist();$("status").textContent="✓ 已記錄 "+NAMES[card]+" 消費 ¥"+money(c.jpy)+"，剩餘額度已更新";$("jpy").value="";render();
 }
 $("saveBest").onclick=()=>{const r=rank();if(r.length)record(r[0].card);else alert("請先輸入有效金額")};
 $("saveCustom").onclick=()=>record($("cardPick").value);
 $("ledger").addEventListener("click",e=>{const b=e.target.closest("button.delete");if(b&&confirm("確定刪除此筆記帳？")){data.transactions=data.transactions.filter(t=>t.id!==b.dataset.id);persist();render()}});
-function loadSettings(){for(const key of ["uniLinked","jEligible","cubeEligible"])$(key).checked=!!data.settings[key];for(const key of ["yuPlan","yuSimpleCap","yuAnyCap","yuUpCap"])$(key).value=data.settings[key]}
-$("saveSettings").onclick=()=>{for(const key of ["uniLinked","jEligible","cubeEligible"])data.settings[key]=$(key).checked;for(const key of ["yuPlan","yuSimpleCap","yuAnyCap","yuUpCap"])data.settings[key]=$(key).value;persist();render();$("status").textContent="✓ 資格設定已儲存"};
+function loadSettings(){for(const key of ["uniLinked","jEligible","cubeEligible"])$(key).checked=!!data.settings[key];for(const key of ["yuPlan","yuSimpleCap","yuAnyCap","yuUpCap","yuUpSpendCap"])$(key).value=data.settings[key]}
+$("saveSettings").onclick=()=>{if(!["yuSimpleCap","yuAnyCap","yuUpCap","yuUpSpendCap"].every(k=>$(k).value.trim()!==""&&Number.isFinite(Number($(k).value))&&Number($(k).value)>=0)){alert("請填入有效的非負上限與預算");return;}for(const key of ["uniLinked","jEligible","cubeEligible"])data.settings[key]=$(key).checked;for(const key of ["yuPlan","yuSimpleCap","yuAnyCap","yuUpCap","yuUpSpendCap"])data.settings[key]=$(key).value;persist();render();$("status").textContent="✓ 資格設定已儲存"};
 ["date","jpy","fx","merchant"].forEach(k=>$(k).addEventListener("input",render));
 function download(name,txt,type){const url=URL.createObjectURL(new Blob([txt],{type}));const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000)}
 $("exportJSON").onclick=()=>download("japan-cards-backup-"+today()+".json",JSON.stringify(data,null,2),"application/json");
 $("exportCSV").onclick=()=>{const rows=[["日期","商店","卡片","JPY","匯率","台幣估算","原始回饋","額外回饋","淨回饋"],...data.transactions.map(t=>[t.date,t.store,NAMES[t.card],t.jpy,t.fx,t.amount,t.gross-t.extra,t.extra,t.net])];download("japan-cards-"+today()+".csv","\ufeff"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n"),"text/csv;charset=utf-8")};
 $("importBtn").onclick=()=>$("importFile").click();
-$("importFile").onchange=async e=>{try{const txt=await e.target.files[0].text();const incoming=JSON.parse(txt);if(!Array.isArray(incoming.transactions)||!incoming.settings)throw Error("格式不符");if(!confirm("匯入將覆蓋目前所有記帳和設定，確定嗎？"))return;data={transactions:incoming.transactions.filter(t=>validDate(t.date)&&NAMES[t.card]&&Number.isFinite(Number(t.amount))&&Number.isFinite(Number(t.extra))),settings:{...data.settings,...incoming.settings}};persist();loadSettings();render();$("status").textContent="✓ 匯入成功"}catch(err){alert("匯入失敗："+err.message)}finally{e.target.value=""}};
+$("importFile").onchange=async e=>{try{const txt=await e.target.files[0].text();const incoming=JSON.parse(txt);if(!Array.isArray(incoming.transactions)||!incoming.settings)throw Error("格式不符");if(!confirm("匯入將覆蓋目前所有記帳和設定，確定嗎？"))return;data={version:2,transactions:incoming.transactions.filter(t=>validDate(t.date)&&NAMES[t.card]&&Number.isFinite(Number(t.amount))&&Number.isFinite(Number(t.extra))),settings:incoming.version===2?{...DEFAULTS,...incoming.settings}:{...incoming.settings,...DEFAULTS}};persist();loadSettings();render();$("status").textContent="✓ 匯入成功"}catch(err){alert("匯入失敗："+err.message)}finally{e.target.value=""}};
 loadSettings();render();
 </script></body></html>
