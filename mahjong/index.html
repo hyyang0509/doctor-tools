@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#103e34"><meta name="robots" content="noindex,nofollow">
+  <title>台灣十六張｜HY Tools</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml"><link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header><a href="../">← 工具箱</a><span class="eyebrow">HY TOOLS · 休閒牌桌</span><button id="restart" class="quiet">重新開桌</button></header>
+  <div class="heading"><div><h1>台灣十六張<span>一人入座，四人開打。</span></h1><p>你與三位電腦對手 · 不限思考時間</p></div><button id="rulesButton" class="quiet">台規與玩法</button></div>
+  <section class="table" aria-label="麻將牌桌">
+    <div id="roundBar" class="round-bar"></div>
+    <div id="opponents" class="opponents"></div>
+    <div class="center"><div><span class="eyebrow">上一張捨牌</span><div id="lastTile"></div></div><div class="center-copy"><strong id="status" role="status" aria-live="polite"></strong><span id="wall"></span></div></div>
+    <details class="river-panel" open><summary>牌河 <small>已被吃碰槓的牌不留在牌河</small></summary><div id="rivers" class="rivers"></div></details>
+    <section class="own" aria-label="你的手牌"><div id="ownMeta" class="own-meta"></div><div id="ownMelds" class="melds"></div><div id="hand" class="hand"></div></section>
+  </section>
+  <section class="action-panel" aria-label="操作區"><p id="hint"></p><div id="actions" class="actions"></div></section>
+  <section id="result" class="result" hidden aria-live="polite"></section>
+  <details class="log"><summary>本局紀錄</summary><ol id="history"></ol></details>
+  <footer>純前端單機遊戲 · 點牌選取，再按出牌 · 積分僅供遊戲紀錄</footer>
+</main>
+<dialog id="rulesDialog"><div class="dialog-head"><h2>這桌怎麼打</h2><button id="closeRules" class="quiet">關閉</button></div><p>144 張含八花；莊家 17 張，閒家 16 張。湊成五組順子／刻子／槓與一對將即可胡牌，允許零台胡。</p><ul><li>只能吃上家；胡優先於碰槓，碰槓優先於吃。同時可胡採單響，距離放槍者最近者優先。</li><li>吃、碰後要出牌；槓、花自動從牌尾補牌。保留 16 張，不加槓尾；牌牆用盡即流局。</li><li>放過可胡的捨牌或加槓張後，直到下次摸牌才可再胡他家。暗槓不可搶，補花不算槓上開花。</li><li>門風隨莊家轉動。莊家胡則連莊；流局留莊、不加連莊。四次換莊後換圈風，可持續玩。</li><li>牌型台數不封頂，特殊胡牌依下表。未採用宣告聽牌、天聽、地聽、人胡、哩咕哩咕、八對半、包牌及四槓流局。</li><li>本桌計分：底 100 分、每台 20 分。放槍者單獨付，自摸三家各付；涉及莊家的收付才加莊連台。離開或重新整理會重開，沒有存檔。</li></ul><p class="note">台灣麻將沒有單一通用台規；以下是本遊戲的固定版本。</p><div class="table-scroll"><table><thead><tr><th>項目</th><th>台數</th><th>採用方式</th></tr></thead><tbody id="ruleRows"></tbody></table></div><p>查核參考：<a href="https://pocket.funclub.com.tw/rule" target="_blank" rel="noopener">口袋麻將牌型表</a>、<a href="https://twgame.net/rule.php" target="_blank" rel="noopener">台灣大亨規則</a>。本桌採用上表，不完全等同任一平台。</p></dialog>
+<script type="module" src="app.mjs"></script>
+</body></html>
