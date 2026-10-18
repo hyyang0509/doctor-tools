@@ -28,6 +28,8 @@ export const RULES = [
 ];
 export const WINDS=['東','南','西','北'];
 export const FLOWERS=['春','夏','秋','冬','梅','蘭','菊','竹'];
+export const FLOWER_EMOJI={38:'🌸',39:'🌺',40:'🌼',41:'🎋'};
+export const flowerLabel=t=>FLOWER_EMOJI[t]?`${FLOWER_EMOJI[t]}${name(t)}`:name(t);
 export const RESERVE=16;
 export const name=t=>t<27?`${t%9+1}${['萬','筒','索'][Math.floor(t/9)]}`:t<34?['東','南','西','北','中','發','白'][t-27]:FLOWERS[t-34];
 export const sort=h=>h.sort((a,b)=>a-b);

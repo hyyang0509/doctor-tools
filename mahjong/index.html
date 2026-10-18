@@ -19,6 +19,11 @@
   </section>
   <section class="action-panel" aria-label="操作區"><p id="hint"></p><div id="actions" class="actions"></div></section>
   <section id="result" class="result" hidden aria-live="polite"></section>
+  <details id="teacher" class="teacher"><summary><strong>打牌小老師</strong><span id="teacherCount">出牌後再來看</span></summary>
+    <p class="coach-note">依你出牌當下的手牌與公開牌面，比較聽牌距離和有效進張。未見張數含對手暗牌與保留牌，不是摸到機率；未評估防守、做大牌或未來牌序。</p>
+    <div id="teacherLatest"></div>
+    <details id="teacherRound"><summary id="teacherRoundLabel">本局回顧</summary><div id="teacherReview"></div></details>
+  </details>
   <details class="log"><summary>本局紀錄</summary><ol id="history"></ol></details>
   <footer>純前端單機遊戲 · 點牌選取，再按出牌 · 積分僅供遊戲紀錄</footer>
 </main>

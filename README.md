@@ -8,7 +8,7 @@
 - `sarcopenia/`：智能車肌少症篩檢紀錄工具
 - `followup/`：回診日期計算器
 - `taifex-alert/`：台指期槓桿與保證金壓力測試
-- `mahjong/`：四人台灣十六張麻將（你與三位電腦對手），吃碰槓、補花、逐項計台與莊連收付。規則見遊戲內「台規與玩法」；測試：`node --test mahjong/game.test.mjs`。
+- `mahjong/`：四人台灣十六張麻將（你與三位電腦對手），吃碰槓、補花、逐項計台與莊連收付；四君子花牌 emoji 與可展開的「打牌小老師」。規則見遊戲內「台規與玩法」；測試：`node --test mahjong/*.test.mjs`。
 - `text-game/`：王朝事件決策文字遊戲
 
 ## 專案結構
