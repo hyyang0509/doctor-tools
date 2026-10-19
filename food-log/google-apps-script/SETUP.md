@@ -7,8 +7,22 @@
 1. 開啟本次建立的「日常飲食紀錄」試算表，或自行建立一份空白 Google 試算表。
 2. 在試算表上方點「擴充功能 → Apps Script」。
 3. 將同資料夾的 [Code.gs](Code.gs) 全部內容複製，取代編輯器原本內容，儲存。
-4. 上方函式下拉選 `setup`，按「執行」。首次需以自己的帳號授權；此程式只處理綁定的這份試算表。若 Google 顯示應用程式未經驗證，先確認這就是自己剛貼入的程式，再決定是否繼續授權；若組織帳號政策禁止，請洽管理員或改用個人帳號建立試算表。
-5. 切回試算表，複製彈出視窗的「連線金鑰」。再次執行 `setup` 可重新查看同一把金鑰，不會清除紀錄。
+4. 上方函式下拉選 `setup`，按「執行」。首次需以自己的帳號授權。網頁接收端使用 `openById`，因此 Google 會要求一般試算表存取權限；程式實際只開啟初始化時保存的試算表 ID。若 Google 顯示應用程式未經驗證，先確認這就是自己剛貼入的程式，再決定是否繼續授權；若組織帳號政策禁止，請洽管理員或改用個人帳號建立試算表。
+5. 切回試算表，複製彈出視窗的「連線金鑰」。再次執行 `setup` 可重新查看同一把金鑰，不會清除紀錄。如果沒看到視窗，Apps Script「專案設定 → 指令碼屬性」中的 `FOOD_ACCESS_KEY` 值就是金鑰；不用重建專案。
+
+## 舊版寫入失敗的修復（version 1 → 2）
+
+如果 `/exec` 可以開啟，但送出時只顯示「試算表未確認寫入」，原始 version 1 有授權缺陷：檔案開頭限制僅存取目前文件，網頁端卻以需要一般試算表授權的 `openById` 開啟檔案。原始錯誤回覆還會隱藏實際失敗步驟，因此也可能有其他寫入問題。
+
+1. 使用同一個 Apps Script 專案，以最新 [Code.gs](Code.gs) 全文取代原始碼並儲存；不要重建試算表或更換金鑰。
+2. 執行 `setup`，完成新增的試算表權限授權。setup 現在會直接檢查網頁端所需的 `openById`。
+3. 如果自己曾在 `appsscript.json` 明確填寫 `oauthScopes`，請確認試算表 scope 包含 `https://www.googleapis.com/auth/spreadsheets`，不能只有 `spreadsheets.currentonly`；未自行設定的人不需修改此檔案。
+4. 執行 `checkConnection`；執行記錄應顯示可開啟試算表且九個欄名正確。它不新增飲食紀錄，也不輸出金鑰。
+5. 「部署 → 管理部署作業 → 編輯（鉛筆）→ 版本選『新版本』→ 部署」，仍以自己執行、任何人可存取。更新同一部署可沿用 `/exec`。
+6. 無痕視窗開啟 `/exec`，應顯示 `version: 2`；仍是 1 代表新版本尚未部署到目前網址。
+7. 回工具按「重試這筆紀錄」或「全部重試」；確認試算表新增列。更新網站後若仍有錯誤，將新提示回傳給維護者，不用提供金鑰。
+
+依據：Google 官方 [`openById` 授權要求](https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app#openById(String))、[授權範圍限制](https://developers.google.com/apps-script/guides/services/authorization#limit_scope_to_the_current_document)。
 
 ## 2. 部署接收端
 

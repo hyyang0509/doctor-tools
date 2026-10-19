@@ -1,11 +1,14 @@
-/** @OnlyCurrentDoc */
+// Web-app uploads use openById, which requires the spreadsheets OAuth scope.
+// Do not limit this project to spreadsheets.currentonly.
 const FOOD_HEADERS = ['紀錄編號', '日期', '餐別', '飲食內容', '飲食標籤', '工作內容', '備註', '建立時間（台灣）', '寫入時間（台灣）'];
 const FOOD_TAGS = ['水煮蛋', '拿鐵', '美式', '含糖咖啡', '醫院便當', '一般便當', '炸雞腿便當', '無糖飲料', '含糖飲料', '珍奶', '小火鍋', '八方雲集', '乾麵', '牛肉麵'];
 
 // Run once from the spreadsheet's bound Apps Script editor; safe to run again.
 function setup() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  if (!ss) throw new Error('請從目標試算表的「擴充功能 → Apps Script」執行。');
+  const bound = SpreadsheetApp.getActiveSpreadsheet();
+  if (!bound) throw new Error('請從目標試算表的「擴充功能 → Apps Script」執行。');
+  // Exercise the exact same authorized opening path as doPost before deployment.
+  const ss = SpreadsheetApp.openById(bound.getId());
   ss.setSpreadsheetTimeZone('Asia/Taipei');
   const props = PropertiesService.getScriptProperties();
   props.setProperty('FOOD_SPREADSHEET_ID', ss.getId());
@@ -24,11 +27,12 @@ function setup() {
 
 function doGet() {
   // No reading endpoint: private records are never returned by the public web app.
-  return json_({ ok: true, service: 'hy-food-log', version: 1 });
+  return json_({ ok: true, service: 'hy-food-log', version: 2 });
 }
 
 function doPost(e) {
   let lock;
+  let stage = 'request';
   try {
     const raw = e && e.postData && e.postData.contents;
     if (!raw || raw.length > 20000) return json_({ ok: false, error: 'INVALID_REQUEST' });
@@ -41,10 +45,13 @@ function doPost(e) {
     validate_(r);
     const sheetId = props.getProperty('FOOD_SPREADSHEET_ID');
     if (!sheetId) throw new Error('NOT_CONFIGURED');
+    stage = 'lock';
     lock = LockService.getScriptLock();
     lock.waitLock(20000);
+    stage = 'open_spreadsheet';
     const sheet = SpreadsheetApp.openById(sheetId).getSheetByName('飲食紀錄');
     if (!sheet) throw new Error('SHEET_MISSING');
+    stage = 'headers';
     ensureHeaders_(sheet);
     if (sheet.getLastRow() > 1 && sheet.getRange(2, 1, sheet.getLastRow() - 1, 1)
       .createTextFinder(r.id).matchEntireCell(true).useRegularExpression(false).findNext()) {
@@ -54,15 +61,30 @@ function doPost(e) {
       Utilities.formatDate(new Date(r.createdAt), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss'),
       Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss')];
     // Force user text to literal values, including spreadsheet formula prefixes.
+    stage = 'write';
     sheet.getRange(sheet.getLastRow() + 1, 1, 1, row.length).setNumberFormat('@').setValues([row.map(literal_)]);
     SpreadsheetApp.flush();
     return json_({ ok: true, id: r.id });
   } catch (error) {
-    // Do not echo incoming food/work text, access keys or internal details.
-    return json_({ ok: false, error: 'WRITE_FAILED' });
+    // Report only fixed error codes and stages, never incoming text/keys/IDs.
+    const known = ['NOT_CONFIGURED', 'SHEET_MISSING', 'HEADER_MISMATCH', 'INVALID_ID', 'INVALID_DATE', 'INVALID_MEAL', 'INVALID_TAGS', 'INVALID_TEXT', 'EMPTY_RECORD', 'INVALID_TIME'];
+    const code = known.includes(error.message) ? error.message : 'WRITE_FAILED';
+    console.error('hy-food-log failure: ' + stage + ' / ' + code);
+    return json_({ ok: false, error: code, stage: stage });
   } finally {
     if (lock && lock.hasLock()) lock.releaseLock();
   }
+}
+
+// Owner-only diagnostic: run in the editor, not exposed through doGet/doPost.
+// It reads only the header and does not create a food record or print the key.
+function checkConnection() {
+  const props = PropertiesService.getScriptProperties();
+  if (!props.getProperty('FOOD_ACCESS_KEY') || !props.getProperty('FOOD_SPREADSHEET_ID')) throw new Error('請先執行 setup 完成初始化。');
+  const sheet = SpreadsheetApp.openById(props.getProperty('FOOD_SPREADSHEET_ID')).getSheetByName('飲食紀錄');
+  if (!sheet) throw new Error('找不到「飲食紀錄」工作表，請重新執行 setup。');
+  ensureHeaders_(sheet);
+  console.log('連線檢查成功：可透過 openById 開啟試算表，九個欄名正確。請確認新版本已部署，再從工具重試上傳。');
 }
 
 function validate_(r) {

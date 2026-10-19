@@ -4,6 +4,8 @@
 
 ## Latest task — daily food log
 
+- Follow-up branch `fix/food-log-sheet-authorization`: fixed original current-document scope conflict with openById, added setup authorization check, editor-only checkConnection, safe receiver diagnostics and UI hints, receiver version 2 and SW v21. Fourteen tests and Chromium regression passed. User still needs to update their bound script, reauthorize and deploy the new receiver; reported production failure has not yet been retested live. PR #29 is merged.
+
 - Branch: `feat/daily-food-log`; ready for PR review, do not merge automatically.
 - Implemented `food-log/`: mobile form, 14 emoji tags, Taiwan date/meal defaults, optional work/notes, local draft and pending queue, acknowledged Google Sheets upload, stable-ID retries and Apps Script receiver with private device-configured access key.
 - Added homepage entry/search and Service Worker v20 offline assets. Existing tools preserved.
