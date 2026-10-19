@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#17644f">
+  <meta name="robots" content="noindex,nofollow">
+  <title>日常飲食紀錄｜HY Tools</title>
+  <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.mjs"></script>
+</head>
+<body>
+<main>
+  <nav><a href="../">‹ 我的工具箱</a><span>HY Tools</span></nav>
+  <header><p class="eyebrow">DAILY FOOD LOG</p><h1>日常飲食紀錄</h1><p>先記下這一餐，慢慢找到適合自己的吃法。</p></header>
+  <details id="connection" class="panel connection">
+    <summary>⚙️ 試算表連線 <span id="connectionLabel">尚未設定</span></summary>
+    <p>首次使用設定一次。連線資料只保存在這個瀏覽器，換裝置需重新設定。</p>
+    <label for="endpoint">Apps Script 網址</label>
+    <input id="endpoint" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
+    <label for="accessKey">連線金鑰</label>
+    <input id="accessKey" type="password" autocomplete="off" placeholder="貼上初始化時產生的金鑰">
+    <button id="saveConnection" type="button" class="secondary">儲存連線設定</button>
+    <p><a href="https://github.com/hyyang0509/doctor-tools/blob/main/food-log/google-apps-script/SETUP.md" target="_blank" rel="noopener">首次連線設定說明 ↗</a></p>
+  </details>
+  <form id="foodForm" class="panel">
+    <fieldset id="entryFields">
+      <label for="date">日期</label><input id="date" type="date" required min="1900-01-01">
+      <fieldset class="meal-field"><legend>這是哪一餐？</legend><div id="meals" class="meals"></div></fieldset>
+      <fieldset class="tag-field"><legend>快速點選 <small>可複選，不打字也能記</small></legend><div id="tags" class="tags"></div></fieldset>
+      <label for="content">飲食內容 <small>可補充品項與份量</small></label>
+      <textarea id="content" rows="2" maxlength="1000" placeholder="例如：鍋貼10顆、拿鐵中杯、飯半碗"></textarea>
+      <details id="optional"><summary>工作情境與備註 <small>選填</small></summary>
+        <label for="work">當時段工作內容</label><input id="work" maxlength="1000" placeholder="例如：門診、病房、休假">
+        <label for="notes">備註</label><textarea id="notes" rows="2" maxlength="1000" placeholder="例如：吃得很趕、下午特別餓"></textarea>
+      </details>
+    </fieldset>
+    <p id="status" role="status" aria-live="polite">草稿會自動保留在這個裝置。</p>
+    <button id="submit" class="primary" type="submit">儲存到 Google 試算表</button>
+    <button id="next" class="secondary" type="button" hidden>保留待傳資料，記錄下一筆</button>
+  </form>
+  <section class="panel pending-panel" id="pendingPanel" hidden>
+    <div class="section-head"><h2>尚待確認上傳 <span id="pendingCount"></span></h2><button id="retry" type="button" class="secondary">全部重試</button></div>
+    <p>重試會沿用原紀錄編號；即使先前已寫入，也不會重複新增。</p><ul id="pendingList"></ul>
+  </section>
+  <footer>紀錄傳至你設定的私人試算表。<br>草稿與待傳資料留在此瀏覽器；確認上傳前請勿清除網站資料。</footer>
+</main>
+</body>
+</html>
