@@ -1,6 +1,17 @@
 # PROGRESS.md
 
-**Last updated:** 2026-09-23
+**Last updated:** 2026-10-20
+
+## Latest task — daily food log
+
+- Branch: `feat/daily-food-log`; ready for PR review, do not merge automatically.
+- Implemented `food-log/`: mobile form, 14 emoji tags, Taiwan date/meal defaults, optional work/notes, local draft and pending queue, acknowledged Google Sheets upload, stable-ID retries and Apps Script receiver with private device-configured access key.
+- Added homepage entry/search and Service Worker v20 offline assets. Existing tools preserved.
+- Validation: 11 new tests and 32 combined tests passed; Chromium 320–1280px interaction/layout, navigation, JS error and SW/offline checks passed. Full scope/limits: `food-log/VALIDATION.md`.
+- Google Sheet created with nine columns; native metadata/header readback verified. Its URL is provided privately in chat, not committed here.
+- Pending: user installs receiver in their bound Apps Script, runs `setup`, authorizes and deploys it, then pastes `/exec` and key into the tool. Actual Google end-to-end acknowledgement is unverified until that deployment. GitHub Pages smoke test follows merge.
+
+## Earlier handoff (historical; re-check before resuming)
 
 ## Active task
 

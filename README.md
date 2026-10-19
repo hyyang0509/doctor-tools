@@ -4,6 +4,8 @@
 
 ## 目前工具
 
+- `food-log/`：日常飲食紀錄，餐別與 emoji 標籤快速輸入、草稿保留、私人 Google 試算表寫入確認與可重試待傳清單。首次連線見 [`food-log/google-apps-script/SETUP.md`](food-log/google-apps-script/SETUP.md)；測試：`node --test food-log/*.test.mjs`。連線金鑰與網址由使用者在裝置設定，不可提交至 GitHub。
+
 - `lipid/`：血脂用藥工具
 - `sarcopenia/`：智能車肌少症篩檢紀錄工具
 - `followup/`：回診日期計算器
