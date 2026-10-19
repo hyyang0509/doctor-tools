@@ -4,7 +4,7 @@ import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 const source=readFileSync(new URL('./google-apps-script/Code.gs',import.meta.url),'utf8');
 const headers=['紀錄編號','日期','餐別','飲食內容','飲食標籤','工作內容','備註','建立時間（台灣）','寫入時間（台灣）'];
-function receiver() {
+function receiver(options={}) {
   const rows=[headers.slice()]; let flushes=0, locked=false;
   const sheet={getLastRow:()=>rows.length,getRange:(row,col,count,width)=>({
     getDisplayValues:()=>[rows[row-1].slice(col-1,col-1+width)],
@@ -12,9 +12,10 @@ function receiver() {
     createTextFinder(id){return {matchEntireCell(){return this;},useRegularExpression(){return this;},findNext(){return rows.slice(1).some(r=>r[0]===id);}};}
   })};
   const context=vm.createContext({
-    PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==='FOOD_ACCESS_KEY'?'secret':'sheet-id'})},
+    PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==='FOOD_ACCESS_KEY'?'secret':options.missingId?null:'sheet-id'})},
     LockService:{getScriptLock:()=>({waitLock(){locked=true;},hasLock:()=>locked,releaseLock(){locked=false;}})},
-    SpreadsheetApp:{openById:()=>({getSheetByName:()=>sheet}),flush(){flushes++;}},
+    SpreadsheetApp:{getActiveSpreadsheet:()=>({getId:()=> 'sheet-id'}),openById:()=>{if(options.openError)throw new Error('insufficient permissions');return {getSheetByName:()=>options.missingSheet?null:sheet};},flush(){if(options.writeError)throw new Error('protected sheet');flushes++;}},
+    console:{error(){},log(){}},
     Utilities:{formatDate:(date)=>date.toISOString()},
     ContentService:{MimeType:{JSON:'json'},createTextOutput:text=>({setMimeType:()=>JSON.parse(text)})}
   });
@@ -29,6 +30,24 @@ test('receiver appends nine columns, flushes before ack, and deduplicates retrie
   assert.equal(server.rows[1][4],'水煮蛋、拿鐵');assert.equal(server.flushes,1);assert.equal(server.locked,false);
   const duplicate=server.post(body());assert.equal(duplicate.duplicate,true);assert.equal(duplicate.id,r.id);assert.equal(server.rows.length,2);
   r.id='22345678-1234-4123-8123-123456789abc';assert.equal(server.post(body(r)).ok,true);assert.equal(server.rows.length,3);
+});
+test('web-app scopes and initialization exercise the real opening API',()=>{
+  // VM mocks cannot enforce Google OAuth scopes; guard the production annotation too.
+  assert.doesNotMatch(source,/@OnlyCurrentDoc/);
+  const server=receiver({openError:true});
+  assert.throws(()=>server.context.setup(),/insufficient permissions/);
+  assert.throws(()=>server.context.checkConnection(),/insufficient permissions/);
+});
+test('safe diagnostics distinguish authorization, configuration, missing sheet, headers and writes',()=>{
+  const denied=receiver({openError:true});const response=denied.post(body());
+  assert.equal(response.error,'WRITE_FAILED');assert.equal(response.stage,'open_spreadsheet');
+  assert.ok(!JSON.stringify(response).includes('secret'));assert.equal(denied.locked,false);
+  assert.equal(receiver({missingId:true}).post(body()).error,'NOT_CONFIGURED');
+  assert.equal(receiver({missingSheet:true}).post(body()).error,'SHEET_MISSING');
+  const mismatch=receiver();mismatch.rows[0][0]='changed';
+  assert.equal(mismatch.post(body()).error,'HEADER_MISMATCH');
+  const failed=receiver({writeError:true});const result=failed.post(body());
+  assert.equal(result.ok,false);assert.equal(result.stage,'write');assert.equal(failed.locked,false);
 });
 test('wrong key, malformed payload, invalid fields and header mismatch do not write',()=>{
   const server=receiver(); assert.equal(server.post({...body(),key:'wrong'}).error,'UNAUTHORIZED');

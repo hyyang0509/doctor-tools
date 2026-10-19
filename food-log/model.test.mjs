@@ -51,6 +51,16 @@ test('timeout fails without discarding the record', async () => {
   }),5));
   assert.equal(r.id,record().id);
 });
+test('receiver diagnostics produce actionable hints rather than generic success/failure', async()=>{
+  for(const [result,pattern] of [
+    [{ok:false,error:'NOT_CONFIGURED'},/setup/],
+    [{ok:false,error:'HEADER_MISMATCH'},/欄名/],
+    [{ok:false,error:'SHEET_MISSING'},/工作表/],
+    [{ok:false,error:'WRITE_FAILED',stage:'open_spreadsheet'},/重新授權/],
+    [{ok:false,error:'WRITE_FAILED',stage:'write'},/保護/],
+    [{ok:false,error:'WRITE_FAILED',stage:'lock'},/稍後/]
+  ]) await assert.rejects(upload(record(),settings,async()=>({ok:true,json:async()=>result})),pattern);
+});
 test('draft and immutable pending IDs survive reload; corrupt/quota storage fails loudly', () => {
   const map = new Map(); const storage={getItem:k=>map.get(k)||null,setItem:(k,v)=>map.set(k,v)};
   const r=record(); const state={draft:r,pending:[r]};writeState(state,storage);

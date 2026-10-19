@@ -59,7 +59,25 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
     let result;
     try { result = await response.json(); } catch { throw new Error('連線回覆格式不正確，請確認使用 /exec 網址與「任何人」存取權限。'); }
     if (result.ok !== true || result.id !== record.id) {
-      throw new Error(result.error === 'UNAUTHORIZED' ? '連線金鑰不正確，請重新設定。' : '試算表未確認寫入，請檢查接收程式與設定。');
+      const hints = {
+        UNAUTHORIZED: '連線金鑰不正確，請重新設定。',
+        NOT_CONFIGURED: '接收程式尚未初始化，請在 Apps Script 執行 setup。',
+        SHEET_MISSING: '找不到「飲食紀錄」工作表，請在原試算表重新執行 setup。',
+        HEADER_MISMATCH: '試算表第一列欄名不符，請依設定說明還原九個欄名，勿刪除既有紀錄。',
+        INVALID_REQUEST: '接收程式無法辨識資料格式，請確認貼入完整的最新版 Code.gs。',
+        INVALID_ACTION: '接收程式版本不符，請更新 Code.gs 並部署新版本。'
+      };
+      let hint = hints[result.error];
+      if (!hint && result.error === 'WRITE_FAILED') {
+        hint = result.stage === 'open_spreadsheet'
+          ? '接收程式無法開啟試算表。請更新 Code.gs、執行 setup 重新授權，再以自己身分部署新版本。'
+          : result.stage === 'write'
+            ? '試算表寫入失敗，請確認部署者可編輯試算表，且工作表未被保護。'
+            : result.stage === 'lock'
+              ? '接收端忙碌，請稍後按重試。'
+              : '試算表未確認寫入，請更新 Code.gs、執行 checkConnection，再部署新版本。';
+      }
+      throw new Error(hint || '試算表未確認寫入，請檢查接收程式與設定。');
     }
     return result;
   } catch (error) {

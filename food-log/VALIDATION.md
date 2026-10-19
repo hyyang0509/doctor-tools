@@ -1,5 +1,14 @@
 # 驗證紀錄（2026-10-20）
 
+## 授權修復補充（receiver version 2）
+
+- 使用者回報：公開 GET version 1 正常、POST 回覆泛用錯誤，試算表未新增。未取得實際執行例外，尚不能確定唯一原因。
+- 已確認程式缺陷：限制 current-document 的註記與 `openById` 所需 spreadsheets OAuth scope 衝突。移除限制；setup 現在先執行 openById，讓授權問題在部署前出現。
+- 新增編輯器專用 `checkConnection`，只檢查試算表與表頭，不新增飲食紀錄。
+- 接收端回覆 allowlist 錯誤碼／失敗階段，前端提供對應提示；不回傳金鑰、飲食內容或試算表 ID。未修改佇列鍵名、紀錄格式與去重方式。
+- 修復後 `node --test food-log/*.test.mjs`：14 項通過，含初始化開檔、權限錯誤、欄名／工作表／設定／寫入錯誤與前端提示；Chromium 320–1280px、送出重試及 SW v21 離線檢查通過。
+- 本機測試不能重現 Google 真實 OAuth 授權；仍需使用者替換 Code.gs、重新執行 setup 授權、部署新版本後重試，確認寫入。
+
 ## 已完成
 
 - `node --test food-log/*.test.mjs`：11 項通過。
