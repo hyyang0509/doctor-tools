@@ -2,16 +2,14 @@
 
 **Last updated:** 2026-10-20
 
-## Latest task — daily food log
+## Latest task — manual food feedback
 
-- Follow-up branch `fix/food-log-sheet-authorization`: fixed original current-document scope conflict with openById, added setup authorization check, editor-only checkConnection, safe receiver diagnostics and UI hints, receiver version 2 and SW v21. Fourteen tests and Chromium regression passed. User still needs to update their bound script, reauthorize and deploy the new receiver; reported production failure has not yet been retested live. PR #29 is merged.
-
-- Branch: `feat/daily-food-log`; ready for PR review, do not merge automatically.
-- Implemented `food-log/`: mobile form, 14 emoji tags, Taiwan date/meal defaults, optional work/notes, local draft and pending queue, acknowledged Google Sheets upload, stable-ID retries and Apps Script receiver with private device-configured access key.
-- Added homepage entry/search and Service Worker v20 offline assets. Existing tools preserved.
-- Validation: 11 new tests and 32 combined tests passed; Chromium 320–1280px interaction/layout, navigation, JS error and SW/offline checks passed. Full scope/limits: `food-log/VALIDATION.md`.
-- Google Sheet created with nine columns; native metadata/header readback verified. Its URL is provided privately in chat, not committed here.
-- Pending: user installs receiver in their bound Apps Script, runs `setup`, authorizes and deploys it, then pastes `/exec` and key into the tool. Actual Google end-to-end acknowledgement is unverified until that deployment. GitHub Pages smoke test follows merge.
+- Branch: `feat/food-log-ai-feedback`; implement day/seven-day feedback below the existing food form, using the same private Google Sheets receiver. Do not merge automatically.
+- Apps Script version 3 adds authenticated analyze POST, backend-only OpenAI key, minimized food-only input, fingerprinted saved feedback, ten new requests/Taiwan day, and a short reservation lock that does not block normal uploads during the API call. Existing append/deduplication/queue format preserved.
+- `SETUP.md` includes upgrading the existing bound script, adding `OPENAI_API_KEY`, editor-only `checkAIConnection` authorization and redeploying the same `/exec`. User reports original food uploads now succeed; old authorization incident is resolved from their perspective.
+- Validation: 23 food-log tests; 44 with sarcopenia/taifex regressions passed. JS syntax and diff whitespace checked. Browser script expanded; local Chromium unavailable and download failed. New PR workflow runs Chromium/mobile/offline checks; inspect actual CI result before claiming browser validation.
+- Unrelated baseline issue: lipid architecture test expects removed back link; no lipid code/test changed.
+- Pending: PR review/merge, user's backend API key + new OAuth authorization + redeployment, actual AI response quality and Sheets feedback readback, Pages/mobile Safari smoke test after merge. No real food data or model call was used in tests.
 
 ## Earlier handoff (historical; re-check before resuming)
 

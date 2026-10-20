@@ -26,9 +26,21 @@ const endpoint = 'https://script.google.com/macros/s/test-food-log/exec';
 const context = await browser.newContext({ viewport:{width:390,height:844}, serviceWorkers:'block' });
 const page = await context.newPage();
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
-let mode='success', requests=[];
+let mode='success', requests=[], analysisRequests=[], analysisMode='success';
 await page.route('https://script.google.com/**',async route=>{
   const request=JSON.parse(route.request().postData()); requests.push(request);
+  if(request.action==='analyze') {
+    analysisRequests.push(request);
+    if(analysisMode==='network') return route.abort();
+    if(analysisMode==='slow') await new Promise(done=>setTimeout(done,100));
+    const d=new Date(request.endDate+'T00:00:00Z');d.setUTCDate(d.getUTCDate()-(request.period==='week'?6:0));
+    const result=analysisMode==='missing-key'?{ok:false,error:'AI_NOT_CONFIGURED'}:
+      analysisMode==='old'?{ok:false,error:'INVALID_ACTION'}:
+      analysisMode==='empty'?{ok:false,error:'EMPTY_PERIOD'}:
+      {ok:true,analysis:{startDate:d.toISOString().slice(0,10),endDate:request.endDate,recordCount:3,recordedDays:1,
+        text:'👍 值得保持\n有記錄蔬菜，值得保持。\n🎯 下一步\n午餐加一份青菜。<img src=x onerror=alert(1)>',generatedAt:new Date().toISOString(),cached:analysisRequests.length>1}};
+    return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
+  }
   if(mode==='network') return route.abort();
   const result=mode==='unauthorized'?{ok:false,error:'UNAUTHORIZED'}:{ok:true,id:request.record.id};
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
@@ -70,6 +82,28 @@ await page.locator('#optional summary').click();await page.fill('#work','<img sr
 await page.locator('[data-tag="八方雲集"]').click();mode='network';await page.click('#submit');
 await page.waitForSelector('#next:not([hidden])');assert.equal(await page.locator('#pendingList img').count(),0);
 await page.click('#next');
+// Feedback defaults to seven days; pending records are excluded with a clear hint.
+assert.equal(await page.inputValue('#feedbackPeriod'),'week');
+await page.click('#analyze');await page.waitForSelector('#feedbackResult:not([hidden])');
+assert.equal(analysisRequests.length,1);assert.equal(analysisRequests[0].action,'analyze');
+assert.equal(await page.locator('#feedbackResult img').count(),0);
+assert.match(await page.locator('#feedbackStatus').innerText(),/尚待確認/);
+await page.click('#analyze');await page.waitForFunction(()=>document.querySelector('#feedbackMeta').textContent.includes('已保存回饋'));
+await page.selectOption('#feedbackPeriod','day');assert.equal(await page.locator('#feedbackResult').isHidden(),true);
+await page.fill('#feedbackDate','2024-02-29');await page.click('#analyze');
+await page.waitForSelector('#feedbackResult:not([hidden])');assert.match(await page.locator('#feedbackMeta').innerText(),/2024-02-29 ～ 2024-02-29/);
+for(const [value,hint] of [['missing-key','OPENAI_API_KEY'],['old','部署新版本'],['empty','還沒有'],['network','連線中斷']]) {
+  analysisMode=value;await page.click('#analyze');
+  await page.waitForFunction(t=>document.querySelector('#feedbackStatus').textContent.includes(t),hint);
+  assert.equal(await page.locator('#feedbackResult').isHidden(),true);
+  assert.equal(await page.locator('#analyze').isEnabled(),true);
+}
+analysisMode='slow';await page.click('#analyze');assert.equal(await page.locator('#feedbackPeriod').isDisabled(),true);
+await page.waitForSelector('#feedbackResult:not([hidden])');
+// A confirmed upload invalidates earlier feedback without changing the food form.
+mode='success';await page.click('#retry');await page.waitForFunction(()=>document.querySelector('#pendingPanel').hidden);
+assert.equal(await page.locator('#feedbackResult').isHidden(),true);
+analysisMode='success';await page.click('#analyze');await page.waitForSelector('#feedbackResult:not([hidden])');
 for(const width of [320,375,390,768,1280]){
   await page.setViewportSize({width,height:844});
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`overflow at ${width}`);
@@ -91,4 +125,4 @@ await swContext.setOffline(true);await swPage.reload();await swPage.waitForSelec
 assert.equal(await swPage.locator('#tags button').count(),14);
 await swContext.close();await browser.close();
 if(server) server.close();
-console.log('PASS: drafts, tags-only submit, required inputs, connection validation, acknowledgement, stable retry IDs, retry-all, literal text, 320–1280px, navigation, JS console, SW/offline. Cloud responses mocked; Google deployment must still be tested live.');
+console.log('PASS: drafts, tags-only submit, required inputs, connection validation, acknowledgement, stable retry IDs, retry-all, literal text, 320–1280px, navigation, JS console, SW/offline. Feedback: day/week, historical leap day, pending exclusion, reused results, literal AI text, missing AI key/old receiver/empty/offline errors, disabled duplicate clicks and upload invalidation. Cloud responses mocked; Google deployment must still be tested live.');

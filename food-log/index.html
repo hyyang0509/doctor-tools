@@ -44,6 +44,24 @@
     <div class="section-head"><h2>尚待確認上傳 <span id="pendingCount"></span></h2><button id="retry" type="button" class="secondary">全部重試</button></div>
     <p>重試會沿用原紀錄編號；即使先前已寫入，也不會重複新增。</p><ul id="pendingList"></ul>
   </section>
+  <section class="panel" id="feedbackPanel" aria-labelledby="feedbackHeading">
+    <h2 id="feedbackHeading">飲食回饋</h2>
+    <p class="feedback-intro">看看值得保持的地方，再選一件小事慢慢改善。</p>
+    <div class="feedback-controls">
+      <label>分析範圍<select id="feedbackPeriod"><option value="week">最近七天</option><option value="day">單日</option></select></label>
+      <label>截至日期<input id="feedbackDate" type="date" min="1900-01-07" required></label>
+    </div>
+    <p id="feedbackRange" class="feedback-meta"></p>
+    <p class="feedback-note">點擊後會將這段期間已上傳的日期、餐別、飲食內容、標籤與備註交由 OpenAI 分析。相同紀錄會重用已存回饋；新分析會使用你的 API 額度。</p>
+    <button id="analyze" type="button" class="primary">查看飲食回饋</button>
+    <p id="feedbackStatus" role="status" aria-live="polite"></p>
+    <article id="feedbackResult" hidden aria-label="AI 飲食回饋">
+      <p id="feedbackMeta" class="feedback-meta"></p>
+      <div id="feedbackText"></div>
+      <p class="feedback-note">AI 提供一般飲食建議；份量與紀錄有限時，無法精確評估營養攝取，也不作為診斷或個別疾病治療依據。</p>
+    </article>
+    <p class="feedback-note"><a href="https://github.com/hyyang0509/doctor-tools/blob/main/food-log/google-apps-script/SETUP.md#啟用-ai-飲食回饋" target="_blank" rel="noopener">啟用 AI 回饋的設定說明 ↗</a></p>
+  </section>
   <footer>紀錄傳至你設定的私人試算表。<br>草稿與待傳資料留在此瀏覽器；確認上傳前請勿清除網站資料。</footer>
 </main>
 </body>
