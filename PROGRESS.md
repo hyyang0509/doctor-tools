@@ -4,10 +4,11 @@
 
 ## Latest task — manual food feedback
 
+- PR: https://github.com/hyyang0509/doctor-tools/pull/31 (ready for review, not merged).
 - Branch: `feat/food-log-ai-feedback`; implement day/seven-day feedback below the existing food form, using the same private Google Sheets receiver. Do not merge automatically.
 - Apps Script version 3 adds authenticated analyze POST, backend-only OpenAI key, minimized food-only input, fingerprinted saved feedback, ten new requests/Taiwan day, and a short reservation lock that does not block normal uploads during the API call. Existing append/deduplication/queue format preserved.
 - `SETUP.md` includes upgrading the existing bound script, adding `OPENAI_API_KEY`, editor-only `checkAIConnection` authorization and redeploying the same `/exec`. User reports original food uploads now succeed; old authorization incident is resolved from their perspective.
-- Validation: 23 food-log tests; 44 with sarcopenia/taifex regressions passed. JS syntax and diff whitespace checked. Browser script expanded; local Chromium unavailable and download failed. New PR workflow runs Chromium/mobile/offline checks; inspect actual CI result before claiming browser validation.
+- Validation: 23 food-log tests; 44 with sarcopenia/taifex regressions passed. JS syntax and diff whitespace checked. Local Chromium unavailable and download failed; GitHub Actions run 39397418329 on implementation commit 52904e8 passed real Chromium 320–1280px, original upload/retry/navigation, feedback interactions, JS error checks and SW offline checks. All cloud responses mocked.
 - Unrelated baseline issue: lipid architecture test expects removed back link; no lipid code/test changed.
 - Pending: PR review/merge, user's backend API key + new OAuth authorization + redeployment, actual AI response quality and Sheets feedback readback, Pages/mobile Safari smoke test after merge. No real food data or model call was used in tests.
 
