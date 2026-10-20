@@ -19,7 +19,7 @@
 3. 如果自己曾在 `appsscript.json` 明確填寫 `oauthScopes`，請確認試算表 scope 包含 `https://www.googleapis.com/auth/spreadsheets`，不能只有 `spreadsheets.currentonly`；未自行設定的人不需修改此檔案。
 4. 執行 `checkConnection`；執行記錄應顯示可開啟試算表且九個欄名正確。它不新增飲食紀錄，也不輸出金鑰。
 5. 「部署 → 管理部署作業 → 編輯（鉛筆）→ 版本選『新版本』→ 部署」，仍以自己執行、任何人可存取。更新同一部署可沿用 `/exec`。
-6. 無痕視窗開啟 `/exec`，應顯示 `version: 2`；仍是 1 代表新版本尚未部署到目前網址。
+6. 無痕視窗開啟 `/exec`，應顯示 `version: 3`；仍是 1 或 2 代表新版本尚未部署到目前網址。
 7. 回工具按「重試這筆紀錄」或「全部重試」；確認試算表新增列。更新網站後若仍有錯誤，將新提示回傳給維護者，不用提供金鑰。
 
 依據：Google 官方 [`openById` 授權要求](https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app#openById(String))、[授權範圍限制](https://developers.google.com/apps-script/guides/services/authorization#limit_scope_to_the_current_document)。
@@ -38,7 +38,7 @@
 3. 選餐別、點標籤，或輸入飲食內容後送出。
 4. 必須看到「已確認寫入 Google 試算表」且試算表出現對應資料，才算連線成功。可先輸入「連線測試」一筆，驗證後在試算表刪除該列。
 
-金鑰與網址只存在目前瀏覽器，換手機或瀏覽器需重新設定；不放在公開 GitHub。金鑰有寫入權限，請勿分享。接收端不提供讀取飲食紀錄的 API；之後讓 AI 分析時再分享或選取試算表。
+金鑰與網址只存在目前瀏覽器，換手機或瀏覽器需重新設定；不放在公開 GitHub。金鑰可以新增紀錄、觸發 AI 分析及查看回饋，請勿分享。公開 GET 仍不提供任何私人紀錄；飲食回饋僅透過驗證金鑰的 POST 取得。
 
 ## 送出失敗／補登
 
@@ -59,3 +59,38 @@
 接收端檢查金鑰、欄位格式與文字長度，以鎖定與紀錄編號避免重複寫入，文字以字面值寫入以防止試算表公式注入。請勿修改第一列欄名或紀錄編號；欄名不符時程式會停止寫入，不會覆蓋既有資料。
 
 Google 官方參考：[Web Apps](https://developers.google.com/apps-script/guides/web)、[Content Service](https://developers.google.com/apps-script/guides/content)。
+
+## 啟用 AI 飲食回饋
+
+已經能正常記錄的人，沿用同一試算表、同一 Apps Script 專案、同一 `/exec` 和連線金鑰。
+
+1. **更新程式**：將最新 [Code.gs](Code.gs) 全文貼入原本的 Apps Script，取代原內容並儲存。既有「飲食紀錄」九欄與資料保持原樣，不必重跑 setup 或重建試算表。
+2. **準備 API 金鑰**：在 [OpenAI API 平台](https://platform.openai.com/api-keys) 建立自己的 API 金鑰，並確認 API 帳戶有可用額度。ChatGPT 訂閱與 API 使用費分開；不要把金鑰貼到 GitHub、網頁連線欄位或聊天。
+3. **儲存到後端**：Apps Script 左側齒輪「專案設定」→「指令碼屬性」→「新增指令碼屬性」。屬性名稱填 `OPENAI_API_KEY`，值填剛建立的 API 金鑰，儲存。原有 `FOOD_ACCESS_KEY` 是工具連線金鑰，兩者不同，請保留。
+4. **授權並檢查**：回到編輯器，上方函式選 `checkAIConnection` →「執行」。首次請完成 Google 新增的對外連線授權。成功時執行記錄顯示「AI 連線檢查成功」，不會傳送飲食內容或產生模型分析費用。若曾自行設定 `appsscript.json` 的 `oauthScopes`，請另外加入 `https://www.googleapis.com/auth/script.external_request`，並保留 `https://www.googleapis.com/auth/spreadsheets`。
+5. **更新同一部署**：「部署 → 管理部署作業 → 鉛筆 → 版本選『新版本』→ 部署」，維持「以自己執行／任何人可存取」。只按儲存不會更新網頁接收端。開啟 `/exec` 應看到 `version: 3`。
+6. **開始使用**：GitHub PR 合併、網站更新後，重新整理飲食工具，下方「飲食回饋」選「最近七天」或「單日」，選截至日期，再點「查看飲食回饋」。七天包含截至當日及之前六天；預設截至今天，亦可分析過去日期。
+
+預設模型為 `gpt-4.1-mini`；若帳戶需使用其他支援 Responses API 的文字模型，可在指令碼屬性加 `FOOD_AI_MODEL` 指定可用模型，再執行 `checkAIConnection`。更換模型的回饋會重新產生。參考：[模型文件](https://developers.openai.com/api/docs/models/gpt-4.1-mini)、[文字生成與回覆解析](https://developers.openai.com/api/docs/guides/text)。
+
+### 回饋保存與使用限制
+
+- 手動點擊才分析，只讀取已寫入「飲食紀錄」的選定期間，不包含草稿或待傳資料。
+- 傳送給 OpenAI 的欄位只有日期、餐別、飲食內容、標籤及備註；不傳工作內容、紀錄編號、試算表 ID 或建立／寫入時間。備註仍會送出，請勿記入不需要分析的個資。請求使用 `store: false`，不代表服務端所有資料處理或留存都被停用。
+- 分析結果自動保存在同一私人試算表新增的「飲食回饋」分頁。相同範圍、紀錄、模型與提示版本直接重用，不重複呼叫 AI；修改或補登紀錄後，下次點擊重新分析。
+- 每個 Apps Script 專案以台灣日期計算，每日最多 10 次新 AI 請求（失敗請求也占用次數），已存回饋不占次數。服務商額度與速率限制仍另外適用。
+- 同時只允許一筆新分析，正常記錄上傳不必等待整個 AI 呼叫。畫面等候最長約 90 秒；若逾時後端可能仍在執行，稍候再點即可查看已存結果。異常中止時鎖定最多約六分鐘後自動到期。
+- 單次最多 100 筆紀錄或 30,000 字元；超過會明確提示改用單日，不會截斷資料後假裝完整分析。
+- 回饋為一般飲食建議。缺餐不代表沒吃，份量不明不估精確熱量，不提供診斷、藥物或極端減重處方。AI 可能誤判，需自行核對。
+- 「飲食回饋」欄名為：`範圍起日`、`範圍迄日`、`紀錄指紋`、`模型`、`回饋`、`產生時間`。請保留第一列；不需手動新增該分頁。
+
+### AI 回饋疑難排解
+
+| 畫面提示 | 處理方式 |
+| --- | --- |
+| 更新 Apps Script／部署新版本 | 更新 Code.gs 後，編輯原部署並選「新版本」，確認 `/exec` 顯示 version 3。 |
+| AI 尚未設定 | 在指令碼屬性加入 `OPENAI_API_KEY`，執行 `checkAIConnection` 並部署新版本。 |
+| 金鑰或權限有誤 | 確認填的是 API 金鑰而非工具連線金鑰，並確認 API 專案及模型存取權限。 |
+| 額度或速率受限 | 檢查 API 帳戶額度；若有額度，稍後再試。 |
+| 這段期間還沒有紀錄 | 確認選定日期正確，並先將待傳紀錄上傳成功。 |
+| 分析或回饋保存失敗 | 在編輯器執行 `checkConnection`、`checkAIConnection`，確認授權與編輯權限，再部署新版本。 |

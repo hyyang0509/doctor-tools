@@ -1,3 +1,4 @@
+import { initFeedback } from './feedback.mjs';
 import { TAGS, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
 
 const $ = id => document.getElementById(id);
@@ -86,6 +87,7 @@ $('saveConnection').addEventListener('click', () => {
   }
   try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); settings = next; }
   catch { message('無法儲存連線設定，請確認瀏覽器允許儲存資料。', 'error'); return; }
+  feedbackUI.invalidate('連線設定已更新，可重新查看回饋。');
   $('connection').open = false; render();
   message('連線設定已儲存；下一筆紀錄會確認試算表是否成功寫入。');
 });
@@ -103,6 +105,7 @@ async function sendRecords(records) {
         draft: active ? taipeiDefaults() : state.draft };
       if (!persist(next)) throw new Error('試算表已寫入，但本機狀態未能更新；重試也不會重複新增。');
       count++;
+      feedbackUI.invalidate('有新紀錄已上傳，點擊即可更新飲食回饋。');
     }
     message(`✓ 已確認 ${count} 筆寫入 Google 試算表。`, 'success');
   } catch (error) { message(`${count ? `已確認 ${count} 筆；` : ''}${error.message}`, 'error'); }
@@ -136,12 +139,13 @@ $('next').addEventListener('click', () => {
 $('retry').addEventListener('click', () => { if (refreshState()) sendRecords([...state.pending]); });
 window.addEventListener('storage', event => {
   if (busy) return;
-  if (event.key === STORE_KEY && refreshState()) render();
+  if (event.key === STORE_KEY && refreshState()) { render(); feedbackUI.invalidate('紀錄狀態已更新，可重新查看回饋。'); }
   if (event.key === SETTINGS_KEY) {
-    try { settings = JSON.parse(event.newValue || '{}'); render(); } catch { /* Keep current settings. */ }
+    try { settings = JSON.parse(event.newValue || '{}'); render(); feedbackUI.invalidate('連線設定已更新，可重新查看回饋。'); } catch { /* Keep current settings. */ }
   }
 });
 render();
+const feedbackUI = initFeedback(() => settings, () => state.pending.length);
 if (!blocked && state.draft.id) message('這筆紀錄尚待雲端確認，請重試；也可保留待傳資料後記錄下一筆。');
 // Update the shell cache even when this page is opened directly.
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(() => {});
