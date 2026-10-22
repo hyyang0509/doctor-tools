@@ -1,4 +1,4 @@
-import { TAGS, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
+import { TAGS, QUICK_TAGS, DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
@@ -20,21 +20,62 @@ for (const meal of MEALS) {
   const span = document.createElement('span'); span.textContent = meal;
   label.append(input, span); $('meals').append(label);
 }
-for (const [emoji, label] of TAGS) {
+function toggleButton(text, data, click) {
   const button = document.createElement('button');
-  button.type = 'button'; button.textContent = `${emoji} ${label}`; button.dataset.tag = label;
-  button.setAttribute('aria-pressed', 'false');
+  button.type = 'button'; button.textContent = text;
+  Object.assign(button.dataset, data); button.setAttribute('aria-pressed', 'false');
   button.addEventListener('click', () => {
-    button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
-    saveDraft();
+    const selected = button.getAttribute('aria-pressed') !== 'true';
+    button.setAttribute('aria-pressed', String(selected));
+    click?.(button, selected); saveDraft();
   });
-  $('tags').append(button);
+  return button;
 }
-
+function tagButton(emoji, label) {
+  return toggleButton(`${emoji} ${label}`, { tag: label });
+}
+for (const [emoji, label] of QUICK_TAGS) $('tags').append(tagButton(emoji, label));
+for (const [emoji, type] of DRINK_TYPES) {
+  const group = document.createElement('fieldset'); group.className = 'drink-sugar'; group.hidden = true; group.dataset.drinkSugar = type;
+  const legend = document.createElement('legend'); legend.textContent = `${type}・有加糖嗎？`;
+  const hint = document.createElement('p'); hint.className = 'field-hint'; hint.textContent = '未選代表未記錄；無加糖仍可能含乳糖等天然糖。';
+  const options = document.createElement('div'); options.className = 'tags';
+  for (const sugar of SUGAR_OPTIONS) options.append(toggleButton(sugar, { sugar }, button => {
+    options.querySelectorAll('button').forEach(other => { if (other !== button) other.setAttribute('aria-pressed', 'false'); });
+  }));
+  group.append(legend, hint, options); $('drinkSugar').append(group);
+  $('drinks').append(toggleButton(`${emoji} ${type}`, { drink: type }, (button, selected) => {
+    group.hidden = !selected;
+    if (!selected) options.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  }));
+}
+for (const group of NUTRITION_GROUPS) {
+  const fieldset = document.createElement('fieldset'); fieldset.dataset.nutrition = group.key;
+  const legend = document.createElement('legend'); legend.textContent = group.label;
+  const hint = document.createElement('p'); hint.className = 'field-hint'; hint.textContent = group.hint;
+  const options = document.createElement('div'); options.className = 'tags';
+  for (const value of group.options) options.append(toggleButton(value, { nutritionValue: value }, (button, selected) => {
+    options.querySelectorAll('button').forEach(other => {
+      if (other !== button && (!group.multiple || (selected && (value === '沒有' || other.dataset.nutritionValue === '沒有')))) other.setAttribute('aria-pressed', 'false');
+    });
+  }));
+  fieldset.append(legend, hint, options); $('nutritionGroups').append(fieldset);
+}
 function formValue() {
+  const nutrition = {};
+  for (const group of NUTRITION_GROUPS) {
+    const values = [...document.querySelectorAll(`[data-nutrition="${group.key}"] [aria-pressed=true]`)].map(b => b.dataset.nutritionValue);
+    if (values.length) nutrition[group.key] = group.multiple ? values : values[0];
+  }
+  const drinks = [...document.querySelectorAll('[data-drink][aria-pressed=true]')].map(b => ({ type: b.dataset.drink,
+    sugar: document.querySelector(`[data-drink-sugar="${b.dataset.drink}"] [aria-pressed=true]`)?.dataset.sugar || '' }));
   return { ...Object.fromEntries(fields.map(key => [key, $(key).value])),
     meal: document.querySelector('[name=meal]:checked')?.value || '',
-    tags: [...document.querySelectorAll('[data-tag][aria-pressed=true]')].map(b => b.dataset.tag) };
+    tags: [...document.querySelectorAll('[data-tag][aria-pressed=true]')].map(b => b.dataset.tag), drinks, nutrition };
+}
+function nutritionSummary() {
+  const count = Object.keys(formValue().nutrition).length;
+  $('nutritionLabel').textContent = count ? `已補充 ${count} 項` : '選填';
 }
 function persist(next) {
   try { writeState(next); state = next; return true; }
@@ -45,6 +86,7 @@ function refreshState() {
   catch { blocked = true; message('本機資料無法讀取，請勿清除網站資料。', 'error'); return false; }
 }
 function saveDraft() {
+  nutritionSummary();
   if (blocked || busy || state.draft.id) return;
   // Read the latest pending queue so another tab's acknowledged writes are preserved.
   const draft = formValue();
@@ -54,7 +96,29 @@ function render() {
   const draft = state.draft;
   fields.forEach(key => { $(key).value = draft[key] || ''; });
   document.querySelectorAll('[name=meal]').forEach(el => { el.checked = el.value === draft.meal; });
+  $('legacyTagButtons').replaceChildren();
+  for (const label of draft.tags || []) {
+    if (!QUICK_TAGS.some(([, value]) => value === label)) {
+      const tag = TAGS.find(([, value]) => value === label);
+      if (tag) $('legacyTagButtons').append(tagButton(...tag));
+    }
+  }
+  $('legacyTags').hidden = !$('legacyTagButtons').childElementCount;
   document.querySelectorAll('[data-tag]').forEach(el => el.setAttribute('aria-pressed', String((draft.tags || []).includes(el.dataset.tag))));
+  for (const [, type] of DRINK_TYPES) {
+    const drink = (draft.drinks || []).find(d => d.type === type);
+    document.querySelector(`[data-drink="${type}"]`).setAttribute('aria-pressed', String(Boolean(drink)));
+    const group = document.querySelector(`[data-drink-sugar="${type}"]`); group.hidden = !drink;
+    group.querySelectorAll('[data-sugar]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sugar === drink?.sugar)));
+  }
+  for (const group of NUTRITION_GROUPS) {
+    const value = draft.nutrition?.[group.key];
+    document.querySelectorAll(`[data-nutrition="${group.key}"] button`).forEach(b => {
+      b.setAttribute('aria-pressed', String(group.multiple ? (value || []).includes(b.dataset.nutritionValue) : value === b.dataset.nutritionValue));
+    });
+  }
+  nutritionSummary();
+  if (!Object.keys(draft.nutrition || {}).length) $('nutrition').open = false;
   $('optional').open = Boolean(draft.work || draft.notes);
   $('entryFields').disabled = blocked || busy || Boolean(draft.id);
   $('submit').disabled = blocked || busy;
@@ -67,7 +131,7 @@ function render() {
   $('pendingList').replaceChildren();
   for (const record of state.pending) {
     const li = document.createElement('li');
-    li.textContent = `${record.date}・${record.meal}｜${[...record.tags, record.content].filter(Boolean).join('、')}`;
+    li.textContent = `${record.date}・${record.meal}｜${[...record.tags, recordContent(record)].filter(Boolean).join('、')}`;
     $('pendingList').append(li);
   }
   const configured = validEndpoint(settings?.endpoint) && Boolean(settings?.key);
