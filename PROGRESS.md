@@ -1,8 +1,16 @@
 # PROGRESS.md
 
-**Last updated:** 2026-10-20
+**Last updated:** 2026-10-22
 
-## Latest task — daily food log
+## Latest task — nutrition supplements and drinks
+
+- PR [#32](https://github.com/hyyang0509/doctor-tools/pull/32), branch `feat/food-log-nutrition-tags`, implementation commit `bc390ce7704126f461e05d5b137ee59c1c130a3c`; ready for review, not merged.
+- Added optional collapsed vegetables/protein/fruit/dairy controls and per-drink added-sugar choices. Supplement text goes to the existing content column; no receiver or connection update needed. Preserve legacy drafts, pending IDs and original tag allowlist. SW v23.
+- 17 food tests / 38 combined tests passed. CI run 39708624721 and local Chromium mobile/desktop/navigation/SW offline checks passed; screenshots inspected with Traditional Chinese fonts. All cloud replies mocked; live Pages/Safari/Google confirmation follows merge.
+- Earlier AI feedback PR #31 remains open and separate. Both touch shared frontend/SW files; reconcile them when integrating. This branch contains only nutrition/drink work, no new AI service.
+- Details and limitations: `food-log/VALIDATION.md`.
+
+## Previous task — daily food log
 
 - Follow-up branch `fix/food-log-sheet-authorization`: fixed original current-document scope conflict with openById, added setup authorization check, editor-only checkConnection, safe receiver diagnostics and UI hints, receiver version 2 and SW v21. Fourteen tests and Chromium regression passed. User still needs to update their bound script, reauthorize and deploy the new receiver; reported production failure has not yet been retested live. PR #29 is merged.
 
