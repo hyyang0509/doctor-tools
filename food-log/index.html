@@ -29,6 +29,12 @@
       <label for="date">日期</label><input id="date" type="date" required min="1900-01-01">
       <fieldset class="meal-field"><legend>這是哪一餐？</legend><div id="meals" class="meals"></div></fieldset>
       <fieldset class="tag-field"><legend>快速點選 <small>可複選，不打字也能記</small></legend><div id="tags" class="tags"></div></fieldset>
+      <div id="legacyTags" hidden><p class="field-hint">先前草稿的飲料標籤（可點選取消）</p><div id="legacyTagButtons" class="tags"></div></div>
+      <fieldset class="tag-field"><legend>喝了什麼？ <small>選填，可複選</small></legend><div id="drinks" class="tags"></div><div id="drinkSugar"></div></fieldset>
+      <details id="nutrition" class="nutrition"><summary>🥬 營養補充 <small id="nutritionLabel">選填</small></summary>
+        <p class="field-hint">想補充再選，不必每項填完；未選代表未記錄。再點一次可取消。</p>
+        <div id="nutritionGroups"></div>
+      </details>
       <label for="content">飲食內容 <small>可補充品項與份量</small></label>
       <textarea id="content" rows="2" maxlength="1000" placeholder="例如：鍋貼10顆、拿鐵中杯、飯半碗"></textarea>
       <details id="optional"><summary>工作情境與備註 <small>選填</small></summary>

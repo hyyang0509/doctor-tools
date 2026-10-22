@@ -1,0 +1,37 @@
+name: Food log checks
+on:
+  pull_request:
+    paths:
+      - 'food-log/**'
+      - 'sw.js'
+      - '.github/workflows/food-log.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'food-log/**'
+      - 'sw.js'
+      - '.github/workflows/food-log.yml'
+permissions:
+  contents: read
+jobs:
+  food-log:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: doctor-tools
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Food log and receiver tests
+        working-directory: doctor-tools
+        run: node --test food-log/*.test.mjs
+      - name: Install browser for regression checks
+        working-directory: doctor-tools
+        run: |
+          npm install --no-save --package-lock=false playwright@1.62.1
+          npx playwright install --with-deps chromium
+      - name: Mobile, desktop, navigation and offline checks (mock cloud responses)
+        working-directory: doctor-tools
+        run: node food-log/browser-check.mjs

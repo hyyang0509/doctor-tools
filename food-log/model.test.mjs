@@ -68,3 +68,33 @@ test('draft and immutable pending IDs survive reload; corrupt/quota storage fail
   assert.throws(()=>writeState(state,{setItem(){throw new Error('quota');}}));
   assert.throws(()=>readState({getItem:()=>'{bad'}));
 });
+
+test('new optional observations serialize without guessing or changing legacy fields', async () => {
+  const { recordContent } = await import('./model.mjs');
+  const r = {...record(), content:'飯半碗', drinks:[{type:'拿鐵',sugar:'無加糖'},{type:'茶',sugar:''}],
+    nutrition:{vegetables:'約 1 拳',protein:'少量',fruit:'沒有',dairy:['無糖優格','起司']}};
+  const text=recordContent(r);
+  assert.match(text,/飯半碗\n【補充紀錄】/);
+  assert.match(text,/飲料：拿鐵（無加糖）/); assert.match(text,/飲料：茶（加糖情況未記錄）/);
+  assert.match(text,/蔬菜：約 1 拳/);assert.match(text,/蛋白質食物：少量/);assert.match(text,/水果：沒有/);assert.match(text,/乳品：無糖優格、起司/);
+  assert.equal(recordContent({...record(),tags:['拿鐵']}),''); // no inferred dairy or sugar
+  assert.equal(recordContent({...record(),drinks:[],nutrition:{}}),'');
+  const snapshot=structuredClone(r);
+  await upload(r,settings,async(url,options)=>{
+    const wire=JSON.parse(options.body).record;
+    assert.equal(wire.content,text);assert.deepEqual(wire.tags,['水煮蛋']);
+    return {ok:true,json:async()=>({ok:true,id:r.id})};
+  });
+  assert.deepEqual(r,snapshot); // retries never append metadata twice
+});
+
+test('observations-only records work; invalid, conflicting or oversized observations fail', async () => {
+  assert.doesNotThrow(()=>validateRecord({...record(),tags:[],nutrition:{vegetables:'約 1 拳'}}));
+  assert.doesNotThrow(()=>validateRecord({...record(),tags:[],drinks:[{type:'茶',sugar:''}]}));
+  for (const patch of [
+    {drinks:[{type:'茶',sugar:'半糖'}]}, {drinks:[{type:'茶',sugar:''},{type:'茶',sugar:'有加糖'}]},
+    {drinks:[{type:'未知',sugar:''}]}, {nutrition:{vegetables:'一噸'}},
+    {nutrition:{dairy:['沒有','鮮奶']}}, {nutrition:{dairy:'鮮奶'}}, {nutrition:{dairy:['起司','起司']}},
+    {nutrition:{unknown:'沒有'}}, {content:'a'.repeat(990),nutrition:{vegetables:'約 1 拳'}}
+  ]) assert.throws(()=>validateRecord({...record(),...patch}));
+});

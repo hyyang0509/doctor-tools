@@ -5,6 +5,29 @@ export const TAGS = [
   ['🫖', '無糖飲料'], ['🥤', '含糖飲料'], ['🧋', '珍奶'],
   ['🍲', '小火鍋'], ['🥟', '八方雲集'], ['🍜', '乾麵'], ['🥩', '牛肉麵']
 ];
+// Keep the original allowlist for older drafts, pending records and deployed receivers.
+export const QUICK_TAGS = TAGS.filter(([, label]) => !['拿鐵', '美式', '含糖咖啡', '無糖飲料', '含糖飲料', '珍奶'].includes(label));
+export const DRINK_TYPES = [['☕', '美式'], ['☕', '拿鐵'], ['🫖', '茶'], ['🥛', '豆漿'], ['🥛', '鮮奶'], ['🧋', '珍奶'], ['💧', '白開水'], ['🥤', '其他']];
+export const SUGAR_OPTIONS = ['無加糖', '有加糖', '不確定'];
+export const NUTRITION_GROUPS = [
+  { key: 'vegetables', label: '🥬 蔬菜', options: ['沒有', '少量', '約 1 拳', '2 拳以上'], hint: '粗估吃下的蔬菜量即可，不必秤重。' },
+  { key: 'protein', label: '🥚 蛋白質食物', options: ['沒有', '少量', '約 1 掌', '2 掌以上'], hint: '豆、魚、蛋、肉都算；1 顆蛋可選少量，肉魚約掌心大可選約 1 掌。' },
+  { key: 'fruit', label: '🍎 水果', options: ['沒有', '約 1 拳', '2 拳以上'], hint: '記在吃的那一餐或點心即可。' },
+  { key: 'dairy', label: '🥛 乳品', options: ['沒有', '鮮奶', '無糖優格', '無糖優酪乳', '起司', '其他乳品'], multiple: true, hint: '有吃再選，可複選。同一杯鮮奶不用重複選；拿鐵奶量可在飲食內容補充。' }
+];
+
+// Store explicit observations in the existing content column, so no receiver upgrade
+// or header migration is required. Drafts/pending records retain the unmodified inputs.
+export function recordContent(r) {
+  const details = [];
+  for (const drink of r.drinks || []) details.push(`飲料：${drink.type}（${drink.sugar || '加糖情況未記錄'}）`);
+  for (const group of NUTRITION_GROUPS) {
+    const value = r.nutrition?.[group.key];
+    if (group.multiple ? value?.length : value) details.push(`${group.label.split(' ').slice(1).join(' ')}：${Array.isArray(value) ? value.join('、') : value}`);
+  }
+  return [r.content.trim(), details.length ? `【補充紀錄】\n${details.join('；')}` : ''].filter(Boolean).join('\n');
+}
+
 export const STORE_KEY = 'hy-food-log-v1';
 export const SETTINGS_KEY = 'hy-food-log-connection-v1';
 
@@ -16,7 +39,7 @@ export function taipeiDefaults(now = new Date()) {
   const hour = Number(parts.hour);
   return { date: `${parts.year}-${parts.month}-${parts.day}`,
     meal: hour >= 5 && hour < 11 ? '早餐' : hour >= 11 && hour < 15 ? '午餐' : hour >= 17 && hour < 21 ? '晚餐' : '點心',
-    content: '', tags: [], work: '', notes: '' };
+    content: '', tags: [], drinks: [], nutrition: {}, work: '', notes: '' };
 }
 
 export function validDate(value) {
@@ -35,7 +58,22 @@ export function validateRecord(r) {
   for (const key of ['content', 'work', 'notes']) {
     if (typeof r[key] !== 'string' || r[key].length > 1000) throw new Error('每個文字欄位最多 1000 字。');
   }
-  if (!r.content.trim() && !r.tags.length) throw new Error('請點選標籤或輸入飲食內容。');
+  if (r.drinks !== undefined && (!Array.isArray(r.drinks) || r.drinks.length > DRINK_TYPES.length ||
+      new Set(r.drinks.map(d => d?.type)).size !== r.drinks.length || r.drinks.some(d => !d || !DRINK_TYPES.some(([, type]) => type === d.type) || (d.sugar !== '' && !SUGAR_OPTIONS.includes(d.sugar))))) {
+    throw new Error('飲料選項格式不正確。');
+  }
+  if (r.nutrition !== undefined) {
+    if (!r.nutrition || typeof r.nutrition !== 'object' || Array.isArray(r.nutrition) || Object.keys(r.nutrition).some(k => !NUTRITION_GROUPS.some(g => g.key === k))) throw new Error('營養補充格式不正確。');
+    for (const group of NUTRITION_GROUPS) {
+      const value = r.nutrition[group.key];
+      if (value === undefined) continue;
+      const values = group.multiple ? value : value === '' ? [] : [value];
+      if (!Array.isArray(values) || new Set(values).size !== values.length || values.some(v => !group.options.includes(v)) || (values.includes('沒有') && values.length > 1)) throw new Error('營養補充選項格式不正確。');
+    }
+  }
+  const content = recordContent(r);
+  if (content.length > 1000) throw new Error('飲食內容加上補充紀錄超過 1000 字，請稍微縮短飲食內容。');
+  if (!content && !r.tags.length) throw new Error('請點選標籤、補充項目或輸入飲食內容。');
   return r;
 }
 
@@ -53,7 +91,7 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
     const response = await fetchImpl(settings.endpoint, {
       method: 'POST', redirect: 'follow', credentials: 'omit', cache: 'no-store',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'append', key: settings.key, record }), signal: controller.signal
+      body: JSON.stringify({ action: 'append', key: settings.key, record: { ...record, content: recordContent(record) } }), signal: controller.signal
     });
     if (!response.ok || response.type === 'opaque') throw new Error('未收到試算表確認；請檢查連線及部署權限後重試。');
     let result;

@@ -60,3 +60,14 @@ test('formula-like free text is literal; public GET never returns records',()=>{
   assert.equal(server.post(body(r)).ok,true);assert.ok(server.rows[1][3].startsWith("'="));assert.ok(server.rows[1][5].startsWith("'+"));assert.ok(server.rows[1][6].startsWith("'@"));
   assert.equal(server.context.doGet().service,'hy-food-log'); assert.equal(server.context.doGet().record,undefined);
 });
+
+test('new observations reach the unchanged nine-column receiver; retries remain idempotent', async()=>{
+  const {upload,recordContent}=await import('./model.mjs');
+  const server=receiver();const r={...record(),tags:[],drinks:[{type:'拿鐵',sugar:'有加糖'}],nutrition:{vegetables:'沒有',protein:'約 1 掌',fruit:'約 1 拳',dairy:['無糖優格']}};
+  const settings={endpoint:'https://script.google.com/macros/s/test/exec',key:'secret'};
+  const send=async(url,options)=>({ok:true,json:async()=>server.post(JSON.parse(options.body))});
+  await upload(r,settings,send);await upload(r,settings,send);
+  assert.equal(server.rows.length,2);assert.equal(server.rows[1].length,9);
+  assert.equal(server.rows[1][3],recordContent(r));assert.equal(server.rows[1][4],'');
+  assert.equal((server.rows[1][3].match(/【補充紀錄】/g)||[]).length,1);
+});
