@@ -35,6 +35,18 @@ await page.route('https://script.google.com/**',async route=>{
 });
 await page.goto(url);
 await page.waitForSelector('[data-tag]');
+// The records shortcut opens the existing private spreadsheet without a receiver API.
+const recordsLink=page.getByRole('link',{name:'📋 查看飲食紀錄 ↗'});
+assert.equal(await recordsLink.getAttribute('href'),'https://docs.google.com/spreadsheets/d/1BLrkJ5DMfEDXFR_72tiPbPmodONE3o6Bh9UuAwiz-4c/edit');
+assert.equal(await recordsLink.getAttribute('target'),'_blank');
+assert.match(await recordsLink.getAttribute('rel'),/noreferrer/);
+await context.route('https://docs.google.com/spreadsheets/**',route=>route.fulfill({status:200,contentType:'text/html',body:'<p>Spreadsheet destination (mock)</p>'}));
+const popupPromise=page.waitForEvent('popup');
+await recordsLink.click();const popup=await popupPromise;
+await popup.waitForLoadState();
+assert.equal(new URL(popup.url()).hostname,'docs.google.com');
+await popup.close();assert.equal(requests.length,0);
+
 assert.equal(await page.locator('#tags [data-tag]').count(),8);
 assert.equal(await page.locator('#nutrition').getAttribute('open'),null);
 await page.locator('[data-drink="拿鐵"]').click();
