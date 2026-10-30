@@ -137,33 +137,3 @@ export function readState(storage = localStorage) {
 export function writeState(state, storage = localStorage) {
   storage.setItem(STORE_KEY, JSON.stringify(state));
 }
-
-// Private read: never put the key in a URL or persist returned meal history.
-export async function fetchRecent(settings, fetchImpl = fetch, timeoutMs = 30000) {
-  if (!validEndpoint(settings?.endpoint) || !settings?.key) throw new Error('請先展開「試算表連線」完成設定。');
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetchImpl(settings.endpoint, {
-      method: 'POST', redirect: 'follow', credentials: 'omit', cache: 'no-store',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'recent', key: settings.key }), signal: controller.signal
-    });
-    if (!response.ok || response.type === 'opaque') throw new Error('無法讀取最近紀錄，請檢查連線與部署權限後重新整理。');
-    let result;
-    try { result = await response.json(); } catch { throw new Error('讀取回覆格式不正確，請確認 /exec 網址與部署權限。'); }
-    if (result.ok !== true) {
-      if (result.error === 'INVALID_ACTION') throw new Error('請更新 Google Apps Script 程式並部署「新版本」，即可查看最近三筆紀錄。');
-      if (result.error === 'UNAUTHORIZED') throw new Error('連線金鑰不正確，請重新設定。');
-      throw new Error('讀取失敗，請確認接收程式設定並執行 checkConnection 後重新整理。');
-    }
-    if (!Array.isArray(result.records) || result.records.length > 3 || result.records.some(r => !r ||
-      ['date', 'meal', 'content', 'tags', 'work', 'notes'].some(key => typeof r[key] !== 'string'))) {
-      throw new Error('最近紀錄格式不正確，請更新接收程式後重新整理。');
-    }
-    return result.records;
-  } catch (error) {
-    if (error.name === 'AbortError' || error instanceof TypeError) throw new Error('無法讀取最近紀錄，請檢查網路後重新整理。');
-    throw error;
-  } finally { clearTimeout(timer); }
-}

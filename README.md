@@ -4,7 +4,7 @@
 
 ## 目前工具
 
-- `food-log/`：日常飲食紀錄，餐別與 emoji 標籤快速輸入、飲料種類與加糖情況、預設收合的蔬菜／蛋白質／水果／乳品補充、草稿保留、預設收合的最近三筆雲端紀錄、私人 Google 試算表寫入確認與可重試待傳清單。首次連線見 [`food-log/google-apps-script/SETUP.md`](food-log/google-apps-script/SETUP.md)；測試：`node --test food-log/*.test.mjs`。連線金鑰與網址由使用者在裝置設定，不可提交至 GitHub。
+- `food-log/`：日常飲食紀錄，餐別與 emoji 標籤快速輸入、飲料種類與加糖情況、預設收合的蔬菜／蛋白質／水果／乳品補充、草稿保留、查看飲食試算表的快捷連結、私人 Google 試算表寫入確認與可重試待傳清單。首次連線見 [`food-log/google-apps-script/SETUP.md`](food-log/google-apps-script/SETUP.md)；測試：`node --test food-log/*.test.mjs`。連線金鑰與網址由使用者在裝置設定，不可提交至 GitHub。
 
 - `lipid/`：血脂用藥工具
 - `sarcopenia/`：智能車肌少症篩檢紀錄工具

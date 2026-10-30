@@ -98,22 +98,3 @@ test('observations-only records work; invalid, conflicting or oversized observat
     {nutrition:{unknown:'沒有'}}, {content:'a'.repeat(990),nutrition:{vegetables:'約 1 拳'}}
   ]) assert.throws(()=>validateRecord({...record(),...patch}));
 });
-
-
-test('recent fetch authenticates by POST and handles empty, old receiver, malformed, timeout and network replies',async()=>{
-  const {fetchRecent}=await import('./model.mjs');
-  assert.deepEqual(await fetchRecent(settings,async(url,options)=>{
-    assert.equal(url,settings.endpoint);assert.equal(options.method,'POST');assert.equal(options.cache,'no-store');
-    assert.equal(options.headers['Content-Type'],'text/plain;charset=utf-8');
-    assert.deepEqual(JSON.parse(options.body),{action:'recent',key:settings.key});
-    return {ok:true,json:async()=>({ok:true,records:[]})};
-  }),[]);
-  for(const [result,pattern] of [[{ok:false,error:'INVALID_ACTION'},/新版本/],[{ok:false,error:'UNAUTHORIZED'},/金鑰/],[{ok:true,records:[{}]},/格式/],[{ok:true,records:Array(4).fill({})},/格式/]]) {
-    await assert.rejects(fetchRecent(settings,async()=>({ok:true,json:async()=>result})),pattern);
-  }
-  await assert.rejects(fetchRecent({},async()=>assert.fail('must not fetch')),/連線/);
-  await assert.rejects(fetchRecent(settings,async()=>{throw new TypeError('network');}),/網路/);
-  await assert.rejects(fetchRecent(settings,async(url,options)=>new Promise((resolve,reject)=>{
-    options.signal.addEventListener('abort',()=>reject(Object.assign(new Error('abort'),{name:'AbortError'})));
-  }),5),/網路/);
-});

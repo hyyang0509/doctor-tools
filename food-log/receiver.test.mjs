@@ -7,7 +7,7 @@ const headers=['紀錄編號','日期','餐別','飲食內容','飲食標籤','�
 function receiver(options={}) {
   const rows=[headers.slice()]; let flushes=0, locked=false;
   const sheet={getLastRow:()=>rows.length,getRange:(row,col,count,width)=>({
-    getDisplayValues:()=>rows.slice(row-1,row-1+count).map(r=>r.slice(col-1,col-1+width)),
+    getDisplayValues:()=>[rows[row-1].slice(col-1,col-1+width)],
     setNumberFormat(){return this;},setValues(values){rows[row-1]=Array.from(values[0]);return this;},
     createTextFinder(id){return {matchEntireCell(){return this;},useRegularExpression(){return this;},findNext(){return rows.slice(1).some(r=>r[0]===id);}};}
   })};
@@ -70,19 +70,4 @@ test('new observations reach the unchanged nine-column receiver; retries remain 
   assert.equal(server.rows.length,2);assert.equal(server.rows[1].length,9);
   assert.equal(server.rows[1][3],recordContent(r));assert.equal(server.rows[1][4],'');
   assert.equal((server.rows[1][3].match(/【補充紀錄】/g)||[]).length,1);
-});
-
-
-test('recent reads require the key, return at most three newest appended rows, and never write',()=>{
-  const server=receiver();
-  assert.deepEqual(server.post({action:'recent',key:'secret'}),{ok:true,records:[]});
-  for(let i=0;i<5;i++) server.post(body({...record(),id:`${i}2345678-1234-4123-8123-123456789abc`,date:i===4?'2026-10-01':'2026-10-20',content:`餐點${i}`}));
-  const flushes=server.flushes;
-  const result=server.post({action:'recent',key:'secret',limit:999});
-  assert.deepEqual(result.records.map(r=>r.content),['餐點4','餐點3','餐點2']);
-  assert.equal(result.records[0].date,'2026-10-01'); // backfill is still newest submission
-  assert.equal(server.flushes,flushes);assert.equal(server.rows.length,6);assert.equal(server.locked,false);
-  assert.equal(server.post({action:'recent',key:'wrong'}).error,'UNAUTHORIZED');
-  assert.equal(server.context.doGet().records,undefined);
-  server.rows[0][0]='changed';assert.equal(server.post({action:'recent',key:'secret'}).error,'HEADER_MISMATCH');
 });

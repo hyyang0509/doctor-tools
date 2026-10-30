@@ -26,8 +26,8 @@ function setup() {
 }
 
 function doGet() {
-  // Public GET is health-only; recent records require the key in a POST body.
-  return json_({ ok: true, service: 'hy-food-log', version: 3 });
+  // No reading endpoint: private records are never returned by the public web app.
+  return json_({ ok: true, service: 'hy-food-log', version: 2 });
 }
 
 function doPost(e) {
@@ -40,9 +40,9 @@ function doPost(e) {
     const props = PropertiesService.getScriptProperties();
     const key = props.getProperty('FOOD_ACCESS_KEY');
     if (!key || body.key !== key) return json_({ ok: false, error: 'UNAUTHORIZED' });
-    if (!['append', 'recent'].includes(body.action)) return json_({ ok: false, error: 'INVALID_ACTION' });
+    if (body.action !== 'append') return json_({ ok: false, error: 'INVALID_ACTION' });
     const r = body.record;
-    if (body.action === 'append') validate_(r);
+    validate_(r);
     const sheetId = props.getProperty('FOOD_SPREADSHEET_ID');
     if (!sheetId) throw new Error('NOT_CONFIGURED');
     stage = 'lock';
@@ -53,13 +53,6 @@ function doPost(e) {
     if (!sheet) throw new Error('SHEET_MISSING');
     stage = 'headers';
     ensureHeaders_(sheet);
-    if (body.action === 'recent') {
-      // Read only the final three appended rows, newest submission first.
-      const count = Math.min(3, sheet.getLastRow() - 1);
-      const records = count > 0 ? sheet.getRange(sheet.getLastRow() - count + 1, 1, count, FOOD_HEADERS.length)
-        .getDisplayValues().reverse().map(row => ({ date: row[1], meal: row[2], content: row[3], tags: row[4], work: row[5], notes: row[6] })) : [];
-      return json_({ ok: true, records: records });
-    }
     if (sheet.getLastRow() > 1 && sheet.getRange(2, 1, sheet.getLastRow() - 1, 1)
       .createTextFinder(r.id).matchEntireCell(true).useRegularExpression(false).findNext()) {
       return json_({ ok: true, id: r.id, duplicate: true });
