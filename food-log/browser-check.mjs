@@ -26,11 +26,15 @@ const endpoint = 'https://script.google.com/macros/s/test-food-log/exec';
 const context = await browser.newContext({ viewport:{width:390,height:844}, serviceWorkers:'block' });
 const page = await context.newPage();
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
-let mode='success', requests=[];
+let mode='success', requests=[], recentRecords=[], recentMode='success';
 await page.route('https://script.google.com/**',async route=>{
-  const request=JSON.parse(route.request().postData()); requests.push(request);
+  const request=JSON.parse(route.request().postData());
+  if(request.action==='recent') return route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(
+    recentMode==='success'?{ok:true,records:recentRecords}: {ok:false,error:recentMode})});
+  requests.push(request);
   if(mode==='network') return route.abort();
   const result=mode==='unauthorized'?{ok:false,error:'UNAUTHORIZED'}:{ok:true,id:request.record.id};
+  if(mode==='success') recentRecords=[{...request.record,tags:request.record.tags.join('、')},...recentRecords].slice(0,3);
   await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify(result)});
 });
 await page.goto(url);
@@ -51,6 +55,12 @@ await page.click('#saveConnection');await page.click('#submit');
 await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('已確認'));
 assert.equal(requests.length,1);assert.deepEqual(requests[0].record.tags,[]);assert.match(requests[0].record.content,/飲料：拿鐵（無加糖）/);
 assert.equal(await page.locator('[data-tag][aria-pressed=true]').count(),0);
+// Recent meals are collapsed, read from cloud across reloads, and remain separate from drafts.
+assert.equal(await page.locator('#recentPanel').getAttribute('open'),null);
+await page.click('#recentPanel summary');
+await page.waitForFunction(()=>document.querySelectorAll('#recentList li').length===1);
+assert.match(await page.locator('#recentList').innerText(),/拿鐵/);
+await page.click('#recentPanel summary');
 // Empty form cannot create a cloud record.
 await page.click('#submit');assert.equal(requests.length,1);
 // Supplement controls are optional, exclusive where appropriate, cancelable, and persist.
@@ -101,6 +111,21 @@ await page.waitForSelector('#next:not([hidden])');await page.click('#next');
 await page.locator('[data-tag="乾麵"]').click();await page.click('#submit');await page.waitForSelector('#next:not([hidden])');
 assert.equal(await page.locator('#pendingList li').count(),2);
 mode='success';await page.click('#retry');await page.waitForFunction(()=>document.querySelector('#pendingPanel').hidden);
+// Last three cloud records, literal text, empty/error and manual refresh.
+recentRecords[0].content='<img src=x onerror=alert(1)>';
+await page.click('#recentPanel summary');
+await page.waitForFunction(()=>document.querySelectorAll('#recentList li').length===3);
+assert.match(await page.locator('#recentList').innerText(),/乾麵/);
+assert.equal(await page.locator('#recentList img').count(),0);
+recentMode='INVALID_ACTION';await page.click('#refreshRecent');
+await page.waitForFunction(()=>document.querySelector('#recentStatus').textContent.includes('新版本'));
+assert.equal(await page.locator('#recentList li').count(),0);
+recentMode='success';recentRecords=[];await page.click('#refreshRecent');
+await page.waitForFunction(()=>document.querySelector('#recentStatus').textContent.includes('沒有飲食紀錄'));
+// A successful upload refreshes the expanded panel without another tap.
+await page.locator('[data-tag="水煮蛋"]').click();await page.click('#submit');
+await page.waitForFunction(()=>document.querySelectorAll('#recentList li').length===1);
+assert.match(await page.locator('#recentList').innerText(),/水煮蛋/);
 // Optional text remains literal in the DOM, with no injected markup.
 await page.locator('#optional summary').click();await page.fill('#work','<img src=x onerror=alert(1)>');
 await page.locator('[data-tag="八方雲集"]').click();mode='network';await page.click('#submit');

@@ -50,6 +50,13 @@
     <div class="section-head"><h2>尚待確認上傳 <span id="pendingCount"></span></h2><button id="retry" type="button" class="secondary">全部重試</button></div>
     <p>重試會沿用原紀錄編號；即使先前已寫入，也不會重複新增。</p><ul id="pendingList"></ul>
   </section>
+  <details id="recentPanel" class="panel recent-panel">
+    <summary>🕘 最近三筆飲食紀錄</summary>
+    <p class="field-hint">依試算表最後新增順序，最新一筆在上方（包含補登）。尚待確認上傳的紀錄請見上方待傳清單。</p>
+    <button id="refreshRecent" type="button" class="secondary">重新整理</button>
+    <p id="recentStatus" role="status" aria-live="polite">展開時讀取試算表紀錄。</p>
+    <ul id="recentList" aria-label="最近三筆飲食紀錄"></ul>
+  </details>
   <footer>紀錄傳至你設定的私人試算表。<br>草稿與待傳資料留在此瀏覽器；確認上傳前請勿清除網站資料。</footer>
 </main>
 </body>

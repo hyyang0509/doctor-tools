@@ -1,4 +1,4 @@
-import { TAGS, QUICK_TAGS, DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
+import { TAGS, QUICK_TAGS, DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, validateRecord, validEndpoint, upload, readState, writeState, fetchRecent } from './model.mjs';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
@@ -138,6 +138,50 @@ function render() {
   $('connectionLabel').textContent = configured ? '已設定' : '尚未設定';
 }
 
+// Fetch only while expanded; discard stale replies after settings changes or saves.
+let recentRequest = 0;
+async function loadRecent() {
+  const request = ++recentRequest;
+  $('recentList').replaceChildren();
+  $('recentStatus').textContent = '正在讀取試算表…';
+  $('refreshRecent').disabled = true;
+  try {
+    const records = await fetchRecent(settings);
+    if (request !== recentRequest) return;
+    for (const record of records) {
+      const li = document.createElement('li');
+      const title = document.createElement('strong');
+      title.textContent = `${record.date}・${record.meal}`;
+      const content = document.createElement('p');
+      content.textContent = [record.tags, record.content].filter(Boolean).join('、');
+      li.append(title, content);
+      if (record.work || record.notes) {
+        const extra = document.createElement('p'); extra.className = 'record-extra';
+        extra.textContent = [record.work && `工作：${record.work}`, record.notes && `備註：${record.notes}`].filter(Boolean).join('｜');
+        li.append(extra);
+      }
+      $('recentList').append(li);
+    }
+    $('recentStatus').textContent = records.length ? `已讀取 ${records.length} 筆已存入試算表的紀錄。` : '試算表目前沒有飲食紀錄。';
+  } catch (error) {
+    if (request === recentRequest) $('recentStatus').textContent = error.message;
+  } finally {
+    if (request === recentRequest) $('refreshRecent').disabled = false;
+  }
+}
+function invalidateRecent() {
+  recentRequest++;
+  $('recentList').replaceChildren();
+  $('refreshRecent').disabled = false;
+  $('recentStatus').textContent = '展開時讀取試算表紀錄。';
+  if ($('recentPanel').open) loadRecent();
+}
+$('recentPanel').addEventListener('toggle', () => {
+  if ($('recentPanel').open) loadRecent();
+  else invalidateRecent();
+});
+$('refreshRecent').addEventListener('click', loadRecent);
+
 $('foodForm').addEventListener('input', saveDraft);
 $('foodForm').addEventListener('change', saveDraft);
 $('endpoint').value = settings?.endpoint || '';
@@ -150,7 +194,7 @@ $('saveConnection').addEventListener('click', () => {
   }
   try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(next)); settings = next; }
   catch { message('無法儲存連線設定，請確認瀏覽器允許儲存資料。', 'error'); return; }
-  $('connection').open = false; render();
+  $('connection').open = false; render(); invalidateRecent();
   message('連線設定已儲存；下一筆紀錄會確認試算表是否成功寫入。');
 });
 
@@ -170,7 +214,7 @@ async function sendRecords(records) {
     }
     message(`✓ 已確認 ${count} 筆寫入 Google 試算表。`, 'success');
   } catch (error) { message(`${count ? `已確認 ${count} 筆；` : ''}${error.message}`, 'error'); }
-  finally { busy = false; render(); }
+  finally { busy = false; render(); invalidateRecent(); }
 }
 
 $('foodForm').addEventListener('submit', async event => {
@@ -202,7 +246,7 @@ window.addEventListener('storage', event => {
   if (busy) return;
   if (event.key === STORE_KEY && refreshState()) render();
   if (event.key === SETTINGS_KEY) {
-    try { settings = JSON.parse(event.newValue || '{}'); render(); } catch { /* Keep current settings. */ }
+    try { settings = JSON.parse(event.newValue || '{}'); render(); invalidateRecent(); } catch { /* Keep current settings. */ }
   }
 });
 render();
