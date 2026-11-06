@@ -1,8 +1,9 @@
-import { TAGS, QUICK_TAGS, DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
+import { TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
 let state, settings = {}, busy = false, blocked = false;
+let lastSavedDate = '';
 function message(text, tone = '') { $('status').textContent = text; $('status').dataset.tone = tone; }
 try {
   state = readState();
@@ -47,6 +48,7 @@ for (const [emoji, type] of DRINK_TYPES) {
   $('drinks').append(toggleButton(`${emoji} ${type}`, { drink: type }, (button, selected) => {
     group.hidden = !selected;
     if (!selected) options.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', 'false'));
+    if (!selected && !QUICK_DRINK_TYPES.some(([, value]) => value === type)) button.hidden = true;
   }));
 }
 for (const group of NUTRITION_GROUPS) {
@@ -86,15 +88,24 @@ function refreshState() {
   catch { blocked = true; message('本機資料無法讀取，請勿清除網站資料。', 'error'); return false; }
 }
 function saveDraft() {
+  renderQuickDates();
   nutritionSummary();
   if (blocked || busy || state.draft.id) return;
+  lastSavedDate = '';
+  $('sameDay').hidden = true;
   // Read the latest pending queue so another tab's acknowledged writes are preserved.
   const draft = formValue();
   if (refreshState()) persist({ ...state, draft });
 }
+function renderQuickDates() {
+  for (const [id, date] of Object.entries(taipeiQuickDates())) {
+    $(id).setAttribute('aria-pressed', String($('date').value === date));
+  }
+}
 function render() {
   const draft = state.draft;
   fields.forEach(key => { $(key).value = draft[key] || ''; });
+  renderQuickDates();
   document.querySelectorAll('[name=meal]').forEach(el => { el.checked = el.value === draft.meal; });
   $('legacyTagButtons').replaceChildren();
   for (const label of draft.tags || []) {
@@ -107,7 +118,9 @@ function render() {
   document.querySelectorAll('[data-tag]').forEach(el => el.setAttribute('aria-pressed', String((draft.tags || []).includes(el.dataset.tag))));
   for (const [, type] of DRINK_TYPES) {
     const drink = (draft.drinks || []).find(d => d.type === type);
-    document.querySelector(`[data-drink="${type}"]`).setAttribute('aria-pressed', String(Boolean(drink)));
+    const button = document.querySelector(`[data-drink="${type}"]`);
+    button.setAttribute('aria-pressed', String(Boolean(drink)));
+    button.hidden = !drink && !QUICK_DRINK_TYPES.some(([, value]) => value === type);
     const group = document.querySelector(`[data-drink-sugar="${type}"]`); group.hidden = !drink;
     group.querySelectorAll('[data-sugar]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sugar === drink?.sugar)));
   }
@@ -124,6 +137,7 @@ function render() {
   $('submit').disabled = blocked || busy;
   $('submit').textContent = busy ? '正在確認寫入…' : draft.id ? '重試這筆紀錄' : '儲存到 Google 試算表';
   $('next').hidden = !draft.id || busy;
+  $('sameDay').hidden = !lastSavedDate || blocked || busy || Boolean(draft.id);
   $('retry').disabled = blocked || busy;
   $('saveConnection').disabled = blocked || busy;
   $('pendingPanel').hidden = state.pending.length === 0;
@@ -131,7 +145,7 @@ function render() {
   $('pendingList').replaceChildren();
   for (const record of state.pending) {
     const li = document.createElement('li');
-    li.textContent = `${record.date}・${record.meal}｜${[...record.tags, recordContent(record)].filter(Boolean).join('、')}`;
+    li.textContent = `${record.date}・${record.meal}｜${[...record.tags, recordContent({ ...record, tags: [] })].filter(Boolean).join('、')}`;
     $('pendingList').append(li);
   }
   const configured = validEndpoint(settings?.endpoint) && Boolean(settings?.key);
@@ -140,6 +154,21 @@ function render() {
 
 $('foodForm').addEventListener('input', saveDraft);
 $('foodForm').addEventListener('change', saveDraft);
+for (const id of ['today', 'yesterday']) {
+  $(id).addEventListener('click', () => {
+    $('date').value = taipeiQuickDates()[id];
+    saveDraft();
+  });
+}
+$('sameDay').addEventListener('click', () => {
+  if (!lastSavedDate || blocked || busy || !refreshState() || state.draft.id) return;
+  const date = lastSavedDate;
+  if (!persist({ ...state, draft: { ...state.draft, date, meal: '' } })) return;
+  lastSavedDate = '';
+  render();
+  document.querySelector('[name=meal]')?.focus();
+  message(`已選擇 ${date}，請選這一筆的餐別。`);
+});
 $('endpoint').value = settings?.endpoint || '';
 $('accessKey').value = settings?.key || '';
 $('connection').open = !validEndpoint(settings?.endpoint) || !settings?.key;
@@ -156,6 +185,7 @@ $('saveConnection').addEventListener('click', () => {
 
 async function sendRecords(records) {
   if (busy || blocked) return;
+  lastSavedDate = '';
   busy = true; render();
   let count = 0;
   try {
@@ -166,6 +196,7 @@ async function sendRecords(records) {
       const next = { ...state, pending: state.pending.filter(r => r.id !== record.id),
         draft: active ? taipeiDefaults() : state.draft };
       if (!persist(next)) throw new Error('試算表已寫入，但本機狀態未能更新；重試也不會重複新增。');
+      if (active) lastSavedDate = record.date;
       count++;
     }
     message(`✓ 已確認 ${count} 筆寫入 Google 試算表。`, 'success');
@@ -200,7 +231,10 @@ $('next').addEventListener('click', () => {
 $('retry').addEventListener('click', () => { if (refreshState()) sendRecords([...state.pending]); });
 window.addEventListener('storage', event => {
   if (busy) return;
-  if (event.key === STORE_KEY && refreshState()) render();
+  if (event.key === STORE_KEY && refreshState()) {
+    lastSavedDate = '';
+    render();
+  }
   if (event.key === SETTINGS_KEY) {
     try { settings = JSON.parse(event.newValue || '{}'); render(); } catch { /* Keep current settings. */ }
   }

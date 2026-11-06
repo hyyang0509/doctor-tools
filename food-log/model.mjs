@@ -1,13 +1,17 @@
 export const MEALS = ['早餐', '午餐', '晚餐', '點心'];
-export const TAGS = [
+const RECEIVER_TAGS = [
   ['🥚', '水煮蛋'], ['☕', '拿鐵'], ['☕', '美式'], ['🍬', '含糖咖啡'],
   ['🏥', '醫院便當'], ['🍱', '一般便當'], ['🍗', '炸雞腿便當'],
   ['🫖', '無糖飲料'], ['🥤', '含糖飲料'], ['🧋', '珍奶'],
   ['🍲', '小火鍋'], ['🥟', '八方雲集'], ['🍜', '乾麵'], ['🥩', '牛肉麵']
 ];
-// Keep the original allowlist for older drafts, pending records and deployed receivers.
-export const QUICK_TAGS = TAGS.filter(([, label]) => !['拿鐵', '美式', '含糖咖啡', '無糖飲料', '含糖飲料', '珍奶'].includes(label));
+// New shortcuts use the content column so existing Apps Script deployments accept them.
+const CONTENT_TAGS = [['🍱', '外食便當'], ['🥪', '三明治'], ['🍣', '壽司'], ['🍔', '漢堡']];
+const RETIRED_TAGS = ['拿鐵', '美式', '含糖咖啡', '無糖飲料', '含糖飲料', '珍奶', '一般便當', '炸雞腿便當'];
+export const TAGS = [...RECEIVER_TAGS, ...CONTENT_TAGS];
+export const QUICK_TAGS = [...RECEIVER_TAGS.filter(([, label]) => !RETIRED_TAGS.includes(label)), ...CONTENT_TAGS];
 export const DRINK_TYPES = [['☕', '美式'], ['☕', '拿鐵'], ['🫖', '茶'], ['🥛', '豆漿'], ['🥛', '鮮奶'], ['🧋', '珍奶'], ['💧', '白開水'], ['🥤', '其他']];
+export const QUICK_DRINK_TYPES = DRINK_TYPES.filter(([, type]) => type !== '白開水');
 export const SUGAR_OPTIONS = ['無加糖', '有加糖', '不確定'];
 export const NUTRITION_GROUPS = [
   { key: 'vegetables', label: '🥬 蔬菜', options: ['沒有', '少量', '約 1 拳', '2 拳以上'], hint: '粗估吃下的蔬菜量即可，不必秤重。' },
@@ -20,6 +24,8 @@ export const NUTRITION_GROUPS = [
 // or header migration is required. Drafts/pending records retain the unmodified inputs.
 export function recordContent(r) {
   const details = [];
+  const quickFood = (r.tags || []).filter(label => CONTENT_TAGS.some(([, value]) => value === label));
+  if (quickFood.length) details.push(`餐點：${quickFood.join('、')}`);
   for (const drink of r.drinks || []) details.push(`飲料：${drink.type}（${drink.sugar || '加糖情況未記錄'}）`);
   for (const group of NUTRITION_GROUPS) {
     const value = r.nutrition?.[group.key];
@@ -40,6 +46,13 @@ export function taipeiDefaults(now = new Date()) {
   return { date: `${parts.year}-${parts.month}-${parts.day}`,
     meal: hour >= 5 && hour < 11 ? '早餐' : hour >= 11 && hour < 15 ? '午餐' : hour >= 17 && hour < 21 ? '晚餐' : '點心',
     content: '', tags: [], drinks: [], nutrition: {}, work: '', notes: '' };
+}
+
+export function taipeiQuickDates(now = new Date()) {
+  const today = taipeiDefaults(now).date;
+  const yesterday = new Date(`${today}T00:00:00Z`);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  return { today, yesterday: yesterday.toISOString().slice(0, 10) };
 }
 
 export function validDate(value) {
@@ -91,7 +104,10 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
     const response = await fetchImpl(settings.endpoint, {
       method: 'POST', redirect: 'follow', credentials: 'omit', cache: 'no-store',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'append', key: settings.key, record: { ...record, content: recordContent(record) } }), signal: controller.signal
+      body: JSON.stringify({ action: 'append', key: settings.key, record: {
+        ...record, content: recordContent(record),
+        tags: record.tags.filter(label => RECEIVER_TAGS.some(([, value]) => value === label))
+      } }), signal: controller.signal
     });
     if (!response.ok || response.type === 'opaque') throw new Error('未收到試算表確認；請檢查連線及部署權限後重試。');
     let result;

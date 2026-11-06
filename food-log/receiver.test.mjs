@@ -71,3 +71,21 @@ test('new observations reach the unchanged nine-column receiver; retries remain 
   assert.equal(server.rows[1][3],recordContent(r));assert.equal(server.rows[1][4],'');
   assert.equal((server.rows[1][3].match(/【補充紀錄】/g)||[]).length,1);
 });
+
+test('new food shortcuts alone upload to the unchanged receiver; legacy choices can still be retried', async()=>{
+  const {upload}=await import('./model.mjs');
+  const server=receiver();
+  const settings={endpoint:'https://script.google.com/macros/s/test/exec',key:'secret'};
+  const send=async(url,options)=>({ok:true,json:async()=>server.post(JSON.parse(options.body))});
+  for (const [i, tag] of ['三明治','壽司','漢堡','外食便當'].entries()) {
+    const r={...record(),id:`${i}${record().id.slice(1)}`,tags:[tag]};
+    await upload(r,settings,send);
+    assert.equal(server.rows.at(-1)[3],`【補充紀錄】\n餐點：${tag}`);
+    assert.equal(server.rows.at(-1)[4],'');
+    await upload(r,settings,send);
+    assert.equal(server.rows.length,i+2);
+  }
+  await upload({...record(),id:'92345678-1234-4123-8123-123456789abc',tags:['一般便當','炸雞腿便當'],drinks:[{type:'白開水',sugar:''}]},settings,send);
+  assert.equal(server.rows.at(-1)[4],'一般便當、炸雞腿便當');
+  assert.match(server.rows.at(-1)[3],/飲料：白開水/);
+});

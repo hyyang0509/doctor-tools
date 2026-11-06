@@ -26,10 +26,15 @@
   </details>
   <form id="foodForm" class="panel">
     <fieldset id="entryFields">
-      <label for="date">日期</label><input id="date" type="date" required min="1900-01-01">
+      <label for="date">日期</label>
+      <div class="date-row">
+        <input id="date" type="date" required min="1900-01-01">
+        <button id="today" type="button" class="secondary" aria-pressed="false">今天</button>
+        <button id="yesterday" type="button" class="secondary" aria-pressed="false">昨天</button>
+      </div>
       <fieldset class="meal-field"><legend>這是哪一餐？</legend><div id="meals" class="meals"></div></fieldset>
       <fieldset class="tag-field"><legend>快速點選 <small>可複選，不打字也能記</small></legend><div id="tags" class="tags"></div></fieldset>
-      <div id="legacyTags" hidden><p class="field-hint">先前草稿的飲料標籤（可點選取消）</p><div id="legacyTagButtons" class="tags"></div></div>
+      <div id="legacyTags" hidden><p class="field-hint">先前草稿的標籤（可點選取消）</p><div id="legacyTagButtons" class="tags"></div></div>
       <fieldset class="tag-field"><legend>喝了什麼？ <small>選填，可複選</small></legend><div id="drinks" class="tags"></div><div id="drinkSugar"></div></fieldset>
       <details id="nutrition" class="nutrition"><summary>🥬 營養補充 <small id="nutritionLabel">選填</small></summary>
         <p class="field-hint">想補充再選，不必每項填完；未選代表未記錄。再點一次可取消。</p>
@@ -44,6 +49,7 @@
     </fieldset>
     <p id="status" role="status" aria-live="polite">草稿會自動保留在這個裝置。</p>
     <button id="submit" class="primary" type="submit">儲存到 Google 試算表</button>
+    <button id="sameDay" class="secondary" type="button" hidden>補同一天另一餐</button>
     <button id="next" class="secondary" type="button" hidden>保留待傳資料，記錄下一筆</button>
   </form>
   <section class="panel pending-panel" id="pendingPanel" hidden>

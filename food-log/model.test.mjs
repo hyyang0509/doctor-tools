@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TAGS, taipeiDefaults, validDate, validEndpoint, validateRecord, upload, readState, writeState } from './model.mjs';
+import { TAGS, taipeiDefaults, taipeiQuickDates, validDate, validEndpoint, validateRecord, upload, readState, writeState } from './model.mjs';
 
 const record = () => ({ ...taipeiDefaults(new Date('2026-10-19T23:00:00Z')), id: '12345678-1234-4123-8123-123456789abc', createdAt: '2026-10-19T23:00:00Z', tags: ['水煮蛋'] });
 const settings = { endpoint: 'https://script.google.com/macros/s/abc-123/exec', key: 'test-key' };
@@ -15,8 +15,13 @@ test('dates are real calendar dates', () => {
   for (const date of ['2024-02-29','2026-01-31','2026-12-31']) assert.ok(validDate(date));
   for (const date of ['',null,'2026-02-29','2026-04-31','2026-13-01','2026-00-12','0000-01-01']) assert.equal(validDate(date),false);
 });
-test('14 unique labels; tags-only or text-only work, empty/invalid/oversized inputs fail', () => {
-  assert.equal(TAGS.length,14); assert.equal(new Set(TAGS.map(t=>t[1])).size,14);
+test('Taiwan today and yesterday cross local midnight, year and leap day', () => {
+  assert.deepEqual(taipeiQuickDates(new Date('2026-12-31T15:59:59Z')), {today:'2026-12-31',yesterday:'2026-12-30'});
+  assert.deepEqual(taipeiQuickDates(new Date('2026-12-31T16:00:00Z')), {today:'2027-01-01',yesterday:'2026-12-31'});
+  assert.deepEqual(taipeiQuickDates(new Date('2024-02-29T16:00:00Z')), {today:'2024-03-01',yesterday:'2024-02-29'});
+});
+test('unique labels; tags-only or text-only work, empty/invalid/oversized inputs fail', () => {
+  assert.equal(new Set(TAGS.map(t=>t[1])).size,TAGS.length);
   assert.doesNotThrow(()=>validateRecord(record()));
   assert.doesNotThrow(()=>validateRecord({...record(), tags:[], content:'飯半碗'}));
   for (const patch of [{tags:[],content:' '},{tags:['假標籤']},{tags:['水煮蛋','水煮蛋']},{meal:'宵夜'},{content:'a'.repeat(1001)},{date:'2026-02-30'}]) {
