@@ -25,6 +25,7 @@ const url = base + 'food-log/';
 const endpoint = 'https://script.google.com/macros/s/test-food-log/exec';
 const context = await browser.newContext({ viewport:{width:390,height:844}, serviceWorkers:'block' });
 const page = await context.newPage();
+await page.clock.setFixedTime(new Date('2026-11-06T16:01:00Z'));
 const errors=[];page.on('pageerror',e=>errors.push(e.message));
 let mode='success', requests=[];
 await page.route('https://script.google.com/**',async route=>{
@@ -47,7 +48,13 @@ await popup.waitForLoadState();
 assert.equal(new URL(popup.url()).hostname,'docs.google.com');
 await popup.close();assert.equal(requests.length,0);
 
-assert.equal(await page.locator('#tags [data-tag]').count(),8);
+assert.equal(await page.locator('#tags [data-tag]').count(),10);
+assert.equal(await page.locator('#tags [data-tag="一般便當"], #tags [data-tag="炸雞腿便當"]').count(),0);
+assert.equal(await page.locator('[data-drink="白開水"]').isVisible(),false);
+assert.equal(await page.inputValue('#date'),'2026-11-07');
+await page.click('#yesterday');assert.equal(await page.inputValue('#date'),'2026-11-06');
+await page.click('#today');assert.equal(await page.inputValue('#date'),'2026-11-07');
+await page.click('#yesterday');
 assert.equal(await page.locator('#nutrition').getAttribute('open'),null);
 await page.locator('[data-drink="拿鐵"]').click();
 await page.locator('[data-drink-sugar="拿鐵"] [data-sugar="無加糖"]').click();
@@ -62,9 +69,21 @@ await page.fill('#endpoint',endpoint);await page.fill('#accessKey','test-only');
 await page.click('#saveConnection');await page.click('#submit');
 await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('已確認'));
 assert.equal(requests.length,1);assert.deepEqual(requests[0].record.tags,[]);assert.match(requests[0].record.content,/飲料：拿鐵（無加糖）/);
+assert.equal(requests[0].record.date,'2026-11-06');
 assert.equal(await page.locator('[data-tag][aria-pressed=true]').count(),0);
 // Empty form cannot create a cloud record.
 await page.click('#submit');assert.equal(requests.length,1);
+await page.click('#sameDay');
+assert.equal(await page.inputValue('#date'),'2026-11-06');
+assert.equal(await page.locator('[name=meal]:checked').count(),0);
+assert.equal(await page.inputValue('#content'),'');
+await page.locator('#tags [data-tag="三明治"]').click();
+await page.click('#submit');assert.equal(requests.length,1);
+await page.locator('#meals label').filter({hasText:'早餐'}).click();
+await page.click('#submit');await page.waitForSelector('#sameDay:not([hidden])');
+assert.equal(requests.at(-1).record.date,'2026-11-06');
+assert.equal(requests.at(-1).record.meal,'早餐');
+assert.match(requests.at(-1).record.content,/餐點：三明治/);
 // Supplement controls are optional, exclusive where appropriate, cancelable, and persist.
 await page.locator('#nutrition summary').click();
 await page.locator('[data-nutrition="vegetables"] [data-nutrition-value="少量"]').click();
@@ -101,12 +120,15 @@ assert.equal((detailed.match(/【補充紀錄】/g)||[]).length,1);
 assert.equal(await page.locator('[data-drink][aria-pressed=true]').count(),0);
 assert.equal(await page.locator('#nutrition').getAttribute('open'),null);
 // Previous beverage tags and pending records remain usable after an update.
-await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('hy-food-log-v1'));s.draft.tags=['含糖咖啡','拿鐵'];localStorage.setItem('hy-food-log-v1',JSON.stringify(s));});
+await page.evaluate(()=>{const s=JSON.parse(localStorage.getItem('hy-food-log-v1'));s.draft.tags=['含糖咖啡','拿鐵','一般便當'];s.draft.drinks=[{type:'白開水',sugar:''}];localStorage.setItem('hy-food-log-v1',JSON.stringify(s));});
 await page.reload();await page.waitForSelector('#legacyTagButtons button');
-assert.equal(await page.locator('#legacyTagButtons [aria-pressed=true]').count(),2);
+assert.equal(await page.locator('#legacyTagButtons [aria-pressed=true]').count(),3);
+assert.equal(await page.locator('[data-drink="白開水"]').isVisible(),true);
+await page.locator('[data-drink="白開水"]').click();
+assert.equal(await page.locator('[data-drink="白開水"]').isVisible(),false);
 await page.locator('#legacyTagButtons [data-tag="拿鐵"]').click();
 await page.click('#submit');await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('已確認'));
-assert.deepEqual(requests.at(-1).record.tags,['含糖咖啡']);
+assert.deepEqual(requests.at(-1).record.tags,['含糖咖啡','一般便當']);
 // Two failed records remain separate, and retry-all clears both after confirmation.
 mode='unauthorized';await page.locator('[data-tag="牛肉麵"]').click();await page.click('#submit');
 await page.waitForSelector('#next:not([hidden])');await page.click('#next');
@@ -138,8 +160,8 @@ const swContext=await browser.newContext();const swPage=await swContext.newPage(
 await swPage.goto(url);await swPage.waitForFunction(()=>navigator.serviceWorker.controller);
 await swPage.evaluate(async()=>{await navigator.serviceWorker.ready;});
 await swContext.setOffline(true);await swPage.reload();await swPage.waitForSelector('#tags button');
-assert.equal(await swPage.locator('#tags button').count(),8);
-assert.equal(await swPage.locator('[data-drink]').count(),8);
+assert.equal(await swPage.locator('#tags button').count(),10);
+assert.equal(await swPage.locator('[data-drink]:visible').count(),7);
 assert.equal(await swPage.locator('[data-nutrition]').count(),4);
 await swContext.close();await browser.close();
 if(server) server.close();
