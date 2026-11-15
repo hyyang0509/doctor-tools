@@ -23,8 +23,10 @@ h1{margin:0;font-size:clamp(1.9rem,7vw,2.55rem);line-height:1.2;letter-spacing:-
 .field{min-width:0}
 .field label{display:block;margin-bottom:7px;color:var(--muted);font-size:.9rem;font-weight:700}
 .field input,.field select{display:block;width:100%;min-width:0;max-width:100%;height:52px;padding:0 14px;border:1px solid #cbd6e5;border-radius:13px;background:#fff;color:var(--ink);outline:none}
-.field input[type="date"]{appearance:none;-webkit-appearance:none}
-.field input[type="date"]::-webkit-date-and-time-value{min-width:0;text-align:left}
+.field input[type="date"]{appearance:none;-webkit-appearance:none;display:flex;align-items:center;padding:11px 14px;font-size:18px;line-height:26px;text-align:left}
+.field input[type="date"]::-webkit-date-and-time-value{min-width:0;margin:0;text-align:left;font:inherit}
+.field input[type="date"]::-webkit-datetime-edit{padding:0;font:inherit}
+.field input[type="date"]::-webkit-datetime-edit-fields-wrapper{padding:0}
 .field input:focus,.field select:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(45,108,223,.12)}
 .calculate{width:100%;min-height:54px;margin-top:18px;border:0;border-radius:14px;background:linear-gradient(135deg,#245ebf,var(--blue));color:#fff;font-weight:800;letter-spacing:.02em;cursor:pointer;box-shadow:0 9px 22px rgba(45,108,223,.24);touch-action:manipulation}
 .calculate:hover{filter:brightness(1.05)}
