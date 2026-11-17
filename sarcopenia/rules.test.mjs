@@ -38,9 +38,20 @@ test('拒絕不適用年齡與超出合理範圍', () => {
 test('民國出生年依當年度換算約略年齡', () => {
   const referenceDate = new Date('2026-09-23T00:00:00Z');
   assert.deepEqual(
-    resolveAgeInput({ age_input_method: 'roc_year', roc_birth_year: '50' }, referenceDate),
-    { method: 'roc_year', age: 65, errorKey: 'roc_birth_year', error: '' }
+    resolveAgeInput({ age_input_method: 'roc_year', roc_birth_year: '49' }, referenceDate),
+    { method: 'roc_year', age: 66, errorKey: 'roc_birth_year', error: '' }
   );
+});
+
+test('民國出生年換算剛好 50 或 65 歲時，要求改輸入實足年齡', () => {
+  const referenceDate = new Date('2026-09-23T00:00:00Z');
+  for (const [year, age] of [['50', 65], ['65', 50]]) {
+    const result = resolveAgeInput({ age_input_method: 'roc_year', roc_birth_year: year }, referenceDate);
+    assert.equal(result.age, age);
+    assert.match(result.error, /實足年齡/);
+  }
+  assert.equal(resolveAgeInput({ age_input_method: 'roc_year', roc_birth_year: '51' }, referenceDate).error, '');
+  assert.equal(resolveAgeInput({ age_input_method: 'age', age: '65' }, referenceDate).error, '');
 });
 
 test('直接輸入年齡為預設且優先採用', () => {

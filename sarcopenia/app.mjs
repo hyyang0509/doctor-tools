@@ -1,4 +1,4 @@
-import { APP_VERSION, EVENTS, isEventConfigured } from './config.mjs?v=16';
+import { APP_VERSION, EVENTS, isEventConfigured } from './config.mjs?v=17';
 import { assessScreening, resolveAgeInput, triggerReasonLabel, validateInput } from './screeningRules.mjs';
 import {
   addPendingRecord, clearAll, createRecordId, getPendingRecords, isDuplicate,
@@ -65,7 +65,7 @@ function updateAgeInputMode() {
   if (useRocYear) {
     const resolved = resolveAgeInput({ age_input_method: method, roc_birth_year: elements.rocBirthYear.value });
     elements.computedAgeHint.textContent = resolved.error
-      ? '將依今年年份換算約略年齡。'
+      ? (resolved.age === 50 || resolved.age === 65 ? resolved.error : '將依今年年份換算約略年齡。')
       : `換算今年約 ${resolved.age} 歲；若已知實足年齡，建議優先直接輸入。`;
   }
 }
