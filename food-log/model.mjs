@@ -13,7 +13,9 @@ export const QUICK_TAGS = [...RECEIVER_TAGS.filter(([, label]) => !RETIRED_TAGS.
 export const DRINK_TYPES = [['☕', '美式'], ['☕', '拿鐵'], ['🫖', '茶'], ['🥛', '豆漿'], ['🥛', '鮮奶'], ['🧋', '珍奶'], ['💧', '白開水'], ['🥤', '其他']];
 export const QUICK_DRINK_TYPES = DRINK_TYPES.filter(([, type]) => type !== '白開水');
 export const SUGAR_OPTIONS = ['無加糖', '有加糖', '不確定'];
+export const WATER_PERIODS = ['上午', '下午', '晚上'];
 export const NUTRITION_GROUPS = [
+  { key: 'starch', label: '🍚 飯／麵等主食', options: ['沒有', '半碗', '1 碗', '2 碗以上'], hint: '記下實際吃的份量，不必換算熱量。' },
   { key: 'vegetables', label: '🥬 蔬菜', options: ['沒有', '少量', '約 1 拳', '2 拳以上'], hint: '粗估吃下的蔬菜量即可，不必秤重。' },
   { key: 'protein', label: '🥚 蛋白質食物', options: ['沒有', '少量', '約 1 掌', '2 掌以上'], hint: '豆、魚、蛋、肉都算；1 顆蛋可選少量，肉魚約掌心大可選約 1 掌。' },
   { key: 'fruit', label: '🍎 水果', options: ['沒有', '約 1 拳', '2 拳以上'], hint: '記在吃的那一餐或點心即可。' },
@@ -31,7 +33,36 @@ export function recordContent(r) {
     const value = r.nutrition?.[group.key];
     if (group.multiple ? value?.length : value) details.push(`${group.label.split(' ').slice(1).join(' ')}：${Array.isArray(value) ? value.join('、') : value}`);
   }
-  return [r.content.trim(), details.length ? `【補充紀錄】\n${details.join('；')}` : ''].filter(Boolean).join('\n');
+  const food = hasFood(r);
+  for (const period of WATER_PERIODS) {
+    const value = r.hydration?.[period];
+    if (value) details.push(`喝水：${period} ${value === '達標' ? '達 500 mL' : '未達 500 mL'}`);
+  }
+  return [!food && details.length ? '【喝水紀錄】' : '', r.content.trim(), details.length ? `【補充紀錄】\n${details.join('；')}` : ''].filter(Boolean).join('\n');
+}
+
+// Water observations never imply a meal was eaten or an exact daily volume.
+export function hasFood(r) {
+  return Boolean(r.content?.trim() || r.tags?.length || r.drinks?.length || Object.values(r.nutrition || {}).some(v => Array.isArray(v) ? v.length : v));
+}
+export function daySummary(records, date) {
+  const meals = Object.fromEntries(MEALS.map(meal => [meal, false]));
+  const hydration = {};
+  const ordered = records.filter(r => r.date === date).slice().sort((a,b) => (a.updatedAt || a.createdAt || '').localeCompare(b.updatedAt || b.createdAt || ''));
+  for (const r of ordered) {
+    if (hasFood(r)) meals[r.meal] = true;
+    for (const period of WATER_PERIODS) if (r.hydration?.[period]) hydration[period] = r.hydration[period];
+  }
+  return { meals, hydration };
+}
+export function templateFromRecord(r) {
+  if (!hasFood(r)) throw new Error('先選餐點或填寫飲食內容，再存成常吃餐。');
+  return structuredClone({ tags: r.tags, drinks: r.drinks || [], nutrition: r.nutrition || {}, content: r.content });
+}
+export function reminderDraft(search) {
+  const params = new URLSearchParams(search);
+  const date = params.get('date'), meal = params.get('meal');
+  return validDate(date) && MEALS.includes(meal) ? {date, meal} : null;
 }
 
 export const STORE_KEY = 'hy-food-log-v1';
@@ -84,6 +115,7 @@ export function validateRecord(r) {
       if (!Array.isArray(values) || new Set(values).size !== values.length || values.some(v => !group.options.includes(v)) || (values.includes('沒有') && values.length > 1)) throw new Error('營養補充選項格式不正確。');
     }
   }
+  if (r.hydration !== undefined && (!r.hydration || typeof r.hydration !== 'object' || Array.isArray(r.hydration) || Object.entries(r.hydration).some(([k,v]) => !WATER_PERIODS.includes(k) || !['達標','未達'].includes(v)))) throw new Error('喝水紀錄格式不正確。');
   const content = recordContent(r);
   if (content.length > 1000) throw new Error('飲食內容加上補充紀錄超過 1000 字，請稍微縮短飲食內容。');
   if (!content && !r.tags.length) throw new Error('請點選標籤、補充項目或輸入飲食內容。');
@@ -104,16 +136,19 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
     const response = await fetchImpl(settings.endpoint, {
       method: 'POST', redirect: 'follow', credentials: 'omit', cache: 'no-store',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: 'append', key: settings.key, record: {
+      body: JSON.stringify({ action: record.action === 'update' ? 'update' : 'append', key: settings.key, record: {
         ...record, content: recordContent(record),
+        observations: {hydration:record.hydration || {}, nutrition:record.nutrition || {}, drinks:record.drinks || [], quickFoods:record.tags.filter(label => CONTENT_TAGS.some(([,value]) => value === label))},
         tags: record.tags.filter(label => RECEIVER_TAGS.some(([, value]) => value === label))
       } }), signal: controller.signal
     });
     if (!response.ok || response.type === 'opaque') throw new Error('未收到試算表確認；請檢查連線及部署權限後重試。');
     let result;
     try { result = await response.json(); } catch { throw new Error('連線回覆格式不正確，請確認使用 /exec 網址與「任何人」存取權限。'); }
-    if (result.ok !== true || result.id !== record.id) {
+    if (result.ok !== true || result.id !== record.id || (record.action === 'update' && result.updated !== true)) {
       const hints = {
+        NOT_FOUND: '找不到原紀錄，修改未寫入；請先在試算表確認原紀錄。',
+        INVALID_OBSERVATIONS: '補充資料格式不符，請更新接收程式並重新部署。',
         UNAUTHORIZED: '連線金鑰不正確，請重新設定。',
         NOT_CONFIGURED: '接收程式尚未初始化，請在 Apps Script 執行 setup。',
         SHEET_MISSING: '找不到「飲食紀錄」工作表，請在原試算表重新執行 setup。',
@@ -146,7 +181,7 @@ export function readState(storage = localStorage) {
   const raw = storage.getItem(STORE_KEY);
   if (!raw) return { draft: taipeiDefaults(), pending: [] };
   const state = JSON.parse(raw);
-  if (!state || !state.draft || !Array.isArray(state.pending)) throw new Error('本機紀錄無法讀取；請保留此裝置資料並聯絡維護者。');
+  if (!state || !state.draft || !Array.isArray(state.pending) || (state.history !== undefined && !Array.isArray(state.history)) || (state.templates !== undefined && !Array.isArray(state.templates))) throw new Error('本機紀錄無法讀取；請保留此裝置資料並聯絡維護者。');
   return state;
 }
 

@@ -35,3 +35,11 @@ jobs:
       - name: Mobile, desktop, navigation and offline checks (mock cloud responses)
         working-directory: doctor-tools
         run: node food-log/browser-check.mjs
+
+      - name: Save mobile and desktop screenshots
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: food-log-screenshots
+          path: /tmp/food-log-*.png
+          retention-days: 3

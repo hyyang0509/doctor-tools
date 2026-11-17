@@ -9,3 +9,5 @@
 .date-row button{min-width:44px;padding-inline:10px;white-space:nowrap}
 .date-row button[aria-pressed=true]{background:#d9ebe3;border-color:#52957e;color:#174b3b;font-weight:650}
 #sameDay{width:100%;margin-top:10px}
+
+#overview{margin:12px 0}.water-status{font-size:.84rem;background:#f3f7f2;border-radius:8px;padding:6px 10px}#waterOverview{gap:6px;margin-bottom:12px}#historyList li{display:flex;align-items:flex-start;gap:10px}#historyList li span{flex:1;white-space:pre-line;overflow-wrap:anywhere}#historyList button{flex-shrink:0}#saveTemplate{margin-bottom:10px}#templates{margin-bottom:10px}#manageTemplates{margin-top:10px}#hydrationGroups .tags{margin-bottom:12px}#cancelEdit{width:100%;margin-top:12px}
