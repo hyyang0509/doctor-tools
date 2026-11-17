@@ -17,12 +17,20 @@
 1. 使用同一個 Apps Script 專案，以最新 [Code.gs](Code.gs) 全文取代原始碼並儲存；不要重建試算表或更換金鑰。
 2. 執行 `setup`，完成新增的試算表權限授權。setup 現在會直接檢查網頁端所需的 `openById`。
 3. 如果自己曾在 `appsscript.json` 明確填寫 `oauthScopes`，請確認試算表 scope 包含 `https://www.googleapis.com/auth/spreadsheets`，不能只有 `spreadsheets.currentonly`；未自行設定的人不需修改此檔案。
-4. 執行 `checkConnection`；執行記錄應顯示可開啟試算表且九個欄名正確。它不新增飲食紀錄，也不輸出金鑰。
+4. 執行 `checkConnection`；執行記錄應顯示可開啟試算表且原九個欄名及新增補充資料欄正確。它不新增飲食紀錄，也不輸出金鑰。
 5. 「部署 → 管理部署作業 → 編輯（鉛筆）→ 版本選『新版本』→ 部署」，仍以自己執行、任何人可存取。更新同一部署可沿用 `/exec`。
 6. 無痕視窗開啟 `/exec`，應顯示 `version: 2`；仍是 1 代表新版本尚未部署到目前網址。
 7. 回工具按「重試這筆紀錄」或「全部重試」；確認試算表新增列。更新網站後若仍有錯誤，將新提示回傳給維護者，不用提供金鑰。
 
 依據：Google 官方 [`openById` 授權要求](https://developers.google.com/apps-script/reference/spreadsheet/spreadsheet-app#openById(String))、[授權範圍限制](https://developers.google.com/apps-script/guides/services/authorization#limit_scope_to_the_current_document)。
+
+## 新功能升級（version 3）
+
+1. 在原 Apps Script 專案貼上完整最新版 `Code.gs`，儲存後執行 `setup`，沿用試算表與金鑰。
+2. 執行 `checkConnection`，確認原九欄及第十欄「補充資料（JSON）」正確。
+3. 「部署 → 管理部署作業 → 編輯 → 新版本 → 部署」，沿用原 `/exec` 網址；用無痕視窗開啟後應顯示 `version: 3`。
+4. 新增餐點與喝水仍能寫入 version 2（補充資料留在內容文字），但獨立 JSON 欄及修改已存紀錄需要 version 3。遇到舊版回覆 `INVALID_ACTION`，請先升級再重試，勿新增另一筆代替修改。
+5. 修改用原紀錄編號更新原列，不增加餐數；建立時間保留原值，寫入時間更新。找不到原列時回覆 `NOT_FOUND`，不自動重建。多人／多裝置同時修改同筆資料時，採最後成功寫入內容。
 
 ## 2. 部署接收端
 
@@ -54,8 +62,25 @@
 
 ## 資料欄位
 
-每筆九欄：紀錄編號、日期、餐別、飲食內容、飲食標籤、工作內容、備註、建立時間（台灣）、寫入時間（台灣）。日期採可排序的 `YYYY-MM-DD` 文字，標籤獨立儲存、以「、」分隔。可從標籤統計頻率；未記錄份量的餐點不宜當作精確熱量或營養素資料。
+原九欄維持：紀錄編號、日期、餐別、飲食內容、飲食標籤、工作內容、備註、建立時間（台灣）、寫入時間（台灣）。Version 3 在第十欄新增「補充資料（JSON）」，獨立保存喝水時段、營養份量、飲料及快速餐點資料；舊列不回填猜測數據。第十欄已有其他欄名時會停止，請先自行移開該欄，程式不覆寫既有欄位。日期採可排序的 `YYYY-MM-DD` 文字，標籤獨立儲存、以「、」分隔。可從標籤統計頻率；未記錄份量的餐點不宜當作精確熱量或營養素資料。
 
 接收端檢查金鑰、欄位格式與文字長度，以鎖定與紀錄編號避免重複寫入，文字以字面值寫入以防止試算表公式注入。請勿修改第一列欄名或紀錄編號；欄名不符時程式會停止寫入，不會覆蓋既有資料。
 
 Google 官方參考：[Web Apps](https://developers.google.com/apps-script/guides/web)、[Content Service](https://developers.google.com/apps-script/guides/content)。
+
+## Telegram 漏記提醒（選用，需在自己的 Apps Script 啟用）
+
+這個功能由試算表的 Apps Script 每天檢查一次，網頁關閉時也能提醒；單純合併 GitHub 程式不會自動啟用 Telegram。
+
+1. 在原試算表的 Apps Script 編輯器更新完整 `Code.gs`，保留原專案與連線金鑰。若同時更新網頁接收功能，依上文重新部署新版本。
+2. 準備自己的 Telegram bot token 與**私人對話** chat ID，先在 Telegram 對該 bot 按 **Start**。可沿用自己的既有 bot；不要貼到 GitHub、網頁連線設定或分享截圖中。使用既有 bot 時，不要更改它的 webhook 或其他服務設定。
+3. 在 Apps Script 函式下拉選 `setupTelegramReminders` 後執行，依對話框輸入 bot token、私人 chat ID，授權連外及排程權限。輸入錯誤或取消時，原設定保持不變。
+4. 確認 Telegram 收到連線訊息，且 Apps Script 左側「觸發條件」出現 `sendFoodReminder`。設定成功才算提醒已啟用；重複執行設定只保留一個本功能的觸發條件，不影響其他排程。
+5. 想另外測試可執行 `testTelegramReminder`。這會實際傳送測試訊息，不會占用今天的正式提醒。
+6. 關閉時執行 `disableTelegramReminders`，會刪除本功能的觸發條件及此專案保存的 Telegram 憑證。
+
+行為：每天台灣時間**約 20:30**（Google `nearMinute` 排程可能前後約 15 分鐘），依「日期」欄檢查當天早餐／午餐／晚餐；三餐皆有紀錄就不發送，有缺漏時附上補記按鈕，預選當天日期與餐別。點心與以 `【喝水紀錄】` 開頭的喝水專用紀錄不算一餐。沒有吃的餐可在該餐飲食內容註記「未吃」；這也會視為已有紀錄。
+
+每天最多一次成功的正式提醒。發送失敗時不標記完成，可在修正連線後手動執行 `sendFoodReminder` 重試；沒有設定自動連續重試。手機草稿或尚未上傳的待傳資料，試算表端無法看見，因此提醒使用「尚未收到紀錄」的文字。Bot token、chat ID 只存於這個 Apps Script 的指令碼屬性，公開 GET／POST 不提供提醒設定操作或讀取憑證。
+
+官方參考：[Telegram Bot API](https://core.telegram.org/bots/api#sendmessage)、[Google 時間觸發條件](https://developers.google.com/apps-script/reference/script/clock-trigger-builder#nearMinute(Integer))。

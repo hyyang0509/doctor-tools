@@ -8,8 +8,8 @@ function receiver(options={}) {
   const rows=[headers.slice()]; let flushes=0, locked=false;
   const sheet={getLastRow:()=>rows.length,getRange:(row,col,count,width)=>({
     getDisplayValues:()=>[rows[row-1].slice(col-1,col-1+width)],
-    setNumberFormat(){return this;},setValues(values){rows[row-1]=Array.from(values[0]);return this;},
-    createTextFinder(id){return {matchEntireCell(){return this;},useRegularExpression(){return this;},findNext(){return rows.slice(1).some(r=>r[0]===id);}};}
+    setNumberFormat(){return this;},setValues(values){rows[row-1] ||= []; for(let i=0;i<values[0].length;i++) rows[row-1][col-1+i]=values[0][i];return this;},
+    createTextFinder(id){return {matchEntireCell(){return this;},useRegularExpression(){return this;},findNext(){const index=rows.findIndex((r,i)=>i>0 && r[0]===id);return index<0?null:{getRow:()=>index+1};}};}
   })};
   const context=vm.createContext({
     PropertiesService:{getScriptProperties:()=>({getProperty:k=>k==='FOOD_ACCESS_KEY'?'secret':options.missingId?null:'sheet-id'})},
@@ -24,9 +24,9 @@ function receiver(options={}) {
 }
 const record=()=>({id:'12345678-1234-4123-8123-123456789abc',date:'2026-10-20',meal:'早餐',content:'',tags:['水煮蛋','拿鐵'],work:'門診',notes:'',createdAt:'2026-10-19T23:00:00Z'});
 const body=r=>({action:'append',key:'secret',record:r||record()});
-test('receiver appends nine columns, flushes before ack, and deduplicates retries',()=>{
+test('receiver migrates nine columns and appends ten columns, flushes before ack, and deduplicates retries',()=>{
   const server=receiver();const r=record();
-  assert.equal(server.post(body()).ok,true);assert.equal(server.rows.length,2);assert.equal(server.rows[1].length,9);
+  assert.equal(server.post(body()).ok,true);assert.equal(server.rows.length,2);assert.equal(server.rows[1].length,10);
   assert.equal(server.rows[1][4],'水煮蛋、拿鐵');assert.equal(server.flushes,1);assert.equal(server.locked,false);
   const duplicate=server.post(body());assert.equal(duplicate.duplicate,true);assert.equal(duplicate.id,r.id);assert.equal(server.rows.length,2);
   r.id='22345678-1234-4123-8123-123456789abc';assert.equal(server.post(body(r)).ok,true);assert.equal(server.rows.length,3);
@@ -61,13 +61,13 @@ test('formula-like free text is literal; public GET never returns records',()=>{
   assert.equal(server.context.doGet().service,'hy-food-log'); assert.equal(server.context.doGet().record,undefined);
 });
 
-test('new observations reach the unchanged nine-column receiver; retries remain idempotent', async()=>{
+test('new observations reach the compatible receiver; retries remain idempotent', async()=>{
   const {upload,recordContent}=await import('./model.mjs');
   const server=receiver();const r={...record(),tags:[],drinks:[{type:'拿鐵',sugar:'有加糖'}],nutrition:{vegetables:'沒有',protein:'約 1 掌',fruit:'約 1 拳',dairy:['無糖優格']}};
   const settings={endpoint:'https://script.google.com/macros/s/test/exec',key:'secret'};
   const send=async(url,options)=>({ok:true,json:async()=>server.post(JSON.parse(options.body))});
   await upload(r,settings,send);await upload(r,settings,send);
-  assert.equal(server.rows.length,2);assert.equal(server.rows[1].length,9);
+  assert.equal(server.rows.length,2);assert.equal(server.rows[1].length,10);
   assert.equal(server.rows[1][3],recordContent(r));assert.equal(server.rows[1][4],'');
   assert.equal((server.rows[1][3].match(/【補充紀錄】/g)||[]).length,1);
 });
@@ -88,4 +88,51 @@ test('new food shortcuts alone upload to the unchanged receiver; legacy choices 
   await upload({...record(),id:'92345678-1234-4123-8123-123456789abc',tags:['一般便當','炸雞腿便當'],drinks:[{type:'白開水',sugar:''}]},settings,send);
   assert.equal(server.rows.at(-1)[4],'一般便當、炸雞腿便當');
   assert.match(server.rows.at(-1)[3],/飲料：白開水/);
+});
+
+
+test('structured observations stay separate and malformed values cannot write', () => {
+  const server=receiver();
+  const observations={hydration:{上午:'達標',下午:'未達'},nutrition:{starch:'半碗',vegetables:'約 1 拳',dairy:['鮮奶']},drinks:[{type:'茶',sugar:''}],quickFoods:['三明治']};
+  assert.equal(server.post(body({...record(),observations})).ok,true);
+  assert.equal(server.rows[0][9],'補充資料（JSON）');
+  assert.deepEqual(JSON.parse(server.rows[1][9]),observations);
+  for (const observations of [null, [], {unknown:1}, {hydration:{上午:true}}, {hydration:{半夜:'達標'}}, {nutrition:{dairy:['沒有','鮮奶']}}, {drinks:[{type:'假飲料',sugar:''}]}, {quickFoods:['未知']}]) {
+    assert.equal(server.post(body({...record(),observations})).error,'INVALID_OBSERVATIONS');
+  }
+  assert.equal(server.rows.length,2);
+});
+
+test('header migration preserves existing rows and refuses occupied extra columns', () => {
+  const server=receiver();
+  const oldRow=[record().id,'2026-10-20','早餐','舊內容','','','','old-time','old-write'];
+  server.rows.push(oldRow.slice());
+  const next={...record(),id:'22345678-1234-4123-8123-123456789abc'};
+  assert.equal(server.post(body(next)).ok,true);
+  assert.deepEqual(server.rows[1],oldRow);
+  assert.deepEqual(server.rows[0].slice(0,9),headers);
+  const conflict=receiver();conflict.rows[0][9]='其他資料';
+  assert.equal(conflict.post(body()).error,'HEADER_MISMATCH');
+  assert.equal(conflict.rows[0][9],'其他資料');
+  assert.equal(conflict.rows.length,1);
+});
+
+test('updates replace only the existing ID, retry safely, and never create missing rows', () => {
+  const server=receiver();
+  assert.equal(server.post(body()).ok,true);
+  const originalCreated=server.rows[1][7];
+  const updated={...record(),createdAt:'2026-10-21T00:00:00Z',content:'飯半碗',observations:{hydration:{上午:'達標'}}};
+  for(let i=0;i<2;i++) {
+    const result=server.post({...body(updated),action:'update'});
+    assert.equal(result.ok,true);assert.equal(result.updated,true);assert.equal(result.id,record().id);
+    assert.equal(server.rows.length,2);assert.equal(server.rows[1][3],'飯半碗');
+    assert.deepEqual(JSON.parse(server.rows[1][9]),updated.observations);
+    assert.equal(server.rows[1][7],originalCreated);
+  }
+  const missing={...updated,id:'22345678-1234-4123-8123-123456789abc'};
+  assert.equal(server.post({...body(missing),action:'update'}).error,'NOT_FOUND');
+  assert.equal(server.rows.length,2);assert.equal(server.locked,false);
+  // An old append retry cannot replace the edited record.
+  assert.equal(server.post(body()).duplicate,true);assert.equal(server.rows[1][3],'飯半碗');
+  assert.equal(server.context.doGet().version,3);
 });

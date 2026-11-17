@@ -103,3 +103,51 @@ test('observations-only records work; invalid, conflicting or oversized observat
     {nutrition:{unknown:'沒有'}}, {content:'a'.repeat(990),nutrition:{vegetables:'約 1 拳'}}
   ]) assert.throws(()=>validateRecord({...record(),...patch}));
 });
+
+test('water states distinguish missing/below/achieved, dedupe periods, and never invent meals or volume', async () => {
+  const {daySummary,recordContent,hasFood}=await import('./model.mjs');
+  const water={...record(),tags:[],hydration:{上午:'未達'}};
+  assert.equal(hasFood(water),false);
+  assert.match(recordContent(water),/^【喝水紀錄】/);
+  assert.doesNotThrow(()=>validateRecord(water));
+  const second={...water,createdAt:'2026-10-20T03:00:00Z',hydration:{上午:'達標'}};
+  const summary=daySummary([second,water],water.date);
+  assert.equal(summary.hydration.上午,'達標'); assert.equal(summary.hydration.下午,undefined);
+  assert.equal(summary.meals.早餐,false);
+  assert.equal(daySummary([water,record()],water.date).meals.早餐,true);
+  for(const hydration of [null,[],{中午:'達標'},{上午:true},{上午:'500'}]) assert.throws(()=>validateRecord({...water,hydration}));
+});
+test('meal templates retain explicit food portions without copying water/date/work, and deep links validate', async () => {
+  const {templateFromRecord,reminderDraft}=await import('./model.mjs');
+  const r={...record(),nutrition:{starch:'半碗'},hydration:{上午:'達標'},work:'門診'};
+  const template=templateFromRecord(r);template.tags.push('牛肉麵');
+  assert.deepEqual(r.tags,['水煮蛋']);
+  assert.equal(template.hydration,undefined);assert.equal(template.work,undefined);assert.equal(template.date,undefined);
+  assert.equal(template.nutrition.starch,'半碗');
+  assert.deepEqual(reminderDraft('?date=2026-11-18&meal=%E6%99%9A%E9%A4%90'),{date:'2026-11-18',meal:'晚餐'});
+  assert.equal(reminderDraft('?date=2026-02-30&meal=午餐'),null);
+  assert.equal(reminderDraft('?date=2026-11-18&meal=未知'),null);
+});
+test('edits require update acknowledgement and upload keeps structured observations separate', async () => {
+  const r={...record(),action:'update',hydration:{下午:'未達'},nutrition:{starch:'半碗'}};
+  await upload(r,settings,async(url,opts)=>{
+    const body=JSON.parse(opts.body);assert.equal(body.action,'update');
+    assert.deepEqual(body.record.observations.hydration,{下午:'未達'});
+    assert.equal(body.record.observations.nutrition.starch,'半碗');
+    return {ok:true,json:async()=>({ok:true,id:r.id,updated:true})};
+  });
+  await assert.rejects(upload(r,settings,async()=>({ok:true,json:async()=>({ok:true,id:r.id})})));
+});
+
+test('editing sends structured observations, retains ID and requires explicit update acknowledgement', async () => {
+  const r={...record(),action:'update',hydration:{下午:'達標'},nutrition:{starch:'半碗'}};
+  await upload(r,settings,async(url,options)=>{
+    const body=JSON.parse(options.body);
+    assert.equal(body.action,'update');assert.equal(body.record.id,r.id);
+    assert.equal(body.record.observations.hydration.下午,'達標');
+    assert.equal(body.record.observations.nutrition.starch,'半碗');
+    return {ok:true,json:async()=>({ok:true,id:r.id,updated:true})};
+  });
+  await assert.rejects(upload(r,settings,async()=>({ok:true,json:async()=>({ok:true,id:r.id})})));
+  await assert.rejects(upload(r,settings,async()=>({ok:true,json:async()=>({ok:false,error:'NOT_FOUND'})})),/找不到原紀錄/);
+});
