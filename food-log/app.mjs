@@ -259,7 +259,7 @@ $('saveConnection').addEventListener('click', () => {
 async function sendRecords(records) {
   if (busy || blocked) return;
   lastSavedDate = '';
-  busy = true; render();
+  busy = true; message('正在確認寫入 Google 試算表…'); render();
   let count = 0;
   try {
     for (const record of records) {
