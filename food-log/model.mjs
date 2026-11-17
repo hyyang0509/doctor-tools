@@ -33,6 +33,7 @@ export function recordContent(r) {
     const value = r.nutrition?.[group.key];
     if (group.multiple ? value?.length : value) details.push(`${group.label.split(' ').slice(1).join(' ')}：${Array.isArray(value) ? value.join('、') : value}`);
   }
+  if (r.nutritionOrigin && Object.keys(r.nutrition || {}).length) details.push(`份量來源：${r.nutritionOrigin === 'preset' ? '快速點選預設' : '手動調整'}`);
   const food = hasFood(r);
   for (const period of WATER_PERIODS) {
     const value = r.hydration?.[period];
@@ -55,9 +56,24 @@ export function daySummary(records, date) {
   }
   return { meals, hydration };
 }
-export function templateFromRecord(r) {
-  if (!hasFood(r)) throw new Error('先選餐點或填寫飲食內容，再存成常吃餐。');
-  return structuredClone({ tags: r.tags, drinks: r.drinks || [], nutrition: r.nutrition || {}, content: r.content });
+// Rough meal defaults, not measured portions. Duplicate tags cannot multiply a meal.
+export const QUICK_NUTRITION = {
+  '水煮蛋': [0, 0, 0.25], '醫院便當': [1, 1, 1],
+  '小火鍋': [0.5, 2, 1], '八方雲集': [1, 0, 1],
+  '乾麵': [1, 0.25, 0.25], '牛肉麵': [1, 0.25, 1],
+  '外食便當': [1, 1, 1], '三明治': [0.5, 0.25, 0.25],
+  '壽司': [1, 0, 0.25], '漢堡': [0.5, 0.25, 1]
+};
+export function quickNutrition(tags) {
+  const presets = [...new Set(tags)].map(tag => QUICK_NUTRITION[tag]).filter(Boolean);
+  if (!presets.length) return {};
+  const [starch, vegetables, protein] = presets.reduce((sum, meal) => sum.map((n,i) => n + meal[i]), [0,0,0]);
+  return {
+    starch: starch === 0 ? '沒有' : starch < 1 ? '半碗' : starch < 2 ? '1 碗' : '2 碗以上',
+    vegetables: vegetables === 0 ? '沒有' : vegetables < 1 ? '少量' : vegetables < 2 ? '約 1 拳' : '2 拳以上',
+    protein: protein === 0 ? '沒有' : protein < 1 ? '少量' : protein < 2 ? '約 1 掌' : '2 掌以上',
+    fruit: '沒有', dairy: ['沒有']
+  };
 }
 export function reminderDraft(search) {
   const params = new URLSearchParams(search);

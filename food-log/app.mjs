@@ -1,9 +1,10 @@
-import { WATER_PERIODS, hasFood, daySummary, templateFromRecord, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
+import { WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
 let state, settings = {}, busy = false, blocked = false;
 let lastSavedDate = '';
+let hydration = {}, nutritionOrigin = '';
 function message(text, tone = '') { $('status').textContent = text; $('status').dataset.tone = tone; }
 try {
   state = readState();
@@ -38,7 +39,12 @@ function toggleButton(text, data, click) {
   return button;
 }
 function tagButton(emoji, label) {
-  return toggleButton(`${emoji} ${label}`, { tag: label });
+  return toggleButton(`${emoji} ${label}`, { tag: label }, () => {
+    if (!QUICK_TAGS.some(([,value]) => value === label)) return;
+    const tags = [...document.querySelectorAll('[data-tag][aria-pressed=true]')].map(b => b.dataset.tag);
+    setNutrition(quickNutrition(tags));
+    nutritionOrigin = tags.some(tag => QUICK_TAGS.some(([,value]) => value === tag)) ? 'preset' : '';
+  });
 }
 for (const [emoji, label] of QUICK_TAGS) $('tags').append(tagButton(emoji, label));
 for (const [emoji, type] of DRINK_TYPES) {
@@ -62,22 +68,25 @@ for (const group of NUTRITION_GROUPS) {
   const hint = document.createElement('p'); hint.className = 'field-hint'; hint.textContent = group.hint;
   const options = document.createElement('div'); options.className = 'tags';
   for (const value of group.options) options.append(toggleButton(value, { nutritionValue: value }, (button, selected) => {
+    nutritionOrigin = 'manual';
     options.querySelectorAll('button').forEach(other => {
       if (other !== button && (!group.multiple || (selected && (value === '沒有' || other.dataset.nutritionValue === '沒有')))) other.setAttribute('aria-pressed', 'false');
     });
   }));
   fieldset.append(legend, hint, options); $('nutritionGroups').append(fieldset);
 }
-for (const period of WATER_PERIODS) {
-  const group = document.createElement('fieldset'); group.dataset.waterPeriod = period;
-  const legend = document.createElement('legend'); legend.textContent = period;
-  const options = document.createElement('div'); options.className = 'tags';
-  for (const [value, label] of [['達標','有，已達 500 mL'],['未達','未達 500 mL']]) {
-    options.append(toggleButton(label, { water: value }, button => {
-      options.querySelectorAll('button').forEach(other => { if (other !== button) other.setAttribute('aria-pressed','false'); });
-    }));
+function setNutrition(nutrition) {
+  for (const group of NUTRITION_GROUPS) {
+    const value = nutrition[group.key];
+    document.querySelectorAll(`[data-nutrition="${group.key}"] button`).forEach(b => {
+      b.setAttribute('aria-pressed', String(group.multiple ? (value || []).includes(b.dataset.nutritionValue) : value === b.dataset.nutritionValue));
+    });
   }
-  group.append(legend, options); $('hydrationGroups').append(group);
+}
+for (const period of WATER_PERIODS) {
+  $('hydrationGroups').append(toggleButton(period, {water:period}, (_, selected) => {
+    if (selected) hydration[period] = '達標'; else delete hydration[period];
+  }));
 }
 function formValue() {
   const nutrition = {};
@@ -89,15 +98,12 @@ function formValue() {
     sugar: document.querySelector(`[data-drink-sugar="${b.dataset.drink}"] [aria-pressed=true]`)?.dataset.sugar || '' }));
   return { ...Object.fromEntries(fields.map(key => [key, $(key).value])),
     meal: document.querySelector('[name=meal]:checked')?.value || '',
-    hydration: Object.fromEntries(WATER_PERIODS.flatMap(period => {
-      const value = document.querySelector(`[data-water-period="${period}"] [aria-pressed=true]`)?.dataset.water;
-      return value ? [[period, value]] : [];
-    })),
+    hydration: {...hydration}, nutritionOrigin,
     tags: [...document.querySelectorAll('[data-tag][aria-pressed=true]')].map(b => b.dataset.tag), drinks, nutrition };
 }
 function nutritionSummary() {
   const count = Object.keys(formValue().nutrition).length;
-  $('nutritionLabel').textContent = count ? `已補充 ${count} 項` : '選填';
+  $('nutritionLabel').textContent = count ? nutritionOrigin === 'preset' ? '預設份量，可調整' : `已補充 ${count} 項` : '選填';
 }
 function persist(next) {
   try { writeState(next); state = next; return true; }
@@ -144,13 +150,10 @@ function render() {
     const group = document.querySelector(`[data-drink-sugar="${type}"]`); group.hidden = !drink;
     group.querySelectorAll('[data-sugar]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sugar === drink?.sugar)));
   }
-  for (const group of NUTRITION_GROUPS) {
-    const value = draft.nutrition?.[group.key];
-    document.querySelectorAll(`[data-nutrition="${group.key}"] button`).forEach(b => {
-      b.setAttribute('aria-pressed', String(group.multiple ? (value || []).includes(b.dataset.nutritionValue) : value === b.dataset.nutritionValue));
-    });
-  }
-  for (const period of WATER_PERIODS) document.querySelectorAll(`[data-water-period="${period}"] button`).forEach(b => b.setAttribute('aria-pressed', String(draft.hydration?.[period] === b.dataset.water)));
+  setNutrition(draft.nutrition || {});
+  nutritionOrigin = draft.nutritionOrigin || '';
+  hydration = {...(draft.hydration || {})};
+  document.querySelectorAll('#hydrationGroups [data-water]').forEach(b => b.setAttribute('aria-pressed', String(hydration[b.dataset.water] === '達標')));
   nutritionSummary();
   if (!Object.keys(draft.nutrition || {}).length) $('nutrition').open = false;
   $('optional').open = Boolean(draft.work || draft.notes);
@@ -199,30 +202,7 @@ function renderHabits() {
     b.addEventListener('click',()=>beginDraft({...r,id:undefined,editId:r.id,originalCreatedAt:r.createdAt})); li.append(text,b); $('historyList').append(li);
   }
   if (!(state.history || []).length) { const li=document.createElement('li'); li.textContent='開始使用新版後，已確認上傳的紀錄會顯示在這裡。'; $('historyList').append(li); }
-  $('templates').replaceChildren(); $('manageTemplates').replaceChildren();
-  for (const template of state.templates || []) {
-    const b=document.createElement('button'); b.type='button'; b.textContent=template.name; b.disabled=busy || blocked || Boolean(state.draft.id);
-    b.addEventListener('click',()=>{
-      if (!refreshState()) return;
-      if (hasFood(formValue()) && !confirm('要用這份常吃餐取代目前的餐點內容嗎？')) return;
-      const draft={...state.draft,...formValue(),...structuredClone(template.food)};
-      if(persist({...state,draft})) {render(); message('已套用常吃餐，請確認今天的份量後儲存。');}
-    }); $('templates').append(b);
-    const remove=document.createElement('button'); remove.type='button'; remove.textContent=`刪除 ${template.name}`; remove.disabled=busy || blocked;
-    remove.addEventListener('click',()=>{if (confirm(`刪除常吃餐「${template.name}」？`) && refreshState() && persist({...state,templates:state.templates.filter(t=>t.id!==template.id)})) render();}); $('manageTemplates').append(remove);
-  }
-  if (!(state.templates || []).length) $('templates').textContent='先填一次常吃的餐點，再按下方按鈕存起來。';
 }
-$('saveTemplate').addEventListener('click',()=>{
-  try {
-    const food=templateFromRecord(formValue());
-    const name=prompt('這份常吃餐的名稱（例如：平日早餐）'); if (!name?.trim()) return;
-    if (name.trim().length>40) {message('名稱最多 40 字。','error');return;}
-    if (!refreshState()) return;
-    if ((state.templates || []).length>=20) {message('最多保留 20 份常吃餐，請先刪除不常用的。','error');return;}
-    if(persist({...state,templates:[...(state.templates || []),{id:crypto.randomUUID(),name:name.trim(),food}]})) {renderHabits(); message('常吃餐已儲存在此瀏覽器。');}
-  } catch(error) {message(error.message,'error');}
-});
 $('cancelEdit').addEventListener('click',()=>{if(refreshState() && persist({...state,draft:taipeiDefaults()})) {render();message('已取消修改，原紀錄未變更。');}});
 
 $('foodForm').addEventListener('input', saveDraft);

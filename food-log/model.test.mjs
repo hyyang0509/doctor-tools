@@ -117,13 +117,23 @@ test('water states distinguish missing/below/achieved, dedupe periods, and never
   assert.equal(daySummary([water,record()],water.date).meals.早餐,true);
   for(const hydration of [null,[],{中午:'達標'},{上午:true},{上午:'500'}]) assert.throws(()=>validateRecord({...water,hydration}));
 });
-test('meal templates retain explicit food portions without copying water/date/work, and deep links validate', async () => {
-  const {templateFromRecord,reminderDraft}=await import('./model.mjs');
-  const r={...record(),nutrition:{starch:'半碗'},hydration:{上午:'達標'},work:'門診'};
-  const template=templateFromRecord(r);template.tags.push('牛肉麵');
-  assert.deepEqual(r.tags,['水煮蛋']);
-  assert.equal(template.hydration,undefined);assert.equal(template.work,undefined);assert.equal(template.date,undefined);
-  assert.equal(template.nutrition.starch,'半碗');
+test('quick-food presets cover all visible tags with valid, deduplicated editable portions', async () => {
+  const {quickNutrition,QUICK_TAGS,recordContent}=await import('./model.mjs');
+  assert.deepEqual(quickNutrition(['醫院便當']),{starch:'1 碗',vegetables:'約 1 拳',protein:'約 1 掌',fruit:'沒有',dairy:['沒有']});
+  assert.deepEqual(quickNutrition([]),{});
+  assert.deepEqual(quickNutrition(['unknown']),{});
+  assert.deepEqual(quickNutrition(['醫院便當','醫院便當']),quickNutrition(['醫院便當']));
+  assert.deepEqual(quickNutrition(['水煮蛋','醫院便當']),quickNutrition(['醫院便當','水煮蛋']));
+  for (const [,tag] of QUICK_TAGS) {
+    const nutrition=quickNutrition([tag]);
+    assert.equal(Object.keys(nutrition).length,5,tag);
+    assert.doesNotThrow(()=>validateRecord({...record(),tags:[tag],nutrition,nutritionOrigin:'preset'}));
+  }
+  const r={...record(),nutrition:quickNutrition(['醫院便當']),nutritionOrigin:'preset'};
+  assert.match(recordContent(r),/預設/);
+});
+test('reminder deep links validate real dates and known meals', async () => {
+  const {reminderDraft}=await import('./model.mjs');
   assert.deepEqual(reminderDraft('?date=2026-11-18&meal=%E6%99%9A%E9%A4%90'),{date:'2026-11-18',meal:'晚餐'});
   assert.equal(reminderDraft('?date=2026-02-30&meal=午餐'),null);
   assert.equal(reminderDraft('?date=2026-11-18&meal=未知'),null);

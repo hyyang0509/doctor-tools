@@ -84,7 +84,8 @@ await page.click('#submit');await page.waitForSelector('#sameDay:not([hidden])')
 assert.equal(requests.at(-1).record.date,'2026-11-06');
 assert.equal(requests.at(-1).record.meal,'早餐');
 assert.match(requests.at(-1).record.content,/餐點：三明治/);
-// Supplement controls are optional, exclusive where appropriate, cancelable, and persist.
+// Supplement controls override the quick-food defaults and persist.
+await page.locator('[data-tag="水煮蛋"]').click();
 await page.locator('#nutrition summary').click();
 await page.locator('[data-nutrition="vegetables"] [data-nutrition-value="少量"]').click();
 await page.locator('[data-nutrition="vegetables"] [data-nutrition-value="約 1 拳"]').click();
@@ -102,9 +103,9 @@ await page.locator('[data-drink-sugar="美式"] [data-sugar="有加糖"]').click
 await page.locator('[data-drink="茶"]').click();
 await page.reload();await page.waitForSelector('[data-drink="茶"][aria-pressed=true]');
 assert.equal(await page.locator('#nutrition').getAttribute('open'),null);
-assert.match(await page.locator('#nutritionLabel').innerText(),/3/);
+assert.match(await page.locator('#nutritionLabel').innerText(),/4|已調整/);
 // Failed response retains fields and ID, survives reload, then retries the same ID.
-mode='network';await page.locator('[data-tag="水煮蛋"]').click();await page.fill('#content','飯半碗');
+mode='network';await page.fill('#content','飯半碗');
 await page.click('#submit');await page.waitForSelector('#next:not([hidden])');
 assert.equal(await page.inputValue('#content'),'飯半碗');const failedId=requests.at(-1).record.id;
 assert.equal(await page.locator('#pendingList li').count(),1);
@@ -142,38 +143,61 @@ await page.waitForSelector('#next:not([hidden])');assert.equal(await page.locato
 await page.click('#next');
 await page.locator('#nutrition summary').click();
 await page.locator('[data-drink="拿鐵"]').click();
-// Habits: templates copy food only; confirmed history edits use update and stable ID.
+// Compact quick presets, editable nutrition and three multi-select water buttons.
 mode='success';
-await page.evaluate(async()=>{const m=await import('./model.mjs');localStorage.setItem(m.STORE_KEY,JSON.stringify({draft:m.taipeiDefaults(),pending:[],history:[]}));});
+await page.evaluate(async()=>{const m=await import('./model.mjs');localStorage.setItem(m.STORE_KEY,JSON.stringify({draft:m.taipeiDefaults(),pending:[],history:[],templates:[{id:'old',name:'舊常吃餐'}]}));});
 await page.reload(); await page.waitForSelector('#tags button');
+assert.equal(await page.locator('#templates, #saveTemplate, #manageTemplates').count(),0);
+assert.equal(await page.locator('#hydrationGroups button').count(),3);
+assert.deepEqual(await page.locator('#hydrationGroups button').allTextContents(),['上午','下午','晚上']);
 await page.locator('#meals label').filter({hasText:'早餐'}).click();
 await page.locator('[data-tag="醫院便當"]').click();
+for (const [group,value] of [['starch','1 碗'],['vegetables','約 1 拳'],['protein','約 1 掌'],['fruit','沒有'],['dairy','沒有']]) {
+  assert.equal(await page.locator(`[data-nutrition="${group}"] [data-nutrition-value="${value}"]`).getAttribute('aria-pressed'),'true');
+}
+assert.equal(await page.locator('#nutrition').getAttribute('open'),null);
+await page.locator('[data-tag="醫院便當"]').click();
+assert.equal(await page.locator('[data-nutrition] [aria-pressed=true]').count(),0);
+await page.locator('[data-tag="醫院便當"]').click();
+await page.locator('[data-tag="水煮蛋"]').click();
+assert.equal(await page.locator('#tags [aria-pressed=true]').count(),2);
 await page.locator('#nutrition summary').click();
 await page.locator('[data-nutrition="starch"] [data-nutrition-value="半碗"]').click();
-await page.locator('[data-water-period="上午"] [data-water="達標"]').click();
-page.once('dialog',d=>d.accept('平日便當'));
-await page.click('#saveTemplate');
-assert.match(await page.locator('#templates').innerText(),/平日便當/);
+await page.locator('#hydrationGroups [data-water="上午"]').click();
+await page.locator('#hydrationGroups [data-water="上午"]').click();
+assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('hy-food-log-v1')).draft.hydration.上午),undefined);
+await page.locator('#hydrationGroups [data-water="上午"]').click();
+await page.locator('#hydrationGroups [data-water="下午"]').click();
+await page.reload();await page.waitForSelector('#tags button');
+assert.equal(await page.locator('[data-nutrition="starch"] [data-nutrition-value="半碗"]').getAttribute('aria-pressed'),'true');
+assert.equal(await page.locator('#hydrationGroups [aria-pressed=true]').count(),2);
 await page.click('#submit');await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('已確認'));
 const originalId=requests.at(-1).record.id;
+assert.equal(requests.at(-1).record.nutrition.starch,'半碗');
+assert.equal(requests.at(-1).record.nutritionOrigin,'manual');
+assert.deepEqual(requests.at(-1).record.hydration,{上午:'達標',下午:'達標'});
 assert.match(await page.locator('#overview').innerText(),/早餐 ✓ 已記/);
 assert.match(await page.locator('#waterOverview').innerText(),/上午：達標/);
-await page.locator('#templates button').click();
-assert.equal(await page.locator('[data-water][aria-pressed=true]').count(),0);
-assert.equal(await page.locator('[data-nutrition="starch"] [data-nutrition-value="半碗"]').getAttribute('aria-pressed'),'true');
-page.once('dialog',d=>d.accept());
+assert.equal(await page.locator('#hydrationGroups [aria-pressed=true]').count(),0);
+// Confirmed history edits preserve manually adjusted portions and stable ID.
 await page.locator('#historyList').evaluate(el=>el.parentElement.open=true);
 await page.locator('#historyList button').first().click();
 await page.fill('#content','今天飯半碗');
 await page.reload(); await page.waitForSelector('#cancelEdit:not([hidden])');
 await page.click('#submit');await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('已確認'));
 assert.equal(requests.at(-1).action,'update');assert.equal(requests.at(-1).record.id,originalId);
+assert.equal(requests.at(-1).record.nutrition.starch,'半碗');
 assert.equal(await page.locator('#historyList li').count(),1);
-// Water-only records don't register a meal and a later below-threshold answer replaces the period.
-await page.locator('[data-water-period="上午"] [data-water="未達"]').click();
+// Legacy below-threshold data remains intact; a new checked period is water-only.
+await page.evaluate(()=>{const key='hy-food-log-v1';const state=JSON.parse(localStorage.getItem(key));state.draft.hydration={上午:'未達'};localStorage.setItem(key,JSON.stringify(state));});
+await page.reload();await page.waitForSelector('#hydrationGroups button');
+assert.equal(await page.locator('#hydrationGroups [aria-pressed=true]').count(),0);
+await page.locator('#hydrationGroups [data-water="晚上"]').click();
 await page.click('#submit');await page.waitForFunction(()=>document.querySelector('#status').textContent.includes('已確認'));
 assert.match(requests.at(-1).record.content,/^【喝水紀錄】/);
+assert.deepEqual(requests.at(-1).record.hydration,{上午:'未達',晚上:'達標'});
 assert.match(await page.locator('#waterOverview').innerText(),/上午：未達/);
+assert.match(await page.locator('#waterOverview').innerText(),/晚上：達標/);
 assert.match(await page.locator('#overview').innerText(),/午餐 待記/);
 await page.goto(url+'?date=2026-11-06&meal='+encodeURIComponent('晚餐'));
 await page.waitForSelector('#tags button');
@@ -205,6 +229,8 @@ await swContext.setOffline(true);await swPage.reload();await swPage.waitForSelec
 assert.equal(await swPage.locator('#tags button').count(),10);
 assert.equal(await swPage.locator('[data-drink]:visible').count(),7);
 assert.equal(await swPage.locator('[data-nutrition]').count(),5);
+assert.equal(await swPage.locator('#hydrationGroups button').count(),3);
+assert.equal(await swPage.locator('#templates').count(),0);
 await swContext.close();await browser.close();
 if(server) server.close();
 console.log('PASS: optional nutrition, per-drink sugar, legacy drafts, serialization, drafts, tags-only submit, required inputs, connection validation, acknowledgement, stable retry IDs, retry-all, literal text, 320–1280px, navigation, JS console, SW/offline. Cloud responses mocked; Google deployment must still be tested live.');
