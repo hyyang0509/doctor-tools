@@ -15,7 +15,7 @@ try {
 }
 
 const linkedDraft = reminderDraft(location.search);
-if (linkedDraft && !state.draft.id && !state.draft.editId && !hasFood(state.draft) && !Object.keys(state.draft.hydration || {}).length) {
+if (linkedDraft && !state.draft.id && !state.draft.editId && !hasFood(state.draft) && !state.draft.work && !state.draft.notes && !Object.keys(state.draft.hydration || {}).length) {
   state.draft = { ...state.draft, ...linkedDraft };
 }
 
@@ -195,7 +195,7 @@ function renderHabits() {
     const li=document.createElement('li'); const text=document.createElement('span');
     text.textContent=`${r.date}・${hasFood(r) ? r.meal : '喝水'}｜${[...(r.tags || []), recordContent({...r,tags:[]})].filter(Boolean).join('、')}`;
     const b=document.createElement('button'); b.type='button'; b.textContent='修改'; b.className='secondary';
-    b.disabled=busy || blocked || state.pending.some(p=>p.id===r.id);
+    b.disabled=busy || blocked || Boolean(state.draft.id) || state.pending.some(p=>p.id===r.id);
     b.addEventListener('click',()=>beginDraft({...r,id:undefined,editId:r.id,originalCreatedAt:r.createdAt})); li.append(text,b); $('historyList').append(li);
   }
   if (!(state.history || []).length) { const li=document.createElement('li'); li.textContent='開始使用新版後，已確認上傳的紀錄會顯示在這裡。'; $('historyList').append(li); }

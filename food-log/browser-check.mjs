@@ -160,7 +160,7 @@ assert.match(await page.locator('#overview').innerText(),/早餐 ✓ 已記/);
 assert.match(await page.locator('#waterOverview').innerText(),/上午：達標/);
 await page.locator('#templates button').click();
 assert.equal(await page.locator('[data-water][aria-pressed=true]').count(),0);
-assert.equal(await page.locator('[data-nutrition="starch"] [aria-pressed=true]').innerText(),'半碗'); // check label content (CSS tick)
+assert.equal(await page.locator('[data-nutrition="starch"] [data-nutrition-value="半碗"]').getAttribute('aria-pressed'),'true');
 page.once('dialog',d=>d.accept());
 await page.locator('#historyList').evaluate(el=>el.parentElement.open=true);
 await page.locator('#historyList button').first().click();

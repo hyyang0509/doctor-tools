@@ -128,17 +128,6 @@ test('meal templates retain explicit food portions without copying water/date/wo
   assert.equal(reminderDraft('?date=2026-02-30&meal=午餐'),null);
   assert.equal(reminderDraft('?date=2026-11-18&meal=未知'),null);
 });
-test('edits require update acknowledgement and upload keeps structured observations separate', async () => {
-  const r={...record(),action:'update',hydration:{下午:'未達'},nutrition:{starch:'半碗'}};
-  await upload(r,settings,async(url,opts)=>{
-    const body=JSON.parse(opts.body);assert.equal(body.action,'update');
-    assert.deepEqual(body.record.observations.hydration,{下午:'未達'});
-    assert.equal(body.record.observations.nutrition.starch,'半碗');
-    return {ok:true,json:async()=>({ok:true,id:r.id,updated:true})};
-  });
-  await assert.rejects(upload(r,settings,async()=>({ok:true,json:async()=>({ok:true,id:r.id})})));
-});
-
 test('editing sends structured observations, retains ID and requires explicit update acknowledgement', async () => {
   const r={...record(),action:'update',hydration:{下午:'達標'},nutrition:{starch:'半碗'}};
   await upload(r,settings,async(url,options)=>{

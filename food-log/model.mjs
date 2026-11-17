@@ -139,7 +139,6 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
       body: JSON.stringify({ action: record.action === 'update' ? 'update' : 'append', key: settings.key, record: {
         ...record, content: recordContent(record),
         observations: {hydration:record.hydration || {}, nutrition:record.nutrition || {}, drinks:record.drinks || [], quickFoods:record.tags.filter(label => CONTENT_TAGS.some(([,value]) => value === label))},
-        observations: { hydration: record.hydration || {}, nutrition: record.nutrition || {}, drinks: record.drinks || [], quickFoods: record.tags.filter(label => CONTENT_TAGS.some(([,value]) => value === label)) },
         tags: record.tags.filter(label => RECEIVER_TAGS.some(([, value]) => value === label))
       } }), signal: controller.signal
     });
@@ -148,7 +147,6 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
     try { result = await response.json(); } catch { throw new Error('連線回覆格式不正確，請確認使用 /exec 網址與「任何人」存取權限。'); }
     if (result.ok !== true || result.id !== record.id || (record.action === 'update' && result.updated !== true)) {
       const hints = {
-        NOT_FOUND: '原紀錄不存在，無法修改；請確認試算表是否曾刪除這筆紀錄。',
         NOT_FOUND: '找不到原紀錄，修改未寫入；請先在試算表確認原紀錄。',
         INVALID_OBSERVATIONS: '補充資料格式不符，請更新接收程式並重新部署。',
         UNAUTHORIZED: '連線金鑰不正確，請重新設定。',
