@@ -25,6 +25,14 @@ export function resolveAgeInput(input, referenceDate = new Date()) {
       return { method, age: null, errorKey, error: `民國出生年須介於 1–${currentRocYear} 年。` };
     }
     age = currentRocYear - value;
+    // 只知出生年時，實足年齡可能是 age 或 age-1（今年生日未過）。
+    // 若剛好跨在 50 或 65 歲判讀分界，無法確定適用切點，請改輸入實足年齡。
+    if (age === 50 || age === 65) {
+      return {
+        method, age, errorKey,
+        error: `換算約 ${age} 歲，正好在 ${age} 歲判讀分界，可能尚未滿 ${age} 歲；請改用「年齡」輸入實足年齡。`
+      };
+    }
   }
 
   if (age < 50) return { method, age, errorKey, error: '本版 AWGS 2025 自動判讀適用 50 歲以上。' };

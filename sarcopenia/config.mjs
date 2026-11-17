@@ -1,4 +1,4 @@
-export const APP_VERSION = '1.2.0';
+export const APP_VERSION = '1.2.1';
 
 // 正式啟用前，請依 google-apps-script/SETUP.md 部署各場的 Apps Script Web App，
 // 再填入以 /exec 結尾的網址。
