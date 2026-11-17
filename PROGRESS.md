@@ -2,14 +2,12 @@
 
 **Last updated:** 2026-11-18
 
-## Active task — food logging habits
+## Active task — simplify food logging
 
-- PR [#40](https://github.com/hyyang0509/doctor-tools/pull/40), branch `feat/food-log-habits`; not merged. Main remains unchanged.
-- Added device-local confirmed today/recent history (300 saved, latest30 shown) with same-ID editing, user-defined meal templates (max20; food/portions only), starch portions and three-state water observations for morning/afternoon/evening. Only explicit observations are stored; no nutrient estimates are invented. Templates/history do not sync across devices or import old sheet rows.
-- Receiver v3 preserves original nine columns and connection key, adds structured observations in column10, supports safe same-ID updates while retaining original creation time. Old receiver still supports new append records via human-readable content; editing requires v3.
-- Telegram editor-only setup verifies delivery and installs one ~20:30 Asia/Taipei missing-meal trigger. Credentials stay in Script Properties; water-only rows do not count as meals. No live reminder has been enabled.
-- 30 Node tests pass locally. Expanded browser checks cover templates, water-only upload/status, history edit/reload, reminder deep links and draft protection as well as earlier 320–1280px/SW checks. Browser suite runs in PR CI because local Chromium is blocked by socket restrictions; see PR checks for current result. All cloud responses are mocked.
-- Remaining rollout: review/merge PR, update bound Apps Script from Code.gs, run setup/checkConnection, redeploy existing /exec as v3; run setupTelegramReminders with own Bot token/private chat ID and testTelegramReminder. Then verify real sheet write/edit and Telegram delivery on phone. Setup instructions are in food-log/google-apps-script/SETUP.md.
+- PR #40 is merged; follow-up branch `feat/food-log-simple` starts from main 7576bba.
+- Removed meal-template UI and handlers. Quick food tags now apply editable nutrition defaults (hospital bento: rice1 bowl, vegetables1 fist, protein1 palm; other groups none). Multi-select combines rough portions; serialized content labels defaults vs manual edits. Existing drafts are never recalculated merely on load.
+- Hydration now has just morning/afternoon/evening buttons: select achieved500mL, click again to clear to unknown. Existing below-target data, pending queue and cloud compatibility remain intact. SW v29.
+- Validation: Node and browser regression checks are being completed in this PR. Real cloud services are mocked. No Apps Script redeployment is needed for this frontend-only follow-up if v3 already deployed.
 
 ## Previous task — nutrition supplements and drinks
 
