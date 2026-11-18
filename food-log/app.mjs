@@ -1,4 +1,4 @@
-import { WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=31';
+import { DAIRY_AMOUNTS, WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=32';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
@@ -6,6 +6,8 @@ let state, settings = {}, busy = false, blocked = false;
 let lastSavedDate = '';
 let hydration = {}, nutritionOrigin = '';
 let manualPortions = new Set();
+let legacyDairy = [];
+const portionTicks = group => group.key === 'dairy' ? DAIRY_AMOUNTS : group.options;
 const portionNames = {starch: '主食', vegetables: '蔬菜', protein: '豆魚蛋肉', fruit: '水果', dairy: '乳品'};
 function message(text, tone = '') { $('status').textContent = text; $('status').dataset.tone = tone; }
 try {
@@ -41,8 +43,10 @@ function toggleButton(text, data, click) {
   return button;
 }
 function tagButton(emoji, label) {
-  return toggleButton(`${emoji} ${label}`, { tag: label }, () => {
+  return toggleButton(`${emoji} ${label}`, { tag: label }, (button, selected) => {
     if (!QUICK_TAGS.some(([,value]) => value === label)) return;
+    // After clearing portions, tapping an already selected food reapplies its preset.
+    if (!selected && !nutritionOrigin) button.setAttribute('aria-pressed', 'true');
     const tags = [...document.querySelectorAll('[data-tag][aria-pressed=true]')].map(b => b.dataset.tag);
     const preset = quickNutrition(tags);
     const current = formValue().nutrition;
@@ -51,6 +55,7 @@ function tagButton(emoji, label) {
       else preset[key] = current[key];
     }
     setNutrition(preset);
+    if (button.getAttribute('aria-pressed') === 'true') $('nutrition').open = true;
     nutritionOrigin = manualPortions.size ? 'manual' : Object.keys(preset).length ? 'preset' : '';
   });
 }
@@ -71,55 +76,64 @@ for (const [emoji, type] of DRINK_TYPES) {
   }));
 }
 for (const group of NUTRITION_GROUPS) {
-  const fieldset = document.createElement('fieldset'); fieldset.dataset.nutrition = group.key;
-  const legend = document.createElement('legend'); legend.textContent = group.label;
-  const hint = document.createElement('p'); hint.className = 'field-hint'; hint.textContent = group.hint;
-  const options = document.createElement('div'); options.className = 'tags';
-  for (const value of group.options) options.append(toggleButton(value, { nutritionValue: value }, (button, selected) => {
+  const fieldset = document.createElement('fieldset');
+  fieldset.dataset.nutrition = group.key;
+  const legend = document.createElement('legend');
+  legend.textContent = group.label;
+  const slider = document.createElement('input');
+  const ticks = portionTicks(group);
+  slider.type = 'range';
+  slider.min = 0;
+  slider.max = ticks.length - 1;
+  slider.value = 0;
+  slider.setAttribute('aria-label', portionNames[group.key] + '份量');
+  const options = document.createElement('div');
+  options.className = 'tags portion-ticks';
+  const savedDairy = document.createElement('small');
+  savedDairy.className = 'legacy-dairy';
+  function choose(value) {
+    const nutrition = formValue().nutrition;
+    if (value === undefined) delete nutrition[group.key];
+    else nutrition[group.key] = group.multiple ? [value] : value;
     manualPortions.add(group.key);
     nutritionOrigin = 'manual';
-    options.querySelectorAll('button').forEach(other => {
-      if (other !== button && (!group.multiple || (selected && (value === '沒有' || other.dataset.nutritionValue === '沒有')))) other.setAttribute('aria-pressed', 'false');
-    });
-    setNutrition(formValue().nutrition);
-  }));
-  fieldset.append(legend);
-  if (['starch', 'vegetables', 'protein'].includes(group.key)) {
-    const slider = document.createElement('input');
-    slider.type = 'range';
-    slider.min = 0;
-    slider.max = group.options.length;
-    slider.value = 0;
-    slider.setAttribute('aria-label', portionNames[group.key] + '份量');
-    slider.addEventListener('input', () => {
-      const value = group.options[Number(slider.value) - 1];
-      const nutrition = formValue().nutrition;
-      if (value === undefined) delete nutrition[group.key];
-      else nutrition[group.key] = value;
-      manualPortions.add(group.key);
-      nutritionOrigin = 'manual';
-      setNutrition(nutrition);
-    });
-    options.classList.add('portion-ticks');
-    fieldset.append(slider);
-  } else fieldset.append(hint);
-  fieldset.append(options);
+    setNutrition(nutrition);
+  }
+  for (const value of ticks) {
+    options.append(toggleButton(value, {nutritionValue: value}, (_, selected) => {
+      choose(selected ? value : undefined);
+    }));
+  }
+  slider.addEventListener('input', () => choose(ticks[Number(slider.value)]));
+  fieldset.append(legend, slider, options);
+  if (group.key === 'dairy') fieldset.append(savedDairy);
   $('nutritionGroups').append(fieldset);
 }
 function setNutrition(nutrition) {
+  const dairy = nutrition.dairy || [];
+  legacyDairy = dairy.filter(value => !DAIRY_AMOUNTS.includes(value));
+  const legacy = document.querySelector('.legacy-dairy');
+  legacy.hidden = !legacyDairy.length;
+  legacy.textContent = legacyDairy.length ? '舊紀錄：' + legacyDairy.join('、') : '';
   for (const group of NUTRITION_GROUPS) {
-    const value = nutrition[group.key];
+    const value = group.multiple ? nutrition[group.key]?.find(item => DAIRY_AMOUNTS.includes(item)) : nutrition[group.key];
     const fieldset = document.querySelector(`[data-nutrition="${group.key}"]`);
-    const slider = fieldset.querySelector('input[type=range]');
-    if (slider) {
-      slider.value = group.options.indexOf(value) + 1;
-      slider.setAttribute('aria-valuetext', value || '未填');
-    }
-    fieldset.querySelectorAll('button').forEach(b => {
-      b.setAttribute('aria-pressed', String(group.multiple ? (value || []).includes(b.dataset.nutritionValue) : value === b.dataset.nutritionValue));
+    const slider = fieldset.querySelector('input');
+    const tick = Math.max(0, portionTicks(group).indexOf(value));
+    slider.value = tick;
+    slider.style.setProperty('--portion-fill', (100 * tick / Number(slider.max)) + '%');
+    slider.setAttribute('aria-valuetext', value || '未填');
+    fieldset.querySelectorAll('button').forEach(button => {
+      button.setAttribute('aria-pressed', String(value === button.dataset.nutritionValue));
     });
   }
 }
+$('clearPortions').addEventListener('click', () => {
+  manualPortions.clear();
+  nutritionOrigin = '';
+  setNutrition({});
+  saveDraft();
+});
 for (const period of WATER_PERIODS) {
   $('hydrationGroups').append(toggleButton(period, {water:period}, (_, selected) => {
     if (selected) hydration[period] = '達標'; else delete hydration[period];
@@ -131,6 +145,7 @@ function formValue() {
     const values = [...document.querySelectorAll(`[data-nutrition="${group.key}"] [aria-pressed=true]`)].map(b => b.dataset.nutritionValue);
     if (values.length) nutrition[group.key] = group.multiple ? values : values[0];
   }
+  if (!nutrition.dairy && legacyDairy.length) nutrition.dairy = [...legacyDairy];
   const drinks = [...document.querySelectorAll('[data-drink][aria-pressed=true]')].map(b => ({ type: b.dataset.drink,
     sugar: document.querySelector(`[data-drink-sugar="${b.dataset.drink}"] [aria-pressed=true]`)?.dataset.sugar || '' }));
   return { ...Object.fromEntries(fields.map(key => [key, $(key).value])),
@@ -268,7 +283,7 @@ $('sameDay').addEventListener('click', () => {
 });
 $('endpoint').value = settings?.endpoint || '';
 $('accessKey').value = settings?.key || '';
-$('connection').open = !validEndpoint(settings?.endpoint) || !settings?.key;
+
 $('saveConnection').addEventListener('click', () => {
   const next = { endpoint: $('endpoint').value.trim(), key: $('accessKey').value.trim() };
   if (!validEndpoint(next.endpoint) || !next.key) {
@@ -307,7 +322,7 @@ $('foodForm').addEventListener('submit', async event => {
   event.preventDefault();
   if (busy || blocked) return;
   if (!validEndpoint(settings?.endpoint) || !settings?.key) {
-    message('請先展開上方「試算表連線」完成設定；輸入內容仍保留。', 'error'); $('connection').open = true; return;
+    message('請先在頁底完成「試算表連線」設定；輸入內容仍保留。', 'error'); $('connection').open = true; $('connection').scrollIntoView({block:'nearest'}); $('endpoint').focus({preventScroll:true}); return;
   }
   const form = formValue();
   if (!refreshState()) return;

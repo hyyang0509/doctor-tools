@@ -14,12 +14,13 @@ export const DRINK_TYPES = [['☕', '美式'], ['☕', '拿鐵'], ['🫖', '茶'
 export const QUICK_DRINK_TYPES = DRINK_TYPES.filter(([, type]) => type !== '白開水');
 export const SUGAR_OPTIONS = ['無加糖', '有加糖', '不確定'];
 export const WATER_PERIODS = ['上午', '下午', '晚上'];
+export const DAIRY_AMOUNTS = ['沒有', '半杯', '1 杯', '2 杯以上'];
 export const NUTRITION_GROUPS = [
   { key: 'starch', label: '🍚 飯／麵等主食', options: ['沒有', '半碗', '1 碗', '1.5 碗', '2 碗以上'], hint: '記下實際吃的份量，不必換算熱量。' },
   { key: 'vegetables', label: '🥬 蔬菜', options: ['沒有', '少量', '約 1 拳', '2 拳以上'], hint: '粗估吃下的蔬菜量即可，不必秤重。' },
   { key: 'protein', label: '🥚 蛋白質食物', options: ['沒有', '少量', '約 1 掌', '2 掌以上'], hint: '豆、魚、蛋、肉都算；1 顆蛋可選少量，肉魚約掌心大可選約 1 掌。' },
-  { key: 'fruit', label: '🍎 水果', options: ['沒有', '約 1 拳', '2 拳以上'], hint: '記在吃的那一餐或點心即可。' },
-  { key: 'dairy', label: '🥛 乳品', options: ['沒有', '鮮奶', '無糖優格', '無糖優酪乳', '起司', '其他乳品'], multiple: true, hint: '有吃再選，可複選。同一杯鮮奶不用重複選；拿鐵奶量可在飲食內容補充。' }
+  { key: 'fruit', label: '🍎 水果', options: ['沒有', '半拳', '約 1 拳', '2 拳以上'], hint: '記在吃的那一餐或點心即可。' },
+  { key: 'dairy', label: '🥛 乳品', options: [...DAIRY_AMOUNTS, '鮮奶', '無糖優格', '無糖優酪乳', '起司', '其他乳品'], multiple: true, hint: '有吃再選，可複選。同一杯鮮奶不用重複選；拿鐵奶量可在飲食內容補充。' }
 ];
 
 // Store explicit observations in the existing content column, so no receiver upgrade
@@ -169,10 +170,16 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
       try { return await response.json(); } catch { throw new Error('連線回覆格式不正確，請確認使用 /exec 網址與「任何人」存取權限。'); }
     }
     let result = await send(observations.nutrition);
-    // Older receivers reject the new tick before writing. Preserve the exact portion in the text column.
-    if (result.ok === false && result.error === 'INVALID_OBSERVATIONS' && observations.nutrition.starch === '1.5 碗') {
+    // Older receivers can reject new ticks before writing. Exact amounts remain in the text column.
+    const {starch, fruit, dairy} = observations.nutrition;
+    const newerPortions = [
+      ['starch', starch === '1.5 碗'],
+      ['fruit', fruit === '半拳'],
+      ['dairy', dairy?.some(value => value !== '沒有' && DAIRY_AMOUNTS.includes(value))]
+    ].filter(([, isNew]) => isNew);
+    if (result.ok === false && result.error === 'INVALID_OBSERVATIONS' && newerPortions.length) {
       const compatible = {...observations.nutrition};
-      delete compatible.starch;
+      for (const [key] of newerPortions) delete compatible[key];
       result = await send(compatible);
     }
     if (result.ok !== true || result.id !== record.id || (record.action === 'update' && result.updated !== true)) {
