@@ -23,3 +23,13 @@
 #nutritionGroups input[type=range]{display:block;padding:0;margin:0;min-height:32px;accent-color:#22674e;background:transparent;border:0}
 .nutrition .portion-ticks{display:flex;flex-wrap:nowrap;gap:3px}
 .portion-ticks button{flex:1;min-width:0;padding:3px 1px;font-size:.75rem;white-space:normal}
+
+.today-note{margin:3px 0;color:#516b60;font-size:.75rem}
+.portion-actions{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.portion-actions p{margin:0}
+.legacy-dairy:not([hidden]){display:block;margin-bottom:12px}
+#nutritionGroups input[type=range]{appearance:none;-webkit-appearance:none}
+#nutritionGroups input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:6px;background:linear-gradient(to right,#22674e var(--portion-fill,0%),#dae8df var(--portion-fill,0%))}
+#nutritionGroups input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:20px;height:20px;border:2px solid #22674e;background:white;border-radius:50%;margin-top:-7px}
+#nutritionGroups input[type=range]::-moz-range-track{height:6px;border-radius:6px;background:linear-gradient(to right,#22674e var(--portion-fill,0%),#dae8df var(--portion-fill,0%))}
+#nutritionGroups input[type=range]::-moz-range-thumb{width:16px;height:16px;border:2px solid #22674e;background:white;border-radius:50%}

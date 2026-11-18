@@ -7,8 +7,8 @@
   <meta name="robots" content="noindex,nofollow">
   <title>日常飲食紀錄｜HY Tools</title>
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=31">
-  <script type="module" src="app.mjs?v=31"></script>
+  <link rel="stylesheet" href="styles.css?v=32">
+  <script type="module" src="app.mjs?v=32"></script>
 </head>
 <body>
 <main>
@@ -17,17 +17,8 @@
   <section class="today-summary" aria-label="本裝置今日已上傳紀錄">
     <div class="today-row"><strong>今天</strong><div id="overview"></div></div>
     <div class="today-row"><strong>白開水 ≥ 500 mL</strong><div id="waterOverview"></div></div>
+    <p class="today-note">僅顯示此裝置已成功上傳的紀錄</p>
   </section>
-  <details id="connection" class="panel connection">
-    <summary>⚙️ 試算表連線 <span id="connectionLabel">尚未設定</span></summary>
-    <p>首次使用設定一次。連線資料只保存在這個瀏覽器，換裝置需重新設定。</p>
-    <label for="endpoint">Apps Script 網址</label>
-    <input id="endpoint" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
-    <label for="accessKey">連線金鑰</label>
-    <input id="accessKey" type="password" autocomplete="off" placeholder="貼上初始化時產生的金鑰">
-    <button id="saveConnection" type="button" class="secondary">儲存連線設定</button>
-    <p><a href="https://github.com/hyyang0509/doctor-tools/blob/main/food-log/google-apps-script/SETUP.md" target="_blank" rel="noopener">首次連線設定說明 ↗</a></p>
-  </details>
   <form id="foodForm" class="panel">
     <fieldset id="entryFields">
       <label for="date">日期</label>
@@ -41,7 +32,7 @@
       <div id="legacyTags" hidden><p class="field-hint">先前草稿的標籤（可點選取消）</p><div id="legacyTagButtons" class="tags"></div></div>
       <fieldset class="tag-field"><legend>喝了什麼？ <small>選填，可複選</small></legend><div id="drinks" class="tags"></div><div id="drinkSugar"></div></fieldset>
       <details id="nutrition" class="nutrition"><summary>食物份量 <small id="nutritionLabel">選填</small></summary>
-        <p class="field-hint">快速點選會帶入預設份量，可在這裡調整。</p>
+        <div class="portion-actions"><p class="field-hint">可拖拉或點選刻度。</p><button id="clearPortions" type="button" class="secondary" aria-label="清除食物份量">清除</button></div>
         <div id="nutritionGroups"></div>
       </details>
       <fieldset class="tag-field"><legend>💧 這時段白開水累計達 500 mL？ <small>達標再點，可複選</small></legend>
@@ -69,6 +60,16 @@
     <a href="https://docs.google.com/spreadsheets/d/1BLrkJ5DMfEDXFR_72tiPbPmodONE3o6Bh9UuAwiz-4c/edit" target="_blank" rel="noopener noreferrer">📋 查看飲食紀錄 ↗</a>
     <p class="field-hint">開啟 Google 試算表，需登入有權限的帳號。</p>
   </div>
+  <details id="connection" class="panel connection">
+    <summary>⚙️ 試算表連線 <span id="connectionLabel">尚未設定</span></summary>
+    <p>首次使用設定一次。連線資料只保存在這個瀏覽器，換裝置需重新設定。</p>
+    <label for="endpoint">Apps Script 網址</label>
+    <input id="endpoint" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off" spellcheck="false">
+    <label for="accessKey">連線金鑰</label>
+    <input id="accessKey" type="password" autocomplete="off" placeholder="貼上初始化時產生的金鑰">
+    <button id="saveConnection" type="button" class="secondary">儲存連線設定</button>
+    <p><a href="https://github.com/hyyang0509/doctor-tools/blob/main/food-log/google-apps-script/SETUP.md" target="_blank" rel="noopener">首次連線設定說明 ↗</a></p>
+  </details>
   <footer>紀錄傳至你設定的私人試算表。<br>草稿與待傳資料留在此瀏覽器；確認上傳前請勿清除網站資料。</footer>
 </main>
 </body>
