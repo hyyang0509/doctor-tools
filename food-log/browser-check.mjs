@@ -225,6 +225,27 @@ await context.close();
 const swContext=await browser.newContext();const swPage=await swContext.newPage();
 await swPage.goto(url);await swPage.waitForFunction(()=>navigator.serviceWorker.controller);
 await swPage.evaluate(async()=>{await navigator.serviceWorker.ready;});
+// Old workers cache the unversioned modules. A fresh page must bypass those entries.
+await swPage.evaluate(async () => {
+  const old = await caches.open('hy-tools-v29');
+  for (const name of ['app.mjs', 'model.mjs']) {
+    await old.put(new URL(name, location.href), new Response('throw new Error("stale module")', {
+      headers: {'Content-Type': 'text/javascript'}
+    }));
+  }
+  await old.put(new URL('styles.css', location.href), new Response('body{display:none}', {
+    headers: {'Content-Type': 'text/css'}
+  }));
+  localStorage.setItem('hy-food-log-connection-v1', JSON.stringify({
+    endpoint: 'https://script.google.com/macros/s/cache-test/exec', key: 'mock'
+  }));
+  document.querySelector('#content').value = '更新前的草稿';
+  document.querySelector('#content').dispatchEvent(new Event('input', {bubbles: true}));
+});
+await swPage.reload();
+await swPage.waitForSelector('#tags button');
+assert.equal(await swPage.inputValue('#content'), '更新前的草稿');
+assert.equal(await swPage.locator('#connectionLabel').textContent(), '已設定');
 await swContext.setOffline(true);await swPage.reload();await swPage.waitForSelector('#tags button');
 assert.equal(await swPage.locator('#tags button').count(),10);
 assert.equal(await swPage.locator('[data-drink]:visible').count(),7);
