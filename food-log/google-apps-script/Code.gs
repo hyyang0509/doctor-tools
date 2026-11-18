@@ -116,7 +116,7 @@ function validateObservations_(value) {
   if (value.hydration !== undefined && (!object(value.hydration) ||
       Object.entries(value.hydration).some(([k,v]) => !['上午', '下午', '晚上'].includes(k) || !['達標', '未達'].includes(v)))) invalid();
   if (value.nutrition !== undefined) {
-    const choices = {starch: ['沒有', '半碗', '1 碗', '2 碗以上'], vegetables: ['沒有', '少量', '約 1 拳', '2 拳以上'], protein: ['沒有', '少量', '約 1 掌', '2 掌以上'],
+    const choices = {starch: ['沒有', '半碗', '1 碗', '1.5 碗', '2 碗以上'], vegetables: ['沒有', '少量', '約 1 拳', '2 拳以上'], protein: ['沒有', '少量', '約 1 掌', '2 掌以上'],
       fruit: ['沒有', '約 1 拳', '2 拳以上'], dairy: ['沒有', '鮮奶', '無糖優格', '無糖優酪乳', '起司', '其他乳品']};
     if (!object(value.nutrition)) invalid();
     for (const [k, v] of Object.entries(value.nutrition)) {

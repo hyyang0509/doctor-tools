@@ -15,7 +15,7 @@ export const QUICK_DRINK_TYPES = DRINK_TYPES.filter(([, type]) => type !== '白�
 export const SUGAR_OPTIONS = ['無加糖', '有加糖', '不確定'];
 export const WATER_PERIODS = ['上午', '下午', '晚上'];
 export const NUTRITION_GROUPS = [
-  { key: 'starch', label: '🍚 飯／麵等主食', options: ['沒有', '半碗', '1 碗', '2 碗以上'], hint: '記下實際吃的份量，不必換算熱量。' },
+  { key: 'starch', label: '🍚 飯／麵等主食', options: ['沒有', '半碗', '1 碗', '1.5 碗', '2 碗以上'], hint: '記下實際吃的份量，不必換算熱量。' },
   { key: 'vegetables', label: '🥬 蔬菜', options: ['沒有', '少量', '約 1 拳', '2 拳以上'], hint: '粗估吃下的蔬菜量即可，不必秤重。' },
   { key: 'protein', label: '🥚 蛋白質食物', options: ['沒有', '少量', '約 1 掌', '2 掌以上'], hint: '豆、魚、蛋、肉都算；1 顆蛋可選少量，肉魚約掌心大可選約 1 掌。' },
   { key: 'fruit', label: '🍎 水果', options: ['沒有', '約 1 拳', '2 拳以上'], hint: '記在吃的那一餐或點心即可。' },
@@ -33,7 +33,7 @@ export function recordContent(r) {
     const value = r.nutrition?.[group.key];
     if (group.multiple ? value?.length : value) details.push(`${group.label.split(' ').slice(1).join(' ')}：${Array.isArray(value) ? value.join('、') : value}`);
   }
-  if (r.nutritionOrigin && Object.keys(r.nutrition || {}).length) details.push(`份量來源：${r.nutritionOrigin === 'preset' ? '快速點選預設' : '手動調整'}`);
+  if (r.nutritionOrigin && Object.keys(r.nutrition || {}).length) details.push(`份量來源：${r.nutritionOrigin === 'preset' ? '快速點選預設' : r.nutritionOrigin === 'manual' && r.manualPortions?.length ? '含手動調整' : '手動調整'}`);
   const food = hasFood(r);
   for (const period of WATER_PERIODS) {
     const value = r.hydration?.[period];
@@ -69,7 +69,7 @@ export function quickNutrition(tags) {
   if (!presets.length) return {};
   const [starch, vegetables, protein] = presets.reduce((sum, meal) => sum.map((n,i) => n + meal[i]), [0,0,0]);
   return {
-    starch: starch === 0 ? '沒有' : starch < 1 ? '半碗' : starch < 2 ? '1 碗' : '2 碗以上',
+    starch: starch === 0 ? '沒有' : starch < 1 ? '半碗' : starch < 1.5 ? '1 碗' : starch < 2 ? '1.5 碗' : '2 碗以上',
     vegetables: vegetables === 0 ? '沒有' : vegetables < 1 ? '少量' : vegetables < 2 ? '約 1 拳' : '2 拳以上',
     protein: protein === 0 ? '沒有' : protein < 1 ? '少量' : protein < 2 ? '約 1 掌' : '2 掌以上',
     fruit: '沒有', dairy: ['沒有']
@@ -149,18 +149,32 @@ export async function upload(record, settings, fetchImpl = fetch, timeoutMs = 30
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetchImpl(settings.endpoint, {
-      method: 'POST', redirect: 'follow', credentials: 'omit', cache: 'no-store',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action: record.action === 'update' ? 'update' : 'append', key: settings.key, record: {
-        ...record, content: recordContent(record),
-        observations: {hydration:record.hydration || {}, nutrition:record.nutrition || {}, drinks:record.drinks || [], quickFoods:record.tags.filter(label => CONTENT_TAGS.some(([,value]) => value === label))},
-        tags: record.tags.filter(label => RECEIVER_TAGS.some(([, value]) => value === label))
-      } }), signal: controller.signal
-    });
-    if (!response.ok || response.type === 'opaque') throw new Error('未收到試算表確認；請檢查連線及部署權限後重試。');
-    let result;
-    try { result = await response.json(); } catch { throw new Error('連線回覆格式不正確，請確認使用 /exec 網址與「任何人」存取權限。'); }
+    const observations = {
+      hydration: record.hydration || {},
+      nutrition: record.nutrition || {},
+      drinks: record.drinks || [],
+      quickFoods: record.tags.filter(label => CONTENT_TAGS.some(([,value]) => value === label))
+    };
+    async function send(nutrition) {
+      const response = await fetchImpl(settings.endpoint, {
+        method: 'POST', redirect: 'follow', credentials: 'omit', cache: 'no-store',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: record.action === 'update' ? 'update' : 'append', key: settings.key, record: {
+          ...record, content: recordContent(record),
+          observations: {...observations, nutrition},
+          tags: record.tags.filter(label => RECEIVER_TAGS.some(([, value]) => value === label))
+        } }), signal: controller.signal
+      });
+      if (!response.ok || response.type === 'opaque') throw new Error('未收到試算表確認；請檢查連線及部署權限後重試。');
+      try { return await response.json(); } catch { throw new Error('連線回覆格式不正確，請確認使用 /exec 網址與「任何人」存取權限。'); }
+    }
+    let result = await send(observations.nutrition);
+    // Older receivers reject the new tick before writing. Preserve the exact portion in the text column.
+    if (result.ok === false && result.error === 'INVALID_OBSERVATIONS' && observations.nutrition.starch === '1.5 碗') {
+      const compatible = {...observations.nutrition};
+      delete compatible.starch;
+      result = await send(compatible);
+    }
     if (result.ok !== true || result.id !== record.id || (record.action === 'update' && result.updated !== true)) {
       const hints = {
         NOT_FOUND: '找不到原紀錄，修改未寫入；請先在試算表確認原紀錄。',
