@@ -120,6 +120,9 @@ test('water states distinguish missing/below/achieved, dedupe periods, and never
 test('quick-food presets cover all visible tags with valid, deduplicated editable portions', async () => {
   const {quickNutrition,QUICK_TAGS,recordContent}=await import('./model.mjs');
   assert.deepEqual(quickNutrition(['醫院便當']),{starch:'1 碗',vegetables:'約 1 拳',protein:'約 1 掌',fruit:'沒有',dairy:['沒有']});
+  assert.equal(quickNutrition(['小火鍋']).vegetables, '少量');
+  assert.equal(quickNutrition(['八方雲集']).vegetables, '約 1 拳');
+  assert.equal(quickNutrition(['壽司']).protein, '約 1 掌');
   assert.deepEqual(quickNutrition([]),{});
   assert.deepEqual(quickNutrition(['unknown']),{});
   assert.deepEqual(quickNutrition(['醫院便當','醫院便當']),quickNutrition(['醫院便當']));

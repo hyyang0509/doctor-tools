@@ -19,7 +19,6 @@
 #overview,#waterOverview{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));text-align:center}
 #overview button{background:transparent;border:0;padding:0 2px;min-height:44px;font-size:.9rem;font-weight:700;white-space:nowrap}
 #overview button:hover,#overview button:focus-visible{background:#d7eade}
-.water-caption{margin:2px 0 5px;text-align:center;color:#46675c;font-size:.75rem;font-weight:600}
 .water-status{padding:0 2px 3px;white-space:nowrap;color:#46675c;font-size:.8rem}
 .habit-status{margin-inline-start:5px;color:#516b60;font-size:.78rem;font-weight:500}
 .habit-status.complete{color:#1e6c4b;font-weight:800}

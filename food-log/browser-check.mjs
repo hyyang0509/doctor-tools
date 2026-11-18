@@ -159,7 +159,12 @@ assert.equal(await page.locator('#hydrationGroups button').count(),3);
 assert.equal(await page.getByText('僅顯示此裝置已成功上傳的紀錄').count(),0);
 assert.ok(await page.evaluate(()=>document.querySelector('#foodForm').compareDocumentPosition(document.querySelector('#connection')) & Node.DOCUMENT_POSITION_FOLLOWING));
 assert.deepEqual(await page.locator('#hydrationGroups button').allTextContents(),['上午','下午','晚上']);
-await page.locator('#meals label').filter({hasText:'早餐'}).click();
+assert.equal(await page.locator('.today-summary').getByText('白開水 ≥ 500 mL', {exact:true}).count(),0);
+assert.deepEqual(await page.locator('#waterOverview .water-status').allTextContents(),
+  ['💧 上午 未記','💧 下午 未記','💧 晚上 未記']);
+await page.locator('#overview').getByRole('button', {name:'早餐待記，補記'}).click();
+assert.equal(await page.locator('#date').inputValue(), '2026-11-07');
+assert.equal(await page.locator('input[name="meal"]:checked').inputValue(), '早餐');
 await page.locator('[data-tag="醫院便當"]').click();
 for (const [group,value] of [['starch','1 碗'],['vegetables','約 1 拳'],['protein','約 1 掌'],['fruit','沒有'],['dairy','沒有']]) {
   assert.equal(await page.locator(`[data-nutrition="${group}"] [data-nutrition-value="${value}"]`).getAttribute('aria-pressed'),'true');
