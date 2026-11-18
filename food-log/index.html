@@ -7,17 +7,18 @@
   <meta name="robots" content="noindex,nofollow">
   <title>日常飲食紀錄｜HY Tools</title>
   <link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=32">
-  <script type="module" src="app.mjs?v=32"></script>
+  <link rel="stylesheet" href="styles.css?v=33">
+  <script type="module" src="app.mjs?v=33"></script>
 </head>
 <body>
 <main>
   <nav><a href="../">‹ 我的工具箱</a><span>HY Tools</span></nav>
   <header><p class="eyebrow">DAILY FOOD LOG</p><h1>日常飲食紀錄</h1><p>先記下這一餐，慢慢找到適合自己的吃法。</p></header>
-  <section class="today-summary" aria-label="本裝置今日已上傳紀錄">
-    <div class="today-row"><strong>今天</strong><div id="overview"></div></div>
-    <div class="today-row"><strong>白開水 ≥ 500 mL</strong><div id="waterOverview"></div></div>
-    <p class="today-note">僅顯示此裝置已成功上傳的紀錄</p>
+  <section class="today-summary" aria-labelledby="todayTitle">
+    <div class="today-heading"><h2 id="todayTitle">今天的紀錄</h2><button id="newMeal" type="button">＋ 新增一餐</button></div>
+    <div id="overview"></div>
+    <p class="water-caption">白開水 ≥ 500 mL</p>
+    <div id="waterOverview"></div>
   </section>
   <form id="foodForm" class="panel">
     <fieldset id="entryFields">
@@ -46,7 +47,7 @@
       </details>
     </fieldset>
     <button id="cancelEdit" type="button" class="secondary" hidden>取消修改</button>
-    <p id="status" role="status" aria-live="polite">草稿會自動保留在這個裝置。</p>
+    <p id="status" role="status" aria-live="polite">重新整理會清空未送出的表單。</p>
     <button id="submit" class="primary" type="submit">儲存到 Google 試算表</button>
     <button id="sameDay" class="secondary" type="button" hidden>補同一天另一餐</button>
     <button id="next" class="secondary" type="button" hidden>保留待傳資料，記錄下一筆</button>
@@ -70,7 +71,7 @@
     <button id="saveConnection" type="button" class="secondary">儲存連線設定</button>
     <p><a href="https://github.com/hyyang0509/doctor-tools/blob/main/food-log/google-apps-script/SETUP.md" target="_blank" rel="noopener">首次連線設定說明 ↗</a></p>
   </details>
-  <footer>紀錄傳至你設定的私人試算表。<br>草稿與待傳資料留在此瀏覽器；確認上傳前請勿清除網站資料。</footer>
+  <footer>紀錄傳至你設定的私人試算表。<br>待傳資料留在此瀏覽器；確認上傳前請勿清除網站資料。</footer>
 </main>
 </body>
 </html>

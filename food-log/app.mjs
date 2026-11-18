@@ -1,4 +1,4 @@
-import { DAIRY_AMOUNTS, WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=32';
+import { DAIRY_AMOUNTS, WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=33';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
@@ -19,7 +19,8 @@ try {
   message('無法讀取本機資料。請確認瀏覽器允許網站儲存資料；若原有紀錄，請勿清除網站資料。', 'error');
 }
 
-const linkedDraft = reminderDraft(location.search);
+const isReload = performance.getEntriesByType('navigation')[0]?.type === 'reload';
+const linkedDraft = isReload ? null : reminderDraft(location.search);
 if (linkedDraft && !state.draft.id && !state.draft.editId && !hasFood(state.draft) && !state.draft.work && !state.draft.notes && !Object.keys(state.draft.hydration || {}).length) {
   state.draft = { ...state.draft, ...linkedDraft };
 }
@@ -217,6 +218,7 @@ function render() {
   $('optional').open = Boolean(draft.work || draft.notes);
   $('entryFields').disabled = blocked || busy || Boolean(draft.id);
   $('submit').disabled = blocked || busy;
+  $('newMeal').disabled = busy || blocked;
   $('submit').textContent = busy ? '正在確認寫入…' : draft.id ? '重試這筆紀錄' : draft.editId ? '儲存修改到 Google 試算表' : '儲存到 Google 試算表';
   $('next').hidden = !draft.id || busy;
   $('sameDay').hidden = !lastSavedDate || blocked || busy || Boolean(draft.id);
@@ -236,22 +238,51 @@ function render() {
   $('connectionLabel').textContent = configured ? '已設定' : '尚未設定';
 }
 
+function resetMeal() {
+  if (busy || blocked || !refreshState()) return false;
+  if (!persist({...state, draft:{...taipeiDefaults(), meal:'早餐'}})) return false;
+  lastSavedDate = '';
+  $('nutrition').open = false;
+  return true;
+}
+$('newMeal').addEventListener('click', () => {
+  if (!resetMeal()) return;
+  render();
+  message('已開啟新的一餐。');
+  $('foodForm').scrollIntoView({block:'start'});
+});
+
 function beginDraft(patch) {
   if (busy || blocked || state.draft.id || !refreshState()) return;
   if ((hasFood(state.draft) || Object.keys(state.draft.hydration || {}).length || state.draft.editId) && !confirm('目前有草稿，要以選擇的紀錄取代嗎？')) return;
   if (persist({...state, draft:{...taipeiDefaults(), ...patch}})) { render(); $('foodForm').scrollIntoView({behavior:'smooth'}); }
+}
+function habitStatus(text, complete) {
+  const span = document.createElement('span');
+  span.className = complete ? 'habit-status complete' : 'habit-status';
+  span.textContent = text;
+  return span;
 }
 function renderHabits() {
   const today = taipeiDefaults().date;
   const summary = daySummary(state.history || [], today);
   $('overview').replaceChildren(); $('waterOverview').replaceChildren(); $('historyList').replaceChildren();
   for (const meal of MEALS.slice(0,3)) {
-    const b = document.createElement('button'); b.type='button'; b.textContent=`${meal} ${summary.meals[meal] ? '✓' : '待記'}`;
-    b.setAttribute('aria-label', meal + (summary.meals[meal] ? '已記，補記' : '待記，補記'));
-    b.disabled=busy || blocked || Boolean(state.draft.id); b.addEventListener('click',()=>beginDraft({date:today,meal})); $('overview').append(b);
+    const saved = summary.meals[meal];
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.setAttribute('aria-label', meal + (saved ? '已記，補記' : '待記，補記'));
+    button.disabled = busy || blocked || Boolean(state.draft.id);
+    button.addEventListener('click', () => beginDraft({date:today, meal}));
+    button.append(meal + " ", habitStatus(saved ? '✓' : '待記', saved));
+    $('overview').append(button);
   }
   for (const period of WATER_PERIODS) {
-    const span=document.createElement('span'); span.className='water-status'; span.textContent=`${period} ${summary.hydration[period] === '達標' ? '✓' : summary.hydration[period] || '未記'}`; $('waterOverview').append(span);
+    const reached = summary.hydration[period] === '達標';
+    const cell = document.createElement('span');
+    cell.className = 'water-status';
+    cell.append(period + " ", habitStatus(reached ? '✓' : summary.hydration[period] || '未記', reached));
+    $('waterOverview').append(cell);
   }
   for (const r of (state.history || []).slice().reverse().slice(0,30)) {
     const li=document.createElement('li'); const text=document.createElement('span');
@@ -354,6 +385,7 @@ window.addEventListener('storage', event => {
     try { settings = JSON.parse(event.newValue || '{}'); render(); } catch { /* Keep current settings. */ }
   }
 });
+if (isReload && resetMeal() && state.pending.length) message('表單已重置，待傳紀錄可在下方重試。');
 render();
 if (!blocked && state.draft.id) message('這筆紀錄尚待雲端確認，請重試；也可保留待傳資料後記錄下一筆。');
 // Update the shell cache even when this page is opened directly.
