@@ -1,4 +1,4 @@
-import { WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs';
+import { WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=30';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
