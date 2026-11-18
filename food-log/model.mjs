@@ -60,10 +60,10 @@ export function daySummary(records, date) {
 // Rough meal defaults, not measured portions. Duplicate tags cannot multiply a meal.
 export const QUICK_NUTRITION = {
   '水煮蛋': [0, 0, 0.25], '醫院便當': [1, 1, 1],
-  '小火鍋': [0.5, 2, 1], '八方雲集': [1, 0, 1],
+  '小火鍋': [0.5, 0.25, 1], '八方雲集': [1, 1, 1],
   '乾麵': [1, 0.25, 0.25], '牛肉麵': [1, 0.25, 1],
   '外食便當': [1, 1, 1], '三明治': [0.5, 0.25, 0.25],
-  '壽司': [1, 0, 0.25], '漢堡': [0.5, 0.25, 1]
+  '壽司': [1, 0, 1], '漢堡': [0.5, 0.25, 1]
 };
 export function quickNutrition(tags) {
   const presets = [...new Set(tags)].map(tag => QUICK_NUTRITION[tag]).filter(Boolean);

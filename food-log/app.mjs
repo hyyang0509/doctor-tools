@@ -1,4 +1,4 @@
-import { DAIRY_AMOUNTS, WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=33';
+import { DAIRY_AMOUNTS, WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=34';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
@@ -281,7 +281,10 @@ function renderHabits() {
     const reached = summary.hydration[period] === '達標';
     const cell = document.createElement('span');
     cell.className = 'water-status';
-    cell.append(period + " ", habitStatus(reached ? '✓' : summary.hydration[period] || '未記', reached));
+    const drop = document.createElement('span');
+    drop.setAttribute('aria-hidden', 'true');
+    drop.textContent = '💧';
+    cell.append(drop, ` ${period} `, habitStatus(reached ? '✓' : summary.hydration[period] || '未記', reached));
     $('waterOverview').append(cell);
   }
   for (const r of (state.history || []).slice().reverse().slice(0,30)) {
