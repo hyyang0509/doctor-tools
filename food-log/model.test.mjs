@@ -150,3 +150,19 @@ test('editing sends structured observations, retains ID and requires explicit up
   await assert.rejects(upload(r,settings,async()=>({ok:true,json:async()=>({ok:true,id:r.id})})));
   await assert.rejects(upload(r,settings,async()=>({ok:true,json:async()=>({ok:false,error:'NOT_FOUND'})})),/找不到原紀錄/);
 });
+
+test('1.5 bowls aggregate and keep exact text when an older receiver rejects the new option', async () => {
+  const {quickNutrition} = await import('./model.mjs');
+  const r = {...record(), tags:['醫院便當','三明治'], nutrition:quickNutrition(['醫院便當','三明治'])};
+  assert.equal(r.nutrition.starch, '1.5 碗');
+  const sent = [];
+  await upload(r, settings, async (_, opts) => {
+    const data = JSON.parse(opts.body).record;
+    sent.push(data);
+    return {ok:true, json:async () => sent.length === 1 ? {ok:false,error:'INVALID_OBSERVATIONS'} : {ok:true,id:r.id}};
+  });
+  assert.equal(sent[0].observations.nutrition.starch, '1.5 碗');
+  assert.equal(sent[1].observations.nutrition.starch, undefined);
+  assert.equal(sent[1].id, sent[0].id);
+  assert.match(sent[1].content, /1\.5 碗/);
+});

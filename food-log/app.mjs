@@ -1,10 +1,12 @@
-import { WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=30';
+import { WATER_PERIODS, hasFood, daySummary, quickNutrition, reminderDraft, TAGS, QUICK_TAGS, DRINK_TYPES, QUICK_DRINK_TYPES, SUGAR_OPTIONS, NUTRITION_GROUPS, recordContent, MEALS, SETTINGS_KEY, STORE_KEY, taipeiDefaults, taipeiQuickDates, validateRecord, validEndpoint, upload, readState, writeState } from './model.mjs?v=31';
 
 const $ = id => document.getElementById(id);
 const fields = ['date', 'content', 'work', 'notes'];
 let state, settings = {}, busy = false, blocked = false;
 let lastSavedDate = '';
 let hydration = {}, nutritionOrigin = '';
+let manualPortions = new Set();
+const portionNames = {starch: '主食', vegetables: '蔬菜', protein: '豆魚蛋肉', fruit: '水果', dairy: '乳品'};
 function message(text, tone = '') { $('status').textContent = text; $('status').dataset.tone = tone; }
 try {
   state = readState();
@@ -42,8 +44,14 @@ function tagButton(emoji, label) {
   return toggleButton(`${emoji} ${label}`, { tag: label }, () => {
     if (!QUICK_TAGS.some(([,value]) => value === label)) return;
     const tags = [...document.querySelectorAll('[data-tag][aria-pressed=true]')].map(b => b.dataset.tag);
-    setNutrition(quickNutrition(tags));
-    nutritionOrigin = tags.some(tag => QUICK_TAGS.some(([,value]) => value === tag)) ? 'preset' : '';
+    const preset = quickNutrition(tags);
+    const current = formValue().nutrition;
+    for (const key of manualPortions) {
+      if (current[key] === undefined) delete preset[key];
+      else preset[key] = current[key];
+    }
+    setNutrition(preset);
+    nutritionOrigin = manualPortions.size ? 'manual' : Object.keys(preset).length ? 'preset' : '';
   });
 }
 for (const [emoji, label] of QUICK_TAGS) $('tags').append(tagButton(emoji, label));
@@ -68,17 +76,46 @@ for (const group of NUTRITION_GROUPS) {
   const hint = document.createElement('p'); hint.className = 'field-hint'; hint.textContent = group.hint;
   const options = document.createElement('div'); options.className = 'tags';
   for (const value of group.options) options.append(toggleButton(value, { nutritionValue: value }, (button, selected) => {
+    manualPortions.add(group.key);
     nutritionOrigin = 'manual';
     options.querySelectorAll('button').forEach(other => {
       if (other !== button && (!group.multiple || (selected && (value === '沒有' || other.dataset.nutritionValue === '沒有')))) other.setAttribute('aria-pressed', 'false');
     });
+    setNutrition(formValue().nutrition);
   }));
-  fieldset.append(legend, hint, options); $('nutritionGroups').append(fieldset);
+  fieldset.append(legend);
+  if (['starch', 'vegetables', 'protein'].includes(group.key)) {
+    const slider = document.createElement('input');
+    slider.type = 'range';
+    slider.min = 0;
+    slider.max = group.options.length;
+    slider.value = 0;
+    slider.setAttribute('aria-label', portionNames[group.key] + '份量');
+    slider.addEventListener('input', () => {
+      const value = group.options[Number(slider.value) - 1];
+      const nutrition = formValue().nutrition;
+      if (value === undefined) delete nutrition[group.key];
+      else nutrition[group.key] = value;
+      manualPortions.add(group.key);
+      nutritionOrigin = 'manual';
+      setNutrition(nutrition);
+    });
+    options.classList.add('portion-ticks');
+    fieldset.append(slider);
+  } else fieldset.append(hint);
+  fieldset.append(options);
+  $('nutritionGroups').append(fieldset);
 }
 function setNutrition(nutrition) {
   for (const group of NUTRITION_GROUPS) {
     const value = nutrition[group.key];
-    document.querySelectorAll(`[data-nutrition="${group.key}"] button`).forEach(b => {
+    const fieldset = document.querySelector(`[data-nutrition="${group.key}"]`);
+    const slider = fieldset.querySelector('input[type=range]');
+    if (slider) {
+      slider.value = group.options.indexOf(value) + 1;
+      slider.setAttribute('aria-valuetext', value || '未填');
+    }
+    fieldset.querySelectorAll('button').forEach(b => {
       b.setAttribute('aria-pressed', String(group.multiple ? (value || []).includes(b.dataset.nutritionValue) : value === b.dataset.nutritionValue));
     });
   }
@@ -98,12 +135,17 @@ function formValue() {
     sugar: document.querySelector(`[data-drink-sugar="${b.dataset.drink}"] [aria-pressed=true]`)?.dataset.sugar || '' }));
   return { ...Object.fromEntries(fields.map(key => [key, $(key).value])),
     meal: document.querySelector('[name=meal]:checked')?.value || '',
-    hydration: {...hydration}, nutritionOrigin,
+    hydration: {...hydration}, nutritionOrigin, manualPortions: [...manualPortions],
     tags: [...document.querySelectorAll('[data-tag][aria-pressed=true]')].map(b => b.dataset.tag), drinks, nutrition };
 }
 function nutritionSummary() {
-  const count = Object.keys(formValue().nutrition).length;
-  $('nutritionLabel').textContent = count ? nutritionOrigin === 'preset' ? '預設份量，可調整' : `已補充 ${count} 項` : '選填';
+  const nutrition = formValue().nutrition;
+  const summary = Object.entries(portionNames).flatMap(([key, label]) => {
+    const raw = nutrition[key];
+    const value = Array.isArray(raw) ? raw.join('、') : raw;
+    return value && value !== '沒有' ? [label + ' ' + value] : [];
+  });
+  $('nutritionLabel').textContent = summary.join('・') || (Object.keys(nutrition).length ? '已記份量' : '選填');
 }
 function persist(next) {
   try { writeState(next); state = next; return true; }
@@ -150,6 +192,7 @@ function render() {
     const group = document.querySelector(`[data-drink-sugar="${type}"]`); group.hidden = !drink;
     group.querySelectorAll('[data-sugar]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.sugar === drink?.sugar)));
   }
+  manualPortions = new Set(draft.manualPortions || (draft.nutritionOrigin === 'manual' ? Object.keys(draft.nutrition || {}) : []));
   setNutrition(draft.nutrition || {});
   nutritionOrigin = draft.nutritionOrigin || '';
   hydration = {...(draft.hydration || {})};
@@ -188,11 +231,12 @@ function renderHabits() {
   const summary = daySummary(state.history || [], today);
   $('overview').replaceChildren(); $('waterOverview').replaceChildren(); $('historyList').replaceChildren();
   for (const meal of MEALS.slice(0,3)) {
-    const b = document.createElement('button'); b.type='button'; b.textContent=`${meal} ${summary.meals[meal] ? '✓ 已記' : '待記'}`;
+    const b = document.createElement('button'); b.type='button'; b.textContent=`${meal} ${summary.meals[meal] ? '✓' : '待記'}`;
+    b.setAttribute('aria-label', meal + (summary.meals[meal] ? '已記，補記' : '待記，補記'));
     b.disabled=busy || blocked || Boolean(state.draft.id); b.addEventListener('click',()=>beginDraft({date:today,meal})); $('overview').append(b);
   }
   for (const period of WATER_PERIODS) {
-    const span=document.createElement('span'); span.className='water-status'; span.textContent=`${period}：${summary.hydration[period] || '未記錄'}`; $('waterOverview').append(span);
+    const span=document.createElement('span'); span.className='water-status'; span.textContent=`${period} ${summary.hydration[period] === '達標' ? '✓' : summary.hydration[period] || '未記'}`; $('waterOverview').append(span);
   }
   for (const r of (state.history || []).slice().reverse().slice(0,30)) {
     const li=document.createElement('li'); const text=document.createElement('span');
